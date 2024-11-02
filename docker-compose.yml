@@ -1,0 +1,71 @@
+version: "3"
+
+networks:
+  herman-warehouse:
+
+services:
+  nginx:
+    image: nginx:latest
+    restart: on-failure
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - herman-warehouse
+
+  express:
+    image: node:20-alpine3.19
+    restart: on-failure
+    working_dir: /server
+    ports:
+      - "1000:3000"
+    volumes:
+      - ./server:/server
+    environment:
+      - NODE_ENV=development
+    networks:
+      - herman-warehouse
+    command: sh -c "npm install && npm run dev"
+
+  react:
+    image: node:20-alpine3.19
+    restart: on-failure
+    working_dir: /client
+    ports:
+      - "1001:5173"
+    volumes:
+      - ./client:/client
+    environment:
+      - NODE_ENV=development
+    networks:
+      - herman-warehouse
+    command: sh -c "npm install && npm run dev"
+
+  mariadb:
+    image: mariadb:11.4.3
+    tty: true
+    restart: on-failure
+    ports:
+      - 1002:3306
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      MARIADB_DATABASE: herman-warehouse
+      MARIADB_USER: root
+      MARIADB_PASSWORD: buyung
+      MARIADB_ROOT_PASSWORD: buyung
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mariadb
+    networks:
+      - herman-warehouse
+
+  adminer:
+    image: adminer:latest
+    restart: on-failure
+    ports:
+      - 1003:8080
+    environment:
+      ADMINER_DESIGN: dracula
+    networks:
+      - herman-warehouse
