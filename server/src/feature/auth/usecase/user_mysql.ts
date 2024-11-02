@@ -12,11 +12,14 @@ export class UserMysql implements UserApi {
     await MySql.connect("insert into users set ?", params);
   }
 
-  async read(id: string): Promise<UserModel | null | undefined> {
-    const user = await MySql.connect(
-      "select * from users where id = ? and deleted is null",
-      id
-    );
+  async read(
+    id: string,
+    deleted?: Date | null
+  ): Promise<UserModel | null | undefined> {
+    const user = await MySql.connect("select * from users where ? and ??", [
+      { id: id },
+      "deleted is not null",
+    ]);
 
     if (user.length > 0) {
       return user[0];
@@ -29,9 +32,9 @@ export class UserMysql implements UserApi {
     await MySql.connect("update users set ? where ?", [param, { id: id }]);
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string, deleted: Date): Promise<void> {
     await MySql.connect("update users set ? where ?", [
-      { deleted: new Date() },
+      { deleted: deleted },
       { id: id },
     ]);
   }
