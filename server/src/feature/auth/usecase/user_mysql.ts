@@ -40,6 +40,26 @@ export class UserMysql implements UserApi {
     param?: UserListParam | null,
     extra?: Map<string, any> | null
   ): Promise<UserModel[]> {
+    // let sql = "select * from kir where deleted is null";
+
+    // if (param?.certificateNumber != undefined) {
+    //   sql += ` and certificateNumber like ${pool.escape(
+    //     `%${param.certificateNumber}%`
+    //   )}`;
+    // }
+
+    // sql += " order by created desc";
+
+    // if (param?.pagination != undefined) {
+    //   sql += ` limit ${pool.escape(
+    //     Number(param.pagination.take)
+    //   )} offset ${pool.escape(Number(param.pagination.skip))}`;
+    // }
+
+    // const data = await MySql.query(sql);
+
+    // return data;
+
     throw new Error("Method not implemented.");
   }
 }
