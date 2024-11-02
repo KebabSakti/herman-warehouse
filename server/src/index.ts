@@ -2,11 +2,8 @@ import cors from "cors";
 import express from "express";
 import http from "http";
 import multer from "multer";
-import { MySql } from "./helper/mysql";
-import bcrypt from "bcryptjs";
-import { randomUUID } from "crypto";
-import { faker } from "@faker-js/faker";
-import { UserMysql } from "./feature/auth/usecase/user_mysql";
+import { auth } from "./view/service";
+import { isLogin, isOwner } from "./view/middleware";
 
 const app = express();
 const server = http.createServer(app);
@@ -21,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("./static"));
 app.use(multerInstance.any());
 
-app.get("/:id", async (req, res) => {
+app.post("/", async (req, res) => {
   // for await (let _ of [...Array(100)]) {
   //   MySql.query("insert into products set ?", {
   //     code: faker.string.uuid(),
@@ -31,10 +28,25 @@ app.get("/:id", async (req, res) => {
   //   });
   // }
 
-  const userApi = new UserMysql();
-  const user = await userApi.read(req.params.id);
+  // const userApi = new UserMysql();
+  // const user = await userApi.read(req.params.id);
 
-  return res.json(user);
+  const token = await auth.login(req.body.uid, req.body.password);
+
+  return res.json(token);
+});
+
+app.use("/", isLogin);
+
+app.get("/", (req, res) => {
+  console.log(res.locals.auth);
+
+  return res.json("LOGIN PASSED");
+});
+
+app.use("/owner", isOwner);
+app.get("/owner", (req, res) => {
+  return res.json("OWNER PASSED");
 });
 
 //route not found 404

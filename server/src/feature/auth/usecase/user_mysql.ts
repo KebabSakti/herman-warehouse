@@ -12,14 +12,8 @@ export class UserMysql implements UserApi {
     await MySql.connect("insert into users set ?", params);
   }
 
-  async read(
-    id: string,
-    deleted?: Date | null
-  ): Promise<UserModel | null | undefined> {
-    const user = await MySql.connect("select * from users where ? and ??", [
-      { id: id },
-      "deleted is not null",
-    ]);
+  async read(id: string): Promise<UserModel | null | undefined> {
+    const user = await MySql.connect("select * from users where id = ?", id);
 
     if (user.length > 0) {
       return user[0];
@@ -32,11 +26,21 @@ export class UserMysql implements UserApi {
     await MySql.connect("update users set ? where ?", [param, { id: id }]);
   }
 
-  async remove(id: string, deleted: Date): Promise<void> {
+  async remove(id: string): Promise<void> {
     await MySql.connect("update users set ? where ?", [
-      { deleted: deleted },
+      { deleted: new Date() },
       { id: id },
     ]);
+  }
+
+  async find(uid: string): Promise<UserModel | null | undefined> {
+    const user = await MySql.connect("select * from users where uid = ?", uid);
+
+    if (user.length > 0) {
+      return user[0];
+    }
+
+    return null;
   }
 
   list(

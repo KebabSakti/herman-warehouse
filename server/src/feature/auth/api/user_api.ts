@@ -8,14 +8,13 @@ import {
 export abstract class UserApi {
   abstract create(params: UserCreateParam): Promise<void>;
 
-  abstract read(
-    id: string,
-    deleted?: Date | null
-  ): Promise<UserModel | null | undefined>;
+  abstract read(id: string): Promise<UserModel | null | undefined>;
 
   abstract update(id: string, param: UserUpdateParam): Promise<void>;
 
-  abstract remove(id: string, deleted: Date): Promise<void>;
+  abstract remove(id: string): Promise<void>;
+
+  abstract find(uid: string): Promise<UserModel | null | undefined>;
 
   abstract list(
     param?: UserListParam | null,

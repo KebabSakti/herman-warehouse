@@ -19,7 +19,6 @@ export type UserUpdateParam = {
   role?: string | null;
   name?: string | null;
   phone?: string | null;
-  updated?: Date | null;
 };
 
 export type UserListParam = {
