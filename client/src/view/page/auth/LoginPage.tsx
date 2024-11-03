@@ -5,7 +5,7 @@ export function LoginPage() {
   return (
     <>
       <div className="bg-gray-2 min-h-screen flex justify-center items-center">
-        <div className="bg-white p-6 w-[80%] md:w-[35%] xl:w-[20%] shadow-1 rounded">
+        <div className="bg-white p-6 w-[80%] md:w-[35%] xl:w-[25%] shadow-1 rounded">
           <Formik
             initialValues={{ username: "", password: "" }}
             validationSchema={Yup.object({
