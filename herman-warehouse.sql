@@ -629,4 +629,4 @@ INSERT INTO `users` (`id`, `uid`, `password`, `active`, `role`, `name`, `phone`,
 ('2',	'admin',	'$2a$10$VN77Sfd.TdT4jHZdrL19SeFEdjHSGB6ZIN9HrwgqgWgzrMdOwWtLK',	1,	'admin',	'admin',	'081254982664',	'2024-11-01 15:07:55',	'2024-11-01 15:07:55',	NULL),
 ('3',	'system',	'$2a$10$lsayn8oKgxY2nLoQLAhjgem5eqGxUQYzwOP/QVWDwiHIrwl8dcgjq',	1,	'system',	'system',	'081254982664',	'2024-11-01 15:08:14',	'2024-11-01 15:08:14',	NULL);
 
--- 2024-11-02 07:46:10
+-- 2024-11-03 04:37:00
