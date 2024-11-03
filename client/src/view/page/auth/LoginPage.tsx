@@ -1,11 +1,17 @@
 import { ErrorMessage, Field, Formik, Form } from "formik";
+import { useContext } from "react";
 import * as Yup from "yup";
+import { Repository } from "../../../main";
 
 export function LoginPage() {
+  const repos = useContext(Repository);
+
+  console.log(repos?.name);
+
   return (
     <>
-      <div className="bg-gray-2 min-h-screen flex justify-center items-center">
-        <div className="bg-white p-6 w-[80%] md:w-[35%] xl:w-[25%] shadow-1 rounded">
+      <div className="bg-surface min-h-screen flex justify-center items-center">
+        <div className="bg-container p-6 w-[80%] md:w-[35%] xl:w-[25%] rounded">
           <Formik
             initialValues={{ username: "", password: "" }}
             validationSchema={Yup.object({
@@ -49,11 +55,11 @@ export function LoginPage() {
               </div>
               <button
                 type="submit"
-                className="bg-blue-500 text-white font-semibold rounded p-3 active:bg-blue-600"
+                className="bg-primary text-onprimary font-semibold rounded p-3"
               >
                 Login
               </button>
-              <a href="" className="text-center">
+              <a href="" className="text-center text-oncontainer">
                 Forgot your password?
               </a>
             </Form>

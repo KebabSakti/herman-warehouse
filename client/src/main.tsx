@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { createContext, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import {
   createBrowserRouter,
@@ -10,6 +10,8 @@ import Layout from "./view/component/Layout";
 import { LoginPage } from "./view/page/auth/LoginPage";
 import { DashboardPage } from "./view/page/dashboard/DashboardPage";
 import { Middleware } from "./view/page/Middleware";
+
+export const Repository = createContext<any>(null);
 
 const router = createBrowserRouter([
   {
@@ -37,7 +39,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <Repository.Provider value={{ name: "udin" }}>
+      <RouterProvider router={router} />
+    </Repository.Provider>
+  );
 }
 
 createRoot(document.getElementById("root")!).render(
