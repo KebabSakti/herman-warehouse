@@ -1,69 +1,82 @@
-import { ErrorMessage, Field, Formik, Form } from "formik";
-import { useContext } from "react";
-import * as Yup from "yup";
-import { Repository } from "../../../main";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import { useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { object, string } from "yup";
+import { Repository } from "../../../App";
+import { LoadingContainer } from "../../component/LoadingContainer";
+import { AuthHookType } from "./AuthHook";
 
 export function LoginPage() {
-  const repos = useContext(Repository);
+  const { auth }: { auth: AuthHookType } = useContext(Repository);
+  const navigate = useNavigate();
 
-  console.log(repos?.name);
+  useEffect(() => {
+    if (auth.state.action == "login" && auth.state.data != null) {
+      navigate("/app");
+    }
+
+    if (auth.state.error != null) {
+      toast.error(auth.state.error.message);
+    }
+  }, [auth.state]);
 
   return (
     <>
       <div className="bg-surface min-h-screen flex justify-center items-center">
-        <div className="bg-container p-6 w-[80%] md:w-[35%] xl:w-[25%] rounded">
-          <Formik
-            initialValues={{ username: "", password: "" }}
-            validationSchema={Yup.object({
-              username: Yup.string().required("* Field tidak boleh kosong"),
-              password: Yup.string().required("* Field tidak boleh kosong"),
-            })}
-            onSubmit={(values) => {
-              console.log(values);
-            }}
-          >
-            <Form className="flex flex-col gap-4">
-              <img
-                src="https://img.freepik.com/free-vector/hand-drawn-catfish-logo-design_23-2151158227.jpg"
-                className="w-[80%] md:w-[70%] xl:w-[60%] mx-auto"
-              />
-              <div>
-                <Field
-                  type="text"
-                  name="username"
-                  placeholder="Username"
-                  className="bg-slate-100 p-3 rounded w-full"
+        <div className="bg-container w-[80%] md:w-[35%] xl:w-[25%] rounded">
+          <LoadingContainer loading={auth.state.status == "loading"}>
+            <Formik
+              initialValues={{ uid: "", password: "" }}
+              validationSchema={object({
+                uid: string().required("* Field tidak boleh kosong"),
+                password: string().required("* Field tidak boleh kosong"),
+              })}
+              onSubmit={auth.login}
+            >
+              <Form className="flex flex-col gap-4 p-6">
+                <img
+                  src="https://img.freepik.com/free-vector/hand-drawn-catfish-logo-design_23-2151158227.jpg"
+                  className="w-[80%] md:w-[70%] xl:w-[60%] mx-auto"
                 />
-                <ErrorMessage
-                  name="username"
-                  component="div"
-                  className="text-red-500 text-sm"
-                />
-              </div>
-              <div>
-                <Field
-                  type="password"
-                  name="password"
-                  placeholder="Password"
-                  className="bg-slate-100 p-3 rounded w-full"
-                />
-                <ErrorMessage
-                  name="password"
-                  component="div"
-                  className="text-red-500 text-sm"
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-primary text-onprimary font-semibold rounded p-3"
-              >
-                Login
-              </button>
-              <a href="" className="text-center text-oncontainer">
-                Forgot your password?
-              </a>
-            </Form>
-          </Formik>
+                <div>
+                  <Field
+                    type="text"
+                    name="uid"
+                    placeholder="Username"
+                    className="bg-slate-100 p-3 rounded w-full"
+                  />
+                  <ErrorMessage
+                    name="uid"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+                <div>
+                  <Field
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    className="bg-slate-100 p-3 rounded w-full"
+                  />
+                  <ErrorMessage
+                    name="password"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="bg-primary text-onprimary font-semibold rounded p-3"
+                >
+                  Login
+                </button>
+                <a href="" className="text-center text-oncontainer">
+                  Forgot your password?
+                </a>
+              </Form>
+            </Formik>
+          </LoadingContainer>
         </div>
       </div>
     </>

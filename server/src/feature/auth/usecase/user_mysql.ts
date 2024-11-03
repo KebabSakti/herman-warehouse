@@ -9,11 +9,11 @@ import {
 
 export class UserMysql implements UserApi {
   async create(params: UserCreateParam): Promise<void> {
-    await MySql.connect("insert into users set ?", params);
+    await MySql.query("insert into users set ?", params);
   }
 
   async read(id: string): Promise<UserModel | null | undefined> {
-    const user = await MySql.connect("select * from users where id = ?", id);
+    const user = await MySql.query("select * from users where id = ?", id);
 
     if (user.length > 0) {
       return user[0];
@@ -23,18 +23,18 @@ export class UserMysql implements UserApi {
   }
 
   async update(id: string, param: UserUpdateParam): Promise<void> {
-    await MySql.connect("update users set ? where ?", [param, { id: id }]);
+    await MySql.query("update users set ? where ?", [param, { id: id }]);
   }
 
   async remove(id: string): Promise<void> {
-    await MySql.connect("update users set ? where ?", [
+    await MySql.query("update users set ? where ?", [
       { deleted: new Date() },
       { id: id },
     ]);
   }
 
   async find(uid: string): Promise<UserModel | null | undefined> {
-    const user = await MySql.connect("select * from users where uid = ?", uid);
+    const user = await MySql.query("select * from users where uid = ?", uid);
 
     if (user.length > 0) {
       return user[0];
