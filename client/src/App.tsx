@@ -4,14 +4,14 @@ import {
   Navigate,
   RouterProvider,
 } from "react-router-dom";
-import Layout from "./view/component/Layout";
+import { Flip, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { AuthRepository } from "./feature/auth/repository/auth_repository";
+import { Root } from "./view/component/Root";
+import { useAuthHook } from "./view/page/auth/AuthHook";
 import { LoginPage } from "./view/page/auth/LoginPage";
 import { DashboardPage } from "./view/page/dashboard/DashboardPage";
 import { Middleware } from "./view/page/Middleware";
-import { AuthRepository } from "./feature/auth/repository/auth_repository";
-import { useAuthHook } from "./view/page/auth/AuthHook";
-import { Flip, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 export const Repository = createContext<any>(null);
 
@@ -24,7 +24,7 @@ const router = createBrowserRouter([
     path: "/app",
     element: (
       <Middleware>
-        <Layout />
+        <Root />
       </Middleware>
     ),
     children: [

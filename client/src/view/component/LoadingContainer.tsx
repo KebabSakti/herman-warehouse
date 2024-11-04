@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Spinner } from "./Spinner";
 
 export function LoadingContainer({
   children,
@@ -12,8 +13,8 @@ export function LoadingContainer({
       {(() => {
         if (loading) {
           return (
-            <div className="w-full h-full z-1 bg-white absolute opacity-80 flex justify-center items-center text-black font-semibold text-2xl dark:bg-black dark:text-white">
-              Loading..
+            <div className="w-full h-full z-1 bg-white absolute opacity-80 flex justify-center items-center">
+              <Spinner />
             </div>
           );
         }

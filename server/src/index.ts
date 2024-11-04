@@ -2,9 +2,8 @@ import cors from "cors";
 import express from "express";
 import http from "http";
 import multer from "multer";
-import { isLogin } from "./view/middleware";
-import { auth } from "./view/service";
 import authRoute from "./view/auth/auth_route";
+import { isLogin } from "./view/middleware";
 
 const app = express();
 const server = http.createServer(app);
