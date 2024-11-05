@@ -5,7 +5,6 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { Flip, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { AuthRepository } from "./feature/auth/repository/auth_repository";
 import { Root } from "./view/component/Root";
 import { useAuthHook } from "./view/page/auth/AuthHook";
@@ -35,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: "/app/dashboard",
         element: <DashboardPage />,
+      },
+      {
+        path: "/app/inventory",
+        element: <>INVENTORY</>,
       },
     ],
   },

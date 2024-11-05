@@ -44,7 +44,7 @@ export function LoginPage() {
                     type="text"
                     name="uid"
                     placeholder="Username"
-                    className="bg-slate-100 p-3 rounded w-full"
+                    className="bg-slate-100 p-3 rounded w-full border-none"
                   />
                   <ErrorMessage
                     name="uid"
@@ -57,7 +57,7 @@ export function LoginPage() {
                     type="password"
                     name="password"
                     placeholder="Password"
-                    className="bg-slate-100 p-3 rounded w-full"
+                    className="bg-slate-100 p-3 rounded w-full border-none"
                   />
                   <ErrorMessage
                     name="password"

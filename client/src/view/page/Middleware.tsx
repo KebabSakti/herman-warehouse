@@ -10,7 +10,6 @@ export function Middleware({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (auth.state.status == "complete" && auth.state.data == null) {
-      toast.error("Login untuk melanjutkan");
       navigate("/", { replace: true });
     }
   }, [auth.state]);
