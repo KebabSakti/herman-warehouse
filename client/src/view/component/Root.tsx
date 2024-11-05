@@ -1,7 +1,7 @@
 import { Dropdown } from "flowbite-react";
 import { useContext } from "react";
 import { FaSignOutAlt } from "react-icons/fa";
-import { HiCog, HiUser } from "react-icons/hi";
+import { HiChevronDown, HiCog, HiUser } from "react-icons/hi";
 import { Outlet } from "react-router-dom";
 import { Repository } from "../../App";
 import logo from "../../asset/logo.png";
@@ -15,7 +15,7 @@ export function Root() {
   return (
     <>
       <div className="min-h-screen w-full bg-surface flex">
-        <div className="bg-container h-[65px] w-full fixed flex justify-between items-center px-4 border lg:justify-end lg:pl-[310px]">
+        <div className="bg-container h-[65px] w-full fixed flex justify-between items-center px-4 border lg:justify-end lg:pl-[310px] z-10">
           <div className="flex gap-2 lg:hidden">
             <MDrawer />
             <div className="flex items-center gap-2 text-[16px] font-bold text-primary">
@@ -24,12 +24,20 @@ export function Root() {
             </div>
           </div>
           <Dropdown
-            label="Julian Aryo (Admin)"
-            placement="bottom-end"
             dismissOnClick
             inline
+            label=""
+            placement="bottom-end"
+            renderTrigger={() => (
+              <button
+                type="button"
+                className="text-oncontainer flex gap-2 items-center text-sm"
+              >
+                <span>Julian Aryo (Admin)</span> <HiChevronDown />
+              </button>
+            )}
           >
-            <Dropdown.Item icon={HiUser}>Akun</Dropdown.Item>
+            <Dropdown.Item icon={HiUser}>My Account</Dropdown.Item>
             <Dropdown.Item icon={HiCog}>Setting</Dropdown.Item>
             <Dropdown.Item
               icon={FaSignOutAlt}
@@ -40,9 +48,9 @@ export function Root() {
             </Dropdown.Item>
           </Dropdown>
         </div>
-        <div className="hidden lg:block lg:bg-container lg:min-h-screen lg:w-[300px] lg:fixed border">
+        <div className="hidden lg:block lg:bg-container lg:min-h-screen lg:w-[300px] lg:fixed border z-20">
           <div className="px-6 py-2 flex flex-col gap-10">
-            <div className="flex items-center gap-2 text-[30px] font-bold text-primary">
+            <div className="flex items-center gap-2 text-[28px] font-bold text-primary">
               <img src={logo} className="w-[45px]" />
               <span>WR SYSTEM</span>
             </div>

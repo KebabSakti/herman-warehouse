@@ -2,6 +2,8 @@ import {
   HiBookOpen,
   HiChartPie,
   HiClipboard,
+  HiCube,
+  HiKey,
   HiShoppingBag,
   HiTemplate,
   HiTruck,
@@ -11,7 +13,7 @@ import { MenuItem } from "./MenuItem";
 
 export function Menu() {
   return (
-    <ul className="flex flex-col gap-2 text-oncontainer text-lg">
+    <ul className="flex flex-col gap-2 text-oncontainer">
       <MenuItem
         name="Dashboard"
         link="/app/dashboard"
@@ -42,6 +44,12 @@ export function Menu() {
         link="/app/report"
         icon={<HiBookOpen size={24} />}
       />
+      <MenuItem
+        name="Product"
+        link="/app/product"
+        icon={<HiCube size={24} />}
+      />
+      <MenuItem name="Account" link="/app/account" icon={<HiKey size={24} />} />
       <MenuItem name="Log" link="/app/log" icon={<HiClipboard size={24} />} />
     </ul>
   );

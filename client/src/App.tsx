@@ -10,6 +10,7 @@ import { Root } from "./view/component/Root";
 import { useAuthHook } from "./view/page/auth/AuthHook";
 import { LoginPage } from "./view/page/auth/LoginPage";
 import { DashboardPage } from "./view/page/dashboard/DashboardPage";
+import { InventoryPage } from "./view/page/inventory/InventoryPage";
 import { Middleware } from "./view/page/Middleware";
 
 export const Repository = createContext<any>(null);
@@ -37,7 +38,35 @@ const router = createBrowserRouter([
       },
       {
         path: "/app/inventory",
-        element: <>INVENTORY</>,
+        element: <InventoryPage />,
+      },
+      {
+        path: "/app/order",
+        element: <></>,
+      },
+      {
+        path: "/app/supplier",
+        element: <></>,
+      },
+      {
+        path: "/app/customer",
+        element: <></>,
+      },
+      {
+        path: "/app/report",
+        element: <></>,
+      },
+      {
+        path: "/app/product",
+        element: <></>,
+      },
+      {
+        path: "/app/account",
+        element: <></>,
+      },
+      {
+        path: "/app/log",
+        element: <></>,
       },
     ],
   },
