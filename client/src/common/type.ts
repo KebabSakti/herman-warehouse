@@ -1,7 +1,7 @@
 export interface State<T> {
   status: string;
   action: string;
-  data?: T | Array<T> | null;
+  data?: T | null;
   error?: Error;
 }
 

@@ -4,6 +4,7 @@ import { HiPencil, HiPlus, HiSearch, HiTrash } from "react-icons/hi";
 import { ProductRepository } from "../../../feature/product/product_repository";
 import { Repository } from "../../../App";
 import { AuthHookType } from "../auth/AuthHook";
+import { toast } from "react-toastify";
 
 export function ProductPage() {
   const { auth }: { auth: AuthHookType } = useContext(Repository);
@@ -11,7 +12,10 @@ export function ProductPage() {
 
   useEffect(() => {
     productRepository
-      .list(auth.state.data!.toString(), { search: "udin" })
+      .list({ page: 1, limit: 10 }, auth.state.data!.toString())
+      .catch((error) => {
+        toast.error(error.message);
+      })
       .then((result) => {
         console.log(result);
       });

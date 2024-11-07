@@ -2,23 +2,91 @@ import axios from "axios";
 import { server } from "../../common/common";
 import { Failure } from "../../common/error";
 import { Result } from "../../common/type";
-import { ProductModel } from "./product_type";
+import {
+  Product,
+  ProductCreateParam,
+  ProductListParam,
+  ProductUpdateParam,
+} from "./product_type";
 
 export class ProductRepository {
-  async list(
-    token: string,
-    extra?: Record<string, any>
-  ): Promise<Result<ProductModel[]>> {
+  async create(param: ProductCreateParam, token: string): Promise<void> {
     try {
-      const response = await axios.get(`${server}`, {
-        params: extra,
+      await axios.post(`${server}/app/product`, {
+        body: param,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error: any) {
+      throw Failure(error.response.status, error.response.data);
+    }
+  }
+
+  async read(
+    id: string,
+    token: string
+  ): Promise<Result<Product> | null | undefined> {
+    try {
+      const result = await axios.get(`${server}/app/product/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
-      return response.data;
+      return result.data;
+    } catch (error: any) {
+      throw Failure(error.response.status, error.response.data);
+    }
+  }
+
+  async update(
+    id: string,
+    param: ProductUpdateParam,
+    token: string
+  ): Promise<void> {
+    try {
+      await axios.put(`${server}/app/product/${id}`, {
+        body: param,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error: any) {
+      throw Failure(error.response.status, error.response.data);
+    }
+  }
+
+  async remove(id: string, token: string): Promise<void> {
+    try {
+      await axios.delete(`${server}/app/product/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error: any) {
+      throw Failure(error.response.status, error.response.data);
+    }
+  }
+
+  async list(
+    param: ProductListParam,
+    token: string
+  ): Promise<Result<Product[]>> {
+    try {
+      const result = await axios.get(`${server}/app/product`, {
+        params: param,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      return result.data;
     } catch (error: any) {
       throw Failure(error.response.status, error.response.data);
     }

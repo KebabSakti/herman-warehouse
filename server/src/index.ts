@@ -2,12 +2,12 @@ import cors from "cors";
 import express from "express";
 import http from "http";
 import multer from "multer";
-import { MySql } from "./helper/mysql";
+import { number, object } from "yup";
+import { BadRequest, Failure } from "./common/error";
+import { ProductRepository } from "./feature/product/product_repository";
 import authRoute from "./view/auth/auth_route";
 import { isLogin } from "./view/middleware";
-import { ProductRepository } from "./feature/product/product_repository";
-import { number, object, string } from "yup";
-import { BadRequest, Failure } from "./common/error";
+import productRoute from "./view/product/product_route";
 
 const app = express();
 const server = http.createServer(app);
@@ -77,6 +77,7 @@ app.get("/", async (req, res) => {
 
 app.use("/", authRoute);
 app.use("/app", isLogin);
+app.use("/app/product", productRoute);
 
 //route not found 404
 app.use("*", (_, res) => res.status(404).json("Route path not found"));
