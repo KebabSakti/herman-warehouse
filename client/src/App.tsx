@@ -12,6 +12,7 @@ import { LoginPage } from "./view/page/auth/LoginPage";
 import { DashboardPage } from "./view/page/dashboard/DashboardPage";
 import { InventoryPage } from "./view/page/inventory/InventoryPage";
 import { Middleware } from "./view/page/Middleware";
+import { ProductPage } from "./view/page/product/ProductPage";
 
 export const Repository = createContext<any>(null);
 
@@ -58,7 +59,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/app/product",
-        element: <></>,
+        element: <ProductPage />,
       },
       {
         path: "/app/account",

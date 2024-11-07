@@ -2,8 +2,12 @@ import cors from "cors";
 import express from "express";
 import http from "http";
 import multer from "multer";
+import { MySql } from "./helper/mysql";
 import authRoute from "./view/auth/auth_route";
 import { isLogin } from "./view/middleware";
+import { ProductRepository } from "./feature/product/product_repository";
+import { number, object, string } from "yup";
+import { BadRequest, Failure } from "./common/error";
 
 const app = express();
 const server = http.createServer(app);
@@ -30,10 +34,45 @@ app.get("/", async (req, res) => {
 
   // const userApi = new UserMysql();
   // const user = await userApi.read(req.params.id);
-
   // const token = await auth.login(req.body.uid, req.body.password);
 
-  return res.json({ hello: "world" });
+  // const page = 1;
+  // const limit = 10;
+  // const offset = (page - 1) * limit;
+
+  // const products = await MySql.query(
+  //   "select * from products order by name asc limit ? offset ?",
+  //   [limit, offset]
+  // );
+
+  // const data = {
+  //   data: products,
+  //   paging: {
+  //     page: page,
+  //     limit: limit,
+  //     total: 100,
+  //   },
+  // };
+
+  try {
+    console.log(req.query);
+
+    const schema = object({
+      page: number().required(),
+      limit: number().required(),
+    });
+
+    const parsed = await schema.validate(req.query).catch((_) => {
+      throw new BadRequest();
+    });
+
+    const productRepos = new ProductRepository();
+    const data = await productRepos.list(parsed);
+
+    return res.json(data);
+  } catch (error: any) {
+    return Failure(error, res);
+  }
 });
 
 app.use("/", authRoute);

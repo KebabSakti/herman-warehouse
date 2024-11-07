@@ -48,11 +48,11 @@ export function Failure(error: Error, res: Response): void {
   }
 
   if (error instanceof NotFound) {
-    code = 400;
+    code = 404;
   }
 
   if (error instanceof BadRequest) {
-    code = 404;
+    code = 400;
   }
 
   res

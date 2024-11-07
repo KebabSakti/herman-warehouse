@@ -15,7 +15,7 @@ export function Root() {
   return (
     <>
       <div className="min-h-screen w-full bg-surface flex">
-        <div className="bg-container h-[65px] w-full fixed flex justify-between items-center px-4 border lg:justify-end lg:pl-[310px] z-10">
+        <div className="bg-container h-[65px] w-full fixed flex justify-between items-center px-4 border lg:justify-end lg:pl-[270px] z-10">
           <div className="flex gap-2 lg:hidden">
             <MDrawer />
             <div className="flex items-center gap-2 text-[16px] font-bold text-primary">
@@ -48,16 +48,16 @@ export function Root() {
             </Dropdown.Item>
           </Dropdown>
         </div>
-        <div className="hidden lg:block lg:bg-container lg:min-h-screen lg:w-[300px] lg:fixed border z-20">
+        <div className="hidden lg:block lg:bg-container lg:min-h-screen lg:w-[250px] lg:fixed border z-20">
           <div className="px-6 py-2 flex flex-col gap-10">
-            <div className="flex items-center gap-2 text-[28px] font-bold text-primary">
-              <img src={logo} className="w-[45px]" />
+            <div className="flex items-center gap-2 text-xl font-bold text-primary">
+              <img src={logo} className="w-[40px]" />
               <span>WR SYSTEM</span>
             </div>
             <Menu />
           </div>
         </div>
-        <div className="w-full mt-[65px] lg:ml-[300px]">
+        <div className="w-full mt-[65px] lg:ml-[250px]">
           <Outlet />
         </div>
       </div>

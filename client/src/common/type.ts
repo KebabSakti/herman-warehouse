@@ -4,3 +4,12 @@ export interface State<T> {
   data?: T | Array<T> | null;
   error?: Error;
 }
+
+export type Result<T> = {
+  data: T;
+  paging?: {
+    page: number;
+    limit: number;
+    total: number;
+  } | null;
+};
