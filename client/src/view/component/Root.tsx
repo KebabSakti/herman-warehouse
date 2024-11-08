@@ -10,7 +10,7 @@ import { MDrawer } from "./MDrawer";
 import { Menu } from "./Menu";
 
 export function Root() {
-  const { auth }: { auth: AuthHookType } = useContext(Repository);
+  const { auth } = useContext(Repository)!;
 
   return (
     <>

@@ -13,7 +13,7 @@ export function LoadingContainer({
       {(() => {
         if (loading) {
           return (
-            <div className="w-full h-full z-1 bg-white absolute opacity-80 flex justify-center items-center">
+            <div className="w-full h-full z-10 bg-white absolute opacity-80 flex justify-center items-center">
               <Spinner />
             </div>
           );

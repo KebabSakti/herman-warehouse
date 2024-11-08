@@ -5,16 +5,19 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { Flip, ToastContainer } from "react-toastify";
-import { AuthRepository } from "./feature/auth/repository/auth_repository";
 import { Root } from "./view/component/Root";
-import { useAuthHook } from "./view/page/auth/AuthHook";
+import { AuthHookType, useAuthHook } from "./view/page/auth/AuthHook";
 import { LoginPage } from "./view/page/auth/LoginPage";
 import { DashboardPage } from "./view/page/dashboard/DashboardPage";
 import { InventoryPage } from "./view/page/inventory/InventoryPage";
 import { Middleware } from "./view/page/Middleware";
 import { ProductPage } from "./view/page/product/ProductPage";
 
-export const Repository = createContext<any>(null);
+export type Dependency = {
+  auth: AuthHookType;
+};
+
+export const Repository = createContext<Dependency | null>(null);
 
 const router = createBrowserRouter([
   {
@@ -74,14 +77,12 @@ const router = createBrowserRouter([
 ]);
 
 export function App() {
-  const authRepository = new AuthRepository();
-
-  const repositories = {
-    auth: useAuthHook(authRepository),
+  const dependencies: Dependency = {
+    auth: useAuthHook(),
   };
 
   return (
-    <Repository.Provider value={repositories}>
+    <Repository.Provider value={dependencies}>
       <ToastContainer
         position="top-center"
         autoClose={2000}

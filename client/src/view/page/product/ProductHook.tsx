@@ -7,6 +7,7 @@ import {
   ProductListParam,
   ProductUpdateParam,
 } from "../../../feature/product/product_type";
+import { productRepository } from "../../service";
 
 type ProductState = State<Result<Product | Product[]> | null | undefined>;
 
@@ -19,7 +20,7 @@ export type ProductHookType = {
   remove(id: string, token: string): Promise<void>;
 };
 
-export function useProductHook(product: ProductRepository): ProductHookType {
+export function useProductHook(): ProductHookType {
   const [state, setState] = useState<ProductState>({
     action: "idle",
     status: "idle",
@@ -28,7 +29,7 @@ export function useProductHook(product: ProductRepository): ProductHookType {
   async function list(param: ProductListParam, token: string): Promise<void> {
     try {
       setState({ action: "list", status: "loading" });
-      const data = await product.list(param, token);
+      const data = await productRepository.list(param, token);
       setState({ action: "list", status: "complete", data: data });
     } catch (error: any) {
       setState({ action: "list", status: "complete", error: error });
@@ -41,7 +42,7 @@ export function useProductHook(product: ProductRepository): ProductHookType {
   ): Promise<void> {
     try {
       setState({ action: "create", status: "loading" });
-      await product.create(param, token);
+      await productRepository.create(param, token);
       setState({ action: "create", status: "complete" });
     } catch (error: any) {
       setState({ action: "create", status: "complete", error: error });
@@ -51,7 +52,7 @@ export function useProductHook(product: ProductRepository): ProductHookType {
   async function read(id: string, token: string): Promise<void> {
     try {
       setState({ action: "read", status: "loading" });
-      const data = await product.read(id, token);
+      const data = await productRepository.read(id, token);
       setState({ action: "read", status: "complete", data: data });
     } catch (error: any) {
       setState({ action: "read", status: "complete", error: error });
@@ -65,7 +66,7 @@ export function useProductHook(product: ProductRepository): ProductHookType {
   ): Promise<void> {
     try {
       setState({ action: "update", status: "loading" });
-      await product.update(id, param, token);
+      await productRepository.update(id, param, token);
       setState({ action: "update", status: "complete" });
     } catch (error: any) {
       setState({ action: "update", status: "complete", error: error });
@@ -75,7 +76,7 @@ export function useProductHook(product: ProductRepository): ProductHookType {
   async function remove(id: string, token: string): Promise<void> {
     try {
       setState({ action: "remove", status: "loading" });
-      await product.remove(id, token);
+      await productRepository.remove(id, token);
       setState({ action: "remove", status: "complete" });
     } catch (error: any) {
       setState({ action: "remove", status: "complete", error: error });

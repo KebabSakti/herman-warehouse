@@ -41,11 +41,11 @@ export class ProductRepository {
     const total = (await MySql.query(query)).length;
     query += ` order by name asc`;
 
-    if (param.search == null) {
-      const offset = (param.page - 1) * param.limit;
-      const limit = param.limit;
-      query += ` limit ${limit} offset ${offset}`;
-    }
+    // if (param.search == null) {
+    const offset = (param.page - 1) * param.limit;
+    const limit = param.limit;
+    query += ` limit ${limit} offset ${offset}`;
+    // }
 
     const result = await MySql.query(query);
 

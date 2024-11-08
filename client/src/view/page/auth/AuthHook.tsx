@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { State } from "../../../common/type";
 import { AuthLoginParam } from "../../../feature/auth/model/auth_type";
 import { AuthRepository } from "../../../feature/auth/repository/auth_repository";
+import { authRepository } from "../../service";
 
 export type AuthHookType = {
   init(): void;
@@ -10,7 +11,7 @@ export type AuthHookType = {
   state: State<string>;
 };
 
-export function useAuthHook(auth: AuthRepository): AuthHookType {
+export function useAuthHook(): AuthHookType {
   const [state, setState] = useState<State<string>>({
     action: "idle",
     status: "idle",
@@ -22,14 +23,14 @@ export function useAuthHook(auth: AuthRepository): AuthHookType {
 
   function init(): void {
     setState({ action: "init", status: "loading" });
-    const token = auth.load();
+    const token = authRepository.load();
     setState({ action: "init", status: "complete", data: token });
   }
 
   async function login(param: AuthLoginParam): Promise<void> {
     try {
       setState({ action: "login", status: "loading" });
-      const token = await auth.login(param);
+      const token = await authRepository.login(param);
       setState({ action: "login", status: "complete", data: token });
     } catch (error: any) {
       setState({ action: "login", status: "complete", error: error });
@@ -38,7 +39,7 @@ export function useAuthHook(auth: AuthRepository): AuthHookType {
 
   function logout(): void {
     setState({ action: "logout", status: "loading" });
-    auth.logout();
+    authRepository.logout();
     setState({ action: "logout", status: "complete", data: null });
   }
 
