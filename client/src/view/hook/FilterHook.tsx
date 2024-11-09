@@ -1,3 +1,3 @@
-export function FilterHook() {
+export function FilterHook(change: (value: string) => void) {
   return <input type="text" />;
 }

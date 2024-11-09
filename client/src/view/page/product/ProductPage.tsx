@@ -31,7 +31,7 @@ export function ProductPage() {
           product.list(param, auth.state.data!);
         });
     }
-  }, [product.state, search]);
+  }, [product.state]);
 
   return (
     <>
