@@ -11,6 +11,8 @@ import { LoginPage } from "./view/page/auth/LoginPage";
 import { DashboardPage } from "./view/page/dashboard/DashboardPage";
 import { InventoryPage } from "./view/page/inventory/InventoryPage";
 import { Middleware } from "./view/page/Middleware";
+import { ProductCreate } from "./view/page/product/ProductCreate";
+import { ProductEdit } from "./view/page/product/ProductEdit";
 import { ProductPage } from "./view/page/product/ProductPage";
 
 export type Dependency = {
@@ -63,6 +65,16 @@ const router = createBrowserRouter([
       {
         path: "/app/product",
         element: <ProductPage />,
+        children: [
+          {
+            path: "/app/product/create",
+            element: <ProductCreate />,
+          },
+          {
+            path: "/app/product/edit/:id",
+            element: <ProductEdit />,
+          },
+        ],
       },
       {
         path: "/app/account",

@@ -11,21 +11,21 @@ export const productSchema = object({
 });
 
 export const productListSchema = object({
-  page: number().required(),
-  limit: number().required(),
+  page: string().required(),
+  limit: string().required(),
   search: string().nullable(),
 });
 
 export const productCreateSchema = object({
   id: string().required(),
-  code: string().required(),
-  name: string().required(),
+  code: string().required("Field tidak boleh kosong"),
+  name: string().required("Field tidak boleh kosong"),
   note: string().nullable(),
 });
 
 export const productUpdateSchema = object({
-  code: string().nullable(),
-  name: string().nullable(),
+  code: string().required("Field tidak boleh kosong"),
+  name: string().required("Field tidak boleh kosong"),
   note: string().nullable(),
 });
 

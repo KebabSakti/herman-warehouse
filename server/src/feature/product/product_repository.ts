@@ -16,6 +16,25 @@ export class ProductRepository {
     });
   }
 
+  async read(id: string): Promise<Result<Product> | null | undefined> {
+    const result = await MySql.query("select * from products where id = ?", id);
+
+    if (result != null) {
+      const data = {
+        data: result[0],
+        paging: {
+          page: 1,
+          limit: 10,
+          total: 1,
+        },
+      };
+
+      return data;
+    }
+
+    return null;
+  }
+
   async update(id: string, param: ProductUpdateParam): Promise<void> {
     await MySql.query("update products set ? where ?", [
       { ...param, updated: new Date() },
@@ -39,13 +58,11 @@ export class ProductRepository {
     }
 
     const total = (await MySql.query(query)).length;
-    query += ` order by name asc`;
+    query += ` order by created desc`;
 
-    // if (param.search == null) {
     const offset = (param.page - 1) * param.limit;
     const limit = param.limit;
     query += ` limit ${limit} offset ${offset}`;
-    // }
 
     const result = await MySql.query(query);
 

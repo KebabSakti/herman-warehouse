@@ -12,8 +12,7 @@ import {
 export class ProductRepository {
   async create(param: ProductCreateParam, token: string): Promise<void> {
     try {
-      await axios.post(`${server}/app/product`, {
-        body: param,
+      await axios.post(`${server}/app/product`, param, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -48,8 +47,7 @@ export class ProductRepository {
     token: string
   ): Promise<void> {
     try {
-      await axios.put(`${server}/app/product/${id}`, {
-        body: param,
+      await axios.put(`${server}/app/product/${id}`, param, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

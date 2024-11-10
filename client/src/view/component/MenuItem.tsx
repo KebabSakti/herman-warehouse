@@ -9,7 +9,7 @@ export type MenuItemProp = {
 
 export function MenuItem(param: MenuItemProp) {
   const location = useLocation();
-  const isActive = location.pathname == param.link;
+  const isActive = location.pathname.includes(param.link);
   const active = isActive
     ? "bg-primary text-onprimary font-semibold rounded-lg"
     : "hover:bg-gray-50 hover:rounded-lg";

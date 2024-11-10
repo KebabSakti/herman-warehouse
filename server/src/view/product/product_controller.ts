@@ -21,9 +21,19 @@ export async function create(req: Request, res: Response) {
   }
 }
 
+export async function read(req: Request, res: Response) {
+  try {
+    const result = await product.read(req.params.id);
+
+    return res.json(result);
+  } catch (error: any) {
+    return Failure(error, res);
+  }
+}
+
 export async function update(req: Request, res: Response) {
   try {
-    const param = await productUpdateSchema.validate(req.params).catch((_) => {
+    const param = await productUpdateSchema.validate(req.body).catch((_) => {
       throw new BadRequest();
     });
 
@@ -37,7 +47,7 @@ export async function update(req: Request, res: Response) {
 
 export async function remove(req: Request, res: Response) {
   try {
-    await product.delete(req.body.id);
+    await product.delete(req.params.id);
 
     return res.end();
   } catch (error: any) {

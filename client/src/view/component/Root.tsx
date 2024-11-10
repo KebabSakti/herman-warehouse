@@ -5,7 +5,6 @@ import { HiChevronDown, HiCog, HiUser } from "react-icons/hi";
 import { Outlet } from "react-router-dom";
 import { Repository } from "../../App";
 import logo from "../../asset/logo.png";
-import { AuthHookType } from "../page/auth/AuthHook";
 import { MDrawer } from "./MDrawer";
 import { Menu } from "./Menu";
 

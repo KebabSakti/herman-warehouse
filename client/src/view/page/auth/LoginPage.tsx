@@ -8,7 +8,7 @@ import { LoadingContainer } from "../../component/LoadingContainer";
 import { AuthHookType } from "./AuthHook";
 
 export function LoginPage() {
-  const { auth }: { auth: AuthHookType } = useContext(Repository);
+  const { auth }: { auth: AuthHookType } = useContext(Repository)!;
   const navigate = useNavigate();
 
   useEffect(() => {
