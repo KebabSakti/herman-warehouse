@@ -16,6 +16,7 @@ export const purchaseSchema = object({
   fee: number().required(),
   total: number().required(),
   paid: number().required(),
+  other: number().required(),
   balance: number().required(),
   note: string().nullable(),
   due: date().nullable(),

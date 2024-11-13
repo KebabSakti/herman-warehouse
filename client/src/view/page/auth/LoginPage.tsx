@@ -24,7 +24,7 @@ export function LoginPage() {
   return (
     <>
       <div className="bg-surface min-h-screen flex justify-center items-center">
-        <div className="bg-container w-[80%] md:w-[35%] xl:w-[20%] rounded">
+        <div className="bg-container w-[80%] md:w-[35%] xl:w-[25%] rounded">
           <LoadingContainer loading={auth.state.status == "loading"}>
             <Formik
               initialValues={{ uid: "", password: "" }}

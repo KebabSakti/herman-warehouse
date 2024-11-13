@@ -122,9 +122,9 @@ export function InventoryList() {
                                 <Table.Cell>{e.supplierName}</Table.Cell>
                                 <Table.Cell>Rp {e.total}</Table.Cell>
                                 <Table.Cell>Rp {e.fee}</Table.Cell>
-                                <Table.Cell>Rp 0</Table.Cell>
+                                <Table.Cell>Rp {e.other}</Table.Cell>
                                 <Table.Cell>Rp {e.paid}</Table.Cell>
-                                <Table.Cell>Rp 0</Table.Cell>
+                                <Table.Cell>Rp {e.balance}</Table.Cell>
                                 <Table.Cell>
                                   {dayjs(e.created).format("DD-MM-YYYY")}
                                 </Table.Cell>
