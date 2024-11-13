@@ -1,5 +1,7 @@
 import mysql from "mysql";
 
+type TransactionCallback<T> = (connection: mysql.PoolConnection) => Promise<T>;
+
 export const pool = mysql.createPool({
   connectionLimit: 10,
   host: process.env.DB_HOST!,
@@ -18,36 +20,46 @@ export class MySql {
     });
   }
 
-  static async connect(query: string, values?: any | undefined): Promise<any> {
-    return await new Promise((resolve, reject) => {
-      pool.getConnection((connectionError, connection) => {
-        if (connectionError) reject(connectionError);
+  static async transaction<T>(callback: TransactionCallback<T>): Promise<T> {
+    const connection = await new Promise<mysql.PoolConnection>(
+      (resolve, reject) => {
+        pool.getConnection((err, conn) => {
+          if (err) reject(err);
+          else resolve(conn);
+        });
+      }
+    );
 
-        connection.query(query, values, (error, result) => {
-          if (error) reject(error);
-          resolve(result);
+    try {
+      // Start the transaction
+      await new Promise<void>((resolve, reject) => {
+        connection.beginTransaction((err) => {
+          if (err) reject(err);
+          else resolve();
         });
       });
-    });
-  }
 
-  static async transaction(callback: Function): Promise<any> {
-    return await new Promise((resolve, reject) => {
-      pool.getConnection((connectionError, connection) => {
-        if (connectionError) reject(connectionError);
+      // Execute the callback with the connection in transaction mode
+      const result = await callback(connection);
 
-        connection.beginTransaction((transactionError) => {
-          if (transactionError) reject(transactionError);
-
-          try {
-            connection.commit(callback());
-            resolve(callback());
-          } catch (error) {
-            connection.rollback();
-            reject(error);
-          }
+      // Commit the transaction
+      await new Promise<void>((resolve, reject) => {
+        connection.commit((err: any) => {
+          if (err) reject(err);
+          else resolve();
         });
       });
-    });
+
+      return result; // Return result if transaction was successful
+    } catch (error) {
+      // Rollback in case of error
+      await new Promise<void>((resolve) => {
+        connection.rollback(() => resolve());
+      });
+      throw error;
+    } finally {
+      // Release the connection back to the pool
+      connection.release();
+    }
   }
 }

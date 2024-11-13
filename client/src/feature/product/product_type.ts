@@ -1,4 +1,4 @@
-import { date, InferType, number, object, string } from "yup";
+import { date, InferType, object, string } from "yup";
 
 export const productSchema = object({
   id: string().required(),

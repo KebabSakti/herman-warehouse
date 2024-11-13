@@ -15,37 +15,32 @@ export function ProductList() {
   const { auth } = useContext(Repository)!;
   const product = useProductHook();
   const location = useLocation();
-
   const [search, setSearch] = useSearchParams({
     page: "1",
     limit: "10",
     search: "",
   });
+  const param = Object.fromEntries(search.entries());
 
   useEffect(() => {
-    if (product.state.action == "idle" && product.state.status == "idle") {
-      setSearch(search);
-    }
-
     if (
       product.state.action == "remove" &&
-      product.state.status == "complete"
+      product.state.status == "complete" &&
+      product.state.error == null
     ) {
-      const param = Object.fromEntries(search.entries()) as ProductListParam;
-      product.list(param, auth.state.data!);
+      product.list(param as ProductListParam, auth.state.data!);
+      toast.success("Produk berhasil dihapus");
+    }
 
-      if (product.state.error == null) {
-        toast.success("Produk berhasil dihapus");
-      } else {
-        toast.error(product.state.error.message);
-      }
+    if (product.state.status == "complete" && product.state.error != null) {
+      product.list(param as ProductListParam, auth.state.data!);
+      toast.error(product.state.error.message);
     }
   }, [product.state]);
 
   useEffect(() => {
-    if (location.state?.from == null) {
-      const param = Object.fromEntries(search.entries()) as ProductListParam;
-      product.list(param, auth.state.data!);
+    if (search.size == 3) {
+      product.list(param as ProductListParam, auth.state.data!);
     }
   }, [search]);
 
@@ -58,7 +53,7 @@ export function ProductList() {
             state={{
               from: location.pathname + location.search,
             }}
-            className="bg-primary text-onprimary text-nowrap flex items-center p-2 px-3 rounded-lg"
+            className="bg-primary text-onprimary text-nowrap flex items-center p-2 px-3 rounded-md"
           >
             <HiPlus className="mr-2 h-5 w-5" />
             <span>Tambah Produk</span>
@@ -68,8 +63,6 @@ export function ProductList() {
             placeholder="Kode / nama produk"
             value={search.get("search") ?? ""}
             onChange={(event) => {
-              const param = Object.fromEntries(search.entries());
-
               setSearch({
                 ...param,
                 page: "1",
@@ -100,7 +93,7 @@ export function ProductList() {
                               <Table.Row key={i} className="text-nowrap">
                                 <Table.Cell>{e.code}</Table.Cell>
                                 <Table.Cell>{e.name}</Table.Cell>
-                                <Table.Cell>{e.note ?? "-"}</Table.Cell>
+                                <Table.Cell>{e.note}</Table.Cell>
                                 <Table.Cell>
                                   <div className="flex gap-1">
                                     <Link
@@ -173,10 +166,15 @@ export function ProductList() {
                 <Pagination
                   layout="navigation"
                   currentPage={Number(search.get("page")!)}
-                  totalPages={Math.ceil(product.state.data.paging!.total! / 10)}
+                  totalPages={
+                    product.state.data?.paging!.total! == 0
+                      ? 1
+                      : Math.ceil(
+                          product.state.data?.paging!.total! /
+                            Number(search.get("limit")!)
+                        )
+                  }
                   onPageChange={(page) => {
-                    const param = Object.fromEntries(search.entries());
-
                     setSearch({
                       ...param,
                       page: page.toString(),

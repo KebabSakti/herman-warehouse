@@ -14,6 +14,7 @@ import { Middleware } from "./view/page/Middleware";
 import { ProductCreate } from "./view/page/product/ProductCreate";
 import { ProductEdit } from "./view/page/product/ProductEdit";
 import { ProductPage } from "./view/page/product/ProductPage";
+import { InventoryCreate } from "./view/page/inventory/InventoryCreate";
 
 export type Dependency = {
   auth: AuthHookType;
@@ -45,6 +46,12 @@ const router = createBrowserRouter([
       {
         path: "/app/inventory",
         element: <InventoryPage />,
+        children: [
+          {
+            path: "/app/inventory/create",
+            element: <InventoryCreate />,
+          },
+        ],
       },
       {
         path: "/app/order",

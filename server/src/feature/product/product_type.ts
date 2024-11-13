@@ -24,8 +24,8 @@ export const productCreateSchema = object({
 });
 
 export const productUpdateSchema = object({
-  code: string().nullable(),
-  name: string().nullable(),
+  code: string().required(),
+  name: string().required(),
   note: string().nullable(),
 });
 

@@ -23,7 +23,7 @@ export function ProductEdit() {
       product.read(param.id!, auth.state.data!);
     }
 
-    if (
+    if (  
       product.state.action == "update" &&
       product.state.status == "complete"
     ) {

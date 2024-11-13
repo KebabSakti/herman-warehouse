@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 export type MenuItemProp = {
   name: string;
@@ -9,17 +9,21 @@ export type MenuItemProp = {
 
 export function MenuItem(param: MenuItemProp) {
   const location = useLocation();
-  const isActive = location.pathname.includes(param.link);
-  const active = isActive
-    ? "bg-primary text-onprimary font-semibold rounded-lg"
-    : "hover:bg-gray-50 hover:rounded-lg";
+  const active = location.pathname == param.link;
 
   return (
     <li>
-      <Link to={param.link} className={`flex gap-4 items-center p-2 ${active}`}>
+      <NavLink
+        to={active ? param.link + location.search : param.link}
+        className={({ isActive }) =>
+          isActive
+            ? "bg-primary text-onprimary font-semibold rounded-lg flex gap-4 items-center p-2"
+            : "hover:bg-gray-50 hover:rounded-lg flex gap-4 items-center p-2"
+        }
+      >
         {param.icon}
         <span>{param.name}</span>
-      </Link>
+      </NavLink>
     </li>
   );
 }

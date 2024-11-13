@@ -1,13 +1,14 @@
+import { faker } from "@faker-js/faker";
 import cors from "cors";
 import express from "express";
 import http from "http";
 import multer from "multer";
-import { number, object } from "yup";
-import { BadRequest, Failure } from "./common/error";
-import { ProductRepository } from "./feature/product/product_repository";
+import { Failure } from "./common/error";
+import { MySql } from "./helper/mysql";
 import authRoute from "./view/auth/auth_route";
 import { isLogin } from "./view/middleware";
 import productRoute from "./view/product/product_route";
+import purchaseRoute from "./view/purchase/purchase_route";
 
 const app = express();
 const server = http.createServer(app);
@@ -23,15 +24,6 @@ app.use(express.static("./static"));
 app.use(multerInstance.any());
 
 app.get("/", async (req, res) => {
-  // for await (let _ of [...Array(100)]) {
-  //   MySql.query("insert into products set ?", {
-  //     code: faker.string.uuid(),
-  //     name: faker.commerce.productName(),
-  //     created: new Date(),
-  //     updated: new Date(),
-  //   });
-  // }
-
   // const userApi = new UserMysql();
   // const user = await userApi.read(req.params.id);
   // const token = await auth.login(req.body.uid, req.body.password);
@@ -55,21 +47,79 @@ app.get("/", async (req, res) => {
   // };
 
   try {
-    console.log(req.query);
+    // await MySql.transaction(async (connection) => {
+    //   await new Promise((resolve, reject) => {
+    //     connection.query(
+    //       "insert into suppliers set ?",
+    //       [{ id: "c", name: "tiga" }],
+    //       (err, res) => {
+    //         if (err) reject(err);
+    //         resolve(res);
+    //       }
+    //     );
+    //   });
 
-    const schema = object({
-      page: number().required(),
-      limit: number().required(),
-    });
+    //   await new Promise((resolve, reject) => {
+    //     connection.query(
+    //       "insert into suppliers set ?",
+    //       [{ id: "d", name: "empat" }],
+    //       (err, res) => {
+    //         if (err) reject(err);
+    //         resolve(res);
+    //       }
+    //     );
+    //   });
+    // });
 
-    const parsed = await schema.validate(req.query).catch((_) => {
-      throw new BadRequest();
-    });
+    // const a = await MySql.query(
+    //   "select users.*,activities.description,activities.created from users right join activities on users.id = activities.userId"
+    // );
 
-    const productRepos = new ProductRepository();
-    const data = await productRepos.list(parsed);
+    for await (let _ of [...Array(200)]) {
+      // const user = await MySql.query("select * from users order by rand()");
+      const supp = await MySql.query("select * from suppliers order by rand()");
 
-    return res.json(data);
+      // await MySql.query("insert into purchases set ?", {
+      //   id: faker.string.uuid(),
+      //   userId: user[0].id,
+      //   userName: user[0].name,
+      //   userPhone: user[0].phone,
+      //   supplierId: supp[0].id,
+      //   supplierName: supp[0].name,
+      //   supplierPhone: supp[0].phone,
+      //   supplierAddress: supp[0].address,
+      //   supplierNote: supp[0].note,
+      //   code: faker.string.uuid(),
+      //   fee: faker.commerce.price(),
+      //   total: faker.commerce.price(),
+      //   paid: faker.commerce.price(),
+      //   balance: faker.commerce.price(),
+      //   due: faker.date.soon(),
+      //   printed: faker.date.anytime(),
+      //   created: faker.date.anytime(),
+      //   updated: faker.date.anytime(),
+      // });
+
+      // const purchase = await MySql.query(
+      //   "select * from purchases order by rand()"
+      // );
+
+      const product = await MySql.query(
+        "select * from products order by rand()"
+      );
+
+      await MySql.query("insert into stocks set ?", {
+        id: faker.string.uuid(),
+        supplierId: supp[0].id,
+        productId: product[0].id,
+        qty: faker.commerce.price(),
+        price: faker.commerce.price(),
+        created: faker.date.anytime(),
+        updated: faker.date.anytime(),
+      });
+    }
+
+    return res.json("OKE");
   } catch (error: any) {
     return Failure(error, res);
   }
@@ -78,6 +128,7 @@ app.get("/", async (req, res) => {
 app.use("/", authRoute);
 app.use("/app", isLogin);
 app.use("/app/product", productRoute);
+app.use("/app/purchase", purchaseRoute);
 
 //route not found 404
 app.use("*", (_, res) => res.status(404).json("Route path not found"));

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Result, State } from "../../../common/type";
-import { ProductRepository } from "../../../feature/product/product_repository";
 import {
   Product,
   ProductCreateParam,

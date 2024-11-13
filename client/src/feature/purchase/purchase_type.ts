@@ -15,6 +15,7 @@ export const purchaseSchema = object({
   code: string().required(),
   fee: number().required(),
   total: number().required(),
+  paid: number().required(),
   balance: number().required(),
   note: string().nullable(),
   due: date().nullable(),
@@ -26,12 +27,12 @@ export const purchaseSchema = object({
 });
 
 export const purchaseListSchema = object({
-  page: number().required(),
-  limit: number().required(),
+  page: string().required(),
+  limit: string().required(),
   search: string().nullable(),
   start: string().required(),
   end: string().required(),
 });
 
 export type Purchase = InferType<typeof purchaseSchema>;
-export type PurhcaseListParam = InferType<typeof purchaseListSchema>;
+export type PurchaseListParam = InferType<typeof purchaseListSchema>;
