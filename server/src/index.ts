@@ -1,15 +1,12 @@
-import { faker } from "@faker-js/faker";
 import cors from "cors";
 import express from "express";
 import http from "http";
 import multer from "multer";
 import { Failure } from "./common/error";
-import { MySql } from "./helper/mysql";
 import authRoute from "./view/auth/auth_route";
 import { isLogin } from "./view/middleware";
 import productRoute from "./view/product/product_route";
-import purchaseRoute from "./view/purchase/purchase_route";
-import { PurchaseRepository } from "./feature/purchase/purchase_repository";
+import purchaseRoute from "./feature/purchase/view/purchase_route";
 
 const app = express();
 const server = http.createServer(app);
@@ -57,10 +54,10 @@ app.get("/:id", async (req, res) => {
     // for await (let _ of [...Array(200)]) {
     // }
 
-    const a = new PurchaseRepository();
+    // const a = new PurchaseRepository();
     // const b = await a.purchaseDetail(req.params.id);
 
-    return res.json('OKE');
+    return res.json("OKE");
   } catch (error: any) {
     return Failure(error, res);
   }

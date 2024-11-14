@@ -1,6 +1,6 @@
 import { array, date, InferType, number, object, string } from "yup";
-import { inventoryCreateSchema, inventorySchema } from "./inventory_type";
-import { paymentCreateSchema, paymentSchema } from "./payment_type";
+import { inventorySchema, inventoryCreateSchema } from "./inventory_type";
+import { paymentSchema, paymentCreateSchema } from "./payment_type";
 
 export const purchaseSchema = object({
   id: string().required(),
@@ -15,6 +15,7 @@ export const purchaseSchema = object({
   code: string().required(),
   fee: number().required(),
   total: number().required(),
+  paid: number().required(),
   balance: number().required(),
   other: number().required(),
   note: string().nullable(),
@@ -45,6 +46,7 @@ export const purchaseCreateSchema = object({
   supplierNote: string().nullable(),
   code: string().required(),
   fee: number().required(),
+  paid: number().required(),
   total: number().required(),
   balance: number().required(),
   other: number().required(),
