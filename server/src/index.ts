@@ -58,9 +58,9 @@ app.get("/:id", async (req, res) => {
     // }
 
     const a = new PurchaseRepository();
-    const b = await a.purchaseDetail(req.params.id);
+    // const b = await a.purchaseDetail(req.params.id);
 
-    return res.json(b);
+    return res.json('OKE');
   } catch (error: any) {
     return Failure(error, res);
   }

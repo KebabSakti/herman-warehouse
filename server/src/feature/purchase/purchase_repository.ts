@@ -1,9 +1,13 @@
 import { Result } from "../../common/type";
 import { MySql, pool } from "../../helper/mysql";
-import { Purchase, PurchaseListParam } from "./purchase_type";
+import {
+  Purchase,
+  PurchaseCreateParam,
+  PurchaseListParam,
+} from "./purchase_type";
 
 export class PurchaseRepository {
-  async purchaseList(param: PurchaseListParam): Promise<Result<Purchase[]>> {
+  async list(param: PurchaseListParam): Promise<Result<Purchase[]>> {
     let query = "select * from purchases where deleted is null";
 
     if (param.search != null) {
@@ -50,9 +54,23 @@ export class PurchaseRepository {
     return data;
   }
 
-  async purchaseDetail(
-    id: string
-  ): Promise<Result<Purchase> | null | undefined> {
+  async create(param: PurchaseCreateParam): Promise<void> {
+    await MySql.transaction(async (connection) => {
+      const supplier = await new Promise((resolve, reject) => {
+        connection.query(
+          "select * from suppliers where id = ? and deleted is null",
+          param.supplierId,
+          (err, res) => {
+            if (err) reject(err);
+            if (res.length == 0) reject(err);
+            resolve(res[0]);
+          }
+        );
+      });
+    });
+  }
+
+  async read(id: string): Promise<Result<Purchase> | null | undefined> {
     const purchase = await MySql.query(
       "select * from purchases where id = ?",
       id

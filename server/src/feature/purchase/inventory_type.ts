@@ -16,4 +16,17 @@ export const inventorySchema = object({
   deleted: date().nullable(),
 });
 
+export const inventoryCreateSchema = object({
+  purchaseId: string().required(),
+  productId: string().required(),
+  productCode: string().required(),
+  productName: string().required(),
+  productNote: string().nullable(),
+  qty: number().required(),
+  price: number().required(),
+  total: number().required(),
+  keyword: string().nullable(),
+});
+
 export type Inventory = InferType<typeof inventorySchema>;
+export type InventoryCreateParam = InferType<typeof inventoryCreateSchema>;
