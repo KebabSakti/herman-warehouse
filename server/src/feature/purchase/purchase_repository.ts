@@ -21,7 +21,22 @@ export class PurchaseRepository {
     const offset = (param.page - 1) * param.limit;
     const limit = param.limit;
     query += ` order by created desc limit ${limit} offset ${offset}`;
-    const result = await MySql.query(query);
+    const purchases = await MySql.query(query);
+    const result: any = [];
+
+    for await (let purchase of purchases) {
+      const inventory = await MySql.query(
+        "select * from inventories where purchaseId = ?",
+        purchase.id
+      );
+
+      const payment = await MySql.query(
+        "select * from payments where purchaseId = ?",
+        purchase.id
+      );
+
+      result.push({ ...purchase, inventory: inventory, payment: payment });
+    }
 
     const data = {
       data: result,
@@ -38,17 +53,33 @@ export class PurchaseRepository {
   async purchaseDetail(
     id: string
   ): Promise<Result<Purchase> | null | undefined> {
-    const data = await new Promise(async (resolve, reject) => {
-      const purchase = await MySql.query(
-        "select * from purchases where id = ?",
-        id
-      );
+    const purchase = await MySql.query(
+      "select * from purchases where id = ?",
+      id
+    );
 
-      const inventories = await MySql.query(
-        "select * from inventories where purchaseId = ?",
-        id
-      );
-    });
+    const inventory = await MySql.query(
+      "select * from inventories where purchaseId = ?",
+      id
+    );
+
+    const payment = await MySql.query(
+      "select * from payments where purchaseId = ?",
+      id
+    );
+
+    if (purchase.length > 0) {
+      const data = {
+        data: { ...purchase[0], inventory: inventory, payment: payment },
+        paging: {
+          page: 1,
+          limit: 10,
+          total: 1,
+        },
+      };
+
+      return data;
+    }
 
     return null;
   }
