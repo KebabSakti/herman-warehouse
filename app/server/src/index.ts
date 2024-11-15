@@ -3,10 +3,10 @@ import express from "express";
 import http from "http";
 import multer from "multer";
 import { Failure } from "./common/error";
+import purchaseRoute from "./feature/purchase/view/purchase_route";
 import authRoute from "./view/auth/auth_route";
 import { isLogin } from "./view/middleware";
 import productRoute from "./view/product/product_route";
-import purchaseRoute from "./feature/purchase/view/purchase_route";
 
 const app = express();
 const server = http.createServer(app);
@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("./static"));
 app.use(multerInstance.any());
 
-app.get("/:id", async (req, res) => {
+app.get("/", async (req, res) => {
   try {
     // await MySql.transaction(async (connection) => {
     //   await new Promise((resolve, reject) => {
@@ -56,6 +56,8 @@ app.get("/:id", async (req, res) => {
 
     // const a = new PurchaseRepository();
     // const b = await a.purchaseDetail(req.params.id);
+
+    console.log("OKE");
 
     return res.json("OKE");
   } catch (error: any) {

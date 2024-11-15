@@ -1,15 +1,16 @@
 import { randomUUID } from "crypto";
 import { Result } from "../../../common/type";
-import { MySql, pool } from "../../../helper/mysql";
+import { pool, MySql } from "../../../helper/mysql";
 import { Product } from "../../product/product_type";
 import {
+  PurchaseListParam,
   Purchase,
   PurchaseCreateParam,
-  PurchaseListParam,
 } from "../model/purchase_type";
 import { Supplier } from "../model/supplier_type";
+import { PurchaseApi } from "./purchase_api";
 
-export class PurchaseService {
+export class PurchaseMysql implements PurchaseApi {
   async purchaseList(param: PurchaseListParam): Promise<Result<Purchase[]>> {
     let query = "select * from purchases where deleted is null";
 
@@ -60,6 +61,7 @@ export class PurchaseService {
   async purchaseCreate(param: PurchaseCreateParam): Promise<void> {
     await MySql.transaction(async (connection) => {
       const purchaseId = randomUUID();
+      const today = new Date();
 
       const supplier = await new Promise<Supplier>((resolve, reject) => {
         connection.query(
@@ -75,7 +77,7 @@ export class PurchaseService {
 
       await new Promise<void>((resolve, reject) => {
         connection.query(
-          "insert into purchase set ?",
+          "insert into purchases set ?",
           {
             id: purchaseId,
             supplierId: supplier.id,
@@ -89,8 +91,8 @@ export class PurchaseService {
             balance: param.balance,
             other: param.other,
             note: param.note,
-            created: new Date(),
-            updated: new Date(),
+            created: today,
+            updated: today,
           },
           (err) => {
             if (err) reject(err);
@@ -123,8 +125,8 @@ export class PurchaseService {
               productCode: product.code,
               productName: product.name,
               productNote: product.note,
-              created: new Date(),
-              updated: new Date(),
+              created: today,
+              updated: today,
             },
             (err) => {
               if (err) reject(err);
@@ -143,8 +145,8 @@ export class PurchaseService {
                 ...payment,
                 id: randomUUID(),
                 purchaseId: purchaseId,
-                created: new Date(),
-                updated: new Date(),
+                created: today,
+                updated: today,
               },
               (err) => {
                 if (err) reject(err);

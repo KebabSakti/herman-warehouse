@@ -13,6 +13,11 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
       - herman-warehouse
+    depends_on:
+      - express
+      - react
+      - mariadb
+      - adminer
 
   express:
     image: node:20-alpine3.19
@@ -21,7 +26,7 @@ services:
     ports:
       - "1000:3000"
     volumes:
-      - ./server:/server
+      - ./app/server:/server
     environment:
       - NODE_ENV=development
     networks:
@@ -35,12 +40,21 @@ services:
     ports:
       - "1001:5173"
     volumes:
-      - ./client:/client
+      - ./app/client:/client
     environment:
       - NODE_ENV=development
     networks:
       - herman-warehouse
     command: sh -c "npm install && npm run dev"
+
+  library:
+    image: node:20-alpine3.19
+    working_dir: /library
+    volumes:
+      - ./app/library:/library
+    networks:
+      - herman-warehouse
+    command: sh -c "npm install"
 
   mariadb:
     image: mariadb:11.4.3
