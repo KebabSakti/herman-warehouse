@@ -30,7 +30,6 @@ export function InventoryList() {
 
   useEffect(() => {
     if (inventory.state.status == "complete" && inventory.state.error != null) {
-      inventory.list(param as PurchaseListParam, auth.state.data!);
       toast.error(inventory.state.error.message);
     }
 

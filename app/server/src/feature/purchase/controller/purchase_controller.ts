@@ -1,45 +1,27 @@
-import { Request, Response } from "express";
-import { BadRequest, Failure } from "../../../common/error";
-import { purchase } from "../../../view/service";
-import {
-  purchaseCreateSchema,
-  purchaseListSchema,
-} from "../model/purchase_type";
+import { Result } from "../../../common/type";
+import { PurchaseApi } from "../model/purchase_api";
+import { Purchase, PurchaseCreate, PurchaseList } from "../model/purchase_type";
 
-export async function list(req: Request, res: Response) {
-  try {
-    const param = await purchaseListSchema.validate(req.query).catch((e) => {
-      throw new BadRequest(e.message);
-    });
+export class PurchaseController {
+  private purchaseApi: PurchaseApi;
 
-    const result = await purchase.purchaseList(param);
-
-    return res.json(result);
-  } catch (error: any) {
-    return Failure(error, res);
+  constructor(purchaseApi: PurchaseApi) {
+    this.purchaseApi = purchaseApi;
   }
-}
 
-export async function create(req: Request, res: Response) {
-  try {
-    const param = await purchaseCreateSchema.validate(req.body).catch((e) => {
-      throw new BadRequest(e.message);
-    });
+  async list(param: PurchaseList): Promise<Result<Purchase[]>> {
+    const result = await this.purchaseApi.list(param);
 
-    await purchase.purchaseCreate(param);
-
-    return res.end();
-  } catch (error: any) {
-    return Failure(error, res);
+    return result;
   }
-}
 
-export async function read(req: Request, res: Response) {
-  try {
-    const result = await purchase.purchaseRead(req.params.id);
+  async create(param: PurchaseCreate): Promise<void> {
+    await this.purchaseApi.create(param);
+  }
 
-    return res.json(result);
-  } catch (error: any) {
-    return Failure(error, res);
+  async read(id: string): Promise<Purchase | null | undefined> {
+    const result = await this.purchaseApi.read(id);
+
+    return result;
   }
 }

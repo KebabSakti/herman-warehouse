@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { Repository } from "../../../App";
 import {
   Product,
-  productUpdateSchema
+  productUpdateSchema,
 } from "../../../feature/product/product_type";
 import { LoadingContainer } from "../../component/LoadingContainer";
 import { useProductHook } from "./ProductHook";
@@ -23,7 +23,7 @@ export function ProductEdit() {
       product.read(param.id!, auth.state.data!);
     }
 
-    if (  
+    if (
       product.state.action == "update" &&
       product.state.status == "complete"
     ) {
@@ -56,10 +56,10 @@ export function ProductEdit() {
         }}
       >
         <Modal.Header>Edit Produk</Modal.Header>
-        <LoadingContainer loading={product.state.data?.data == null}>
+        <LoadingContainer loading={product.state.data == null}>
           <Modal.Body>
             {(() => {
-              const productEdit = product.state.data?.data as Product | null;
+              const productEdit = product.state.data as Product | null;
 
               return (
                 <Formik

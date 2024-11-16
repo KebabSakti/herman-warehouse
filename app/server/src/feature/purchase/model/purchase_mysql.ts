@@ -1,17 +1,13 @@
 import { randomUUID } from "crypto";
 import { Result } from "../../../common/type";
-import { pool, MySql } from "../../../helper/mysql";
-import { Product } from "../../product/product_type";
-import {
-  PurchaseListParam,
-  Purchase,
-  PurchaseCreateParam,
-} from "../model/purchase_type";
-import { Supplier } from "../model/supplier_type";
+import { MySql, pool } from "../../../helper/mysql";
+import { Product } from "../../product/model/product_type";
+import { Supplier } from "../../supplier/model/supplier_type";
 import { PurchaseApi } from "./purchase_api";
+import { Purchase, PurchaseCreate, PurchaseList } from "./purchase_type";
 
 export class PurchaseMysql implements PurchaseApi {
-  async purchaseList(param: PurchaseListParam): Promise<Result<Purchase[]>> {
+  async list(param: PurchaseList): Promise<Result<Purchase[]>> {
     let query = "select * from purchases where deleted is null";
 
     if (param.search != null) {
@@ -58,7 +54,7 @@ export class PurchaseMysql implements PurchaseApi {
     return data;
   }
 
-  async purchaseCreate(param: PurchaseCreateParam): Promise<void> {
+  async create(param: PurchaseCreate): Promise<void> {
     await MySql.transaction(async (connection) => {
       const purchaseId = randomUUID();
       const today = new Date();
@@ -159,7 +155,7 @@ export class PurchaseMysql implements PurchaseApi {
     });
   }
 
-  async purchaseRead(id: string): Promise<Result<Purchase> | null | undefined> {
+  async read(id: string): Promise<Purchase | null | undefined> {
     const purchase = await MySql.query(
       "select * from purchases where id = ?",
       id
@@ -176,16 +172,7 @@ export class PurchaseMysql implements PurchaseApi {
     );
 
     if (purchase.length > 0) {
-      const data = {
-        data: { ...purchase[0], inventory: inventory, payment: payment },
-        paging: {
-          page: 1,
-          limit: 10,
-          total: 1,
-        },
-      };
-
-      return data;
+      return { ...purchase[0], inventory: inventory, payment: payment };
     }
 
     return null;

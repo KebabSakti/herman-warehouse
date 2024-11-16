@@ -8,7 +8,7 @@ import {
 } from "../../../feature/product/product_type";
 import { productRepository } from "../../service";
 
-type ProductState = State<Result<Product | Product[]> | null | undefined>;
+type ProductState = State<Result<Product[]> | Product | null | undefined>;
 
 export type ProductHookType = {
   state: ProductState;

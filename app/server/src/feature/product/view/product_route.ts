@@ -1,70 +1,74 @@
-import { Request, Response } from "express";
-import { BadRequest, Failure } from "../../common/error";
+import express from "express";
+import { BadRequest, Failure } from "../../../common/error";
+import { productController } from "../../service";
 import {
   productCreateSchema,
   productListSchema,
   productUpdateSchema,
-} from "../../feature/product/product_type";
-import { product } from "../service";
+} from "../model/product_type";
 
-export async function create(req: Request, res: Response) {
+const router = express.Router();
+
+router.post("/", async (req, res) => {
   try {
     const param = await productCreateSchema.validate(req.body).catch((_) => {
       throw new BadRequest();
     });
 
-    await product.create(param);
+    await productController.create(param);
 
     return res.end();
   } catch (error: any) {
     return Failure(error, res);
   }
-}
+});
 
-export async function read(req: Request, res: Response) {
+router.get("/:id", async (req, res) => {
   try {
-    const result = await product.read(req.params.id);
+    const result = await productController.read(req.params.id);
 
     return res.json(result);
   } catch (error: any) {
     return Failure(error, res);
   }
-}
+});
 
-export async function update(req: Request, res: Response) {
+router.put("/:id", async (req, res) => {
   try {
     const param = await productUpdateSchema.validate(req.body).catch((_) => {
       throw new BadRequest();
     });
 
-    await product.update(req.params.id, param);
+    await productController.update(req.params.id, param);
 
     return res.end();
   } catch (error: any) {
     return Failure(error, res);
   }
-}
+});
 
-export async function remove(req: Request, res: Response) {
+router.delete("/:id", async (req, res) => {
   try {
-    await product.delete(req.params.id);
+    await productController.remove(req.params.id);
 
     return res.end();
   } catch (error: any) {
     return Failure(error, res);
   }
-}
+});
 
-export async function list(req: Request, res: Response) {
+router.get("/", async (req, res) => {
   try {
     const param = await productListSchema.validate(req.query).catch((e) => {
       throw new BadRequest(e.message);
     });
 
-    const result = await product.list(param);
+    const result = await productController.list(param);
 
     return res.json(result);
   } catch (error: any) {
     return Failure(error, res);
   }
-}
+});
+
+export default router;

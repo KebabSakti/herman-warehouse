@@ -10,10 +10,12 @@ import {
 } from "../../../feature/product/product_type";
 import { LoadingContainer } from "../../component/LoadingContainer";
 import { useProductHook } from "./ProductHook";
+import { Result, State } from "../../../common/type";
 
 export function ProductList() {
   const { auth } = useContext(Repository)!;
   const product = useProductHook();
+  const result = product.state.data as Result<Product[]> | null;
   const location = useLocation();
   const [search, setSearch] = useSearchParams({
     page: "1",
@@ -82,8 +84,8 @@ export function ProductList() {
               </Table.Head>
               <Table.Body className="divide-y">
                 {(() => {
-                  if (product.state.data?.data != null) {
-                    const products = product.state.data.data as Array<Product>;
+                  if (result?.data != null) {
+                    const products = result.data;
 
                     if (products.length > 0) {
                       return (
@@ -167,11 +169,10 @@ export function ProductList() {
                   layout="navigation"
                   currentPage={Number(search.get("page")!)}
                   totalPages={
-                    product.state.data?.paging!.total! == 0
+                    result?.paging!.total! == 0
                       ? 1
                       : Math.ceil(
-                          product.state.data?.paging!.total! /
-                            Number(search.get("limit")!)
+                          result?.paging!.total! / Number(search.get("limit")!)
                         )
                   }
                   onPageChange={(page) => {

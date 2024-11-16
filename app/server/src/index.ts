@@ -3,10 +3,10 @@ import express from "express";
 import http from "http";
 import multer from "multer";
 import { Failure } from "./common/error";
+import { isLogin } from "./feature/middleware";
+import productRoute from "./feature/product/view/product_route";
 import purchaseRoute from "./feature/purchase/view/purchase_route";
 import userRoute from "./feature/user/view/user_route";
-import { isLogin } from "./view/middleware";
-import productRoute from "./view/product/product_route";
 
 const app = express();
 const server = http.createServer(app);

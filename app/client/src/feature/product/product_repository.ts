@@ -26,7 +26,7 @@ export class ProductRepository {
   async read(
     id: string,
     token: string
-  ): Promise<Result<Product> | null | undefined> {
+  ): Promise<Product | null | undefined> {
     try {
       const result = await axios.get(`${server}/app/product/${id}`, {
         headers: {

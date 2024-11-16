@@ -1,55 +1,52 @@
-import { Result } from "../../common/type";
-import { MySql, pool } from "../../helper/mysql";
+import { randomUUID } from "crypto";
+import { Result } from "../../../common/type";
+import { MySql, pool } from "../../../helper/mysql";
+import { ProductApi } from "./product_api";
 import {
   Product,
-  ProductCreateParam,
-  ProductListParam,
-  ProductUpdateParam,
+  ProductCreate,
+  ProductList,
+  ProductUpdate,
 } from "./product_type";
 
-export class ProductRepository {
-  async create(param: ProductCreateParam): Promise<void> {
+export class ProductMysql implements ProductApi {
+  async create(param: ProductCreate): Promise<void> {
     await MySql.query("insert into products set ?", {
       ...param,
+      id: randomUUID(),
       created: new Date(),
       updated: new Date(),
     });
   }
 
-  async read(id: string): Promise<Result<Product> | null | undefined> {
-    const result = await MySql.query("select * from products where id = ?", id);
+  async read(id: string): Promise<Product | null | undefined> {
+    const result = await MySql.query(
+      "select * from products where id = ? and deleted is null",
+      id
+    );
 
-    if (result != null) {
-      const data = {
-        data: result[0],
-        paging: {
-          page: 1,
-          limit: 10,
-          total: 1,
-        },
-      };
-
-      return data;
+    if (result.length > 0) {
+      return result[0];
     }
 
     return null;
   }
 
-  async update(id: string, param: ProductUpdateParam): Promise<void> {
-    await MySql.query("update products set ? where ?", [
+  async update(id: string, param: ProductUpdate): Promise<void> {
+    await MySql.query("update products set ? where id = ?", [
       { ...param, updated: new Date() },
-      { id: id },
+      id,
     ]);
   }
 
   async delete(id: string): Promise<void> {
-    await MySql.query("update products set ? where ?", [
+    await MySql.query("update products set ? where id = ?", [
       { deleted: new Date() },
-      { id: id },
+      id,
     ]);
   }
 
-  async list(param: ProductListParam): Promise<Result<Product[]>> {
+  async list(param: ProductList): Promise<Result<Product[]>> {
     let query = "select * from products where deleted is null";
 
     if (param.search != null) {
@@ -66,7 +63,7 @@ export class ProductRepository {
 
     const result = await MySql.query(query);
 
-    const data = {
+    return {
       data: result,
       paging: {
         page: param.page,
@@ -74,7 +71,5 @@ export class ProductRepository {
         total: total,
       },
     };
-
-    return data;
   }
 }

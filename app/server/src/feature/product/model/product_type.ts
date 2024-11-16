@@ -17,7 +17,6 @@ export const productListSchema = object({
 });
 
 export const productCreateSchema = object({
-  id: string().required(),
   code: string().required(),
   name: string().required(),
   note: string().nullable(),
@@ -30,6 +29,6 @@ export const productUpdateSchema = object({
 });
 
 export type Product = InferType<typeof productSchema>;
-export type ProductListParam = InferType<typeof productListSchema>;
-export type ProductCreateParam = InferType<typeof productCreateSchema>;
-export type ProductUpdateParam = InferType<typeof productUpdateSchema>;
+export type ProductList = InferType<typeof productListSchema>;
+export type ProductCreate = InferType<typeof productCreateSchema>;
+export type ProductUpdate = InferType<typeof productUpdateSchema>;
