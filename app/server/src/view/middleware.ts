@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { Failure, Unauthorized } from "../common/error";
-import { auth } from "./service";
+import { userController } from "./service";
 
 export async function isLogin(req: Request, res: Response, next: NextFunction) {
   try {
@@ -11,10 +11,10 @@ export async function isLogin(req: Request, res: Response, next: NextFunction) {
 
       if (payloads.length == 2) {
         const token = payloads[1];
-        const authModel = await auth.validate(token);
+        const user = await userController.validate(token);
 
-        if (authModel != undefined) {
-          res.locals.auth = authModel;
+        if (user != null) {
+          res.locals.user = user;
 
           return next();
         }
@@ -29,7 +29,7 @@ export async function isLogin(req: Request, res: Response, next: NextFunction) {
 
 export async function isOwner(req: Request, res: Response, next: NextFunction) {
   try {
-    if (res.locals.auth.role == "owner") {
+    if (res.locals.user.role == "owner") {
       return next();
     }
 

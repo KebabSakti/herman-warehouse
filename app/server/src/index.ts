@@ -4,7 +4,7 @@ import http from "http";
 import multer from "multer";
 import { Failure } from "./common/error";
 import purchaseRoute from "./feature/purchase/view/purchase_route";
-import authRoute from "./view/auth/auth_route";
+import userRoute from "./feature/user/view/user_route";
 import { isLogin } from "./view/middleware";
 import productRoute from "./view/product/product_route";
 
@@ -65,7 +65,7 @@ app.get("/", async (req, res) => {
   }
 });
 
-app.use("/", authRoute);
+app.use("/", userRoute);
 app.use("/app", isLogin);
 app.use("/app/product", productRoute);
 app.use("/app/purchase", purchaseRoute);
