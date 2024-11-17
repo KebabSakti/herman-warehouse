@@ -8,39 +8,72 @@ import { Purchase, PurchaseCreate, PurchaseList } from "./purchase_type";
 
 export class PurchaseMysql implements PurchaseApi {
   async list(param: PurchaseList): Promise<Result<Purchase[]>> {
-    let query = "select * from purchases where deleted is null";
+    let table = `select * from purchases where deleted is null`;
 
     if (param.search != null) {
       const search = pool.escape(param.search);
-      query += ` and (supplierName like "%"${search}"%" or supplierPhone like "%"${search}"%" or code like "%"${search}"%")`;
+      table += ` and (supplierName like "%"${search}"%" or supplierPhone like "%"${search}"%" or code like "%"${search}"%")`;
     }
 
     if (param.search?.length == 0) {
       const start = pool.escape(`${param.start} 00:00:00`);
       const end = pool.escape(`${param.end} 23:59:59`);
-      query += ` and created between ${start} and ${end}`;
+      table += ` and created between ${start} and ${end}`;
     }
 
-    const total = (await MySql.query(query)).length;
+    const total = (await MySql.query(table)).length;
     const offset = (param.page - 1) * param.limit;
     const limit = param.limit;
-    query += ` order by created desc limit ${limit} offset ${offset}`;
-    const purchases = await MySql.query(query);
-    const result: any = [];
+    table += ` order by created desc limit ${limit} offset ${offset}`;
 
-    for await (let purchase of purchases) {
-      const inventory = await MySql.query(
-        "select * from inventories where purchaseId = ?",
-        purchase.id
-      );
+    let query = `
+    select purchases.*, inventories.*, payments.*
+    from (${table}) as purchases
+    left join inventories on purchases.id = inventories.purchaseId
+    left join payments on purchases.id = payments.purchaseId
+    `;
 
-      const payment = await MySql.query(
-        "select * from payments where purchaseId = ?",
-        purchase.id
-      );
+    const purchases = await MySql.query({ sql: query, nestTables: true });
 
-      result.push({ ...purchase, inventory: inventory, payment: payment });
-    }
+    const result = purchases.reduce((acc: any, item: any) => {
+      const index = acc.findIndex((e: any) => e.id == item.purchases.id);
+
+      if (index >= 0) {
+        const invIndex = acc[index].inventory.findIndex(
+          (e: any) => e.id == item.inventories.id
+        );
+
+        const payIndex = acc[index].payment.findIndex(
+          (e: any) => e.id == item.payments.id
+        );
+
+        if (invIndex < 0) {
+          if (item.inventories.id != null) {
+            acc[index].inventory.push(item.inventories);
+          }
+        }
+
+        if (payIndex < 0) {
+          if (item.payments.id != null) {
+            acc[index].payment.push(item.payments);
+          }
+        }
+      } else {
+        const element = { ...item.purchases, inventory: [], payment: [] };
+
+        if (item.inventories.id != null) {
+          element.inventory.push(item.inventories);
+        }
+
+        if (item.payments.id != null) {
+          element.payment.push(item.payments);
+        }
+
+        acc.push(element);
+      }
+
+      return acc;
+    }, []);
 
     const data = {
       data: result,

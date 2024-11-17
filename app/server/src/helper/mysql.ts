@@ -11,7 +11,10 @@ export const pool = mysql.createPool({
 });
 
 export class MySql {
-  static async query(query: string, values?: any | undefined): Promise<any> {
+  static async query(
+    query: string | mysql.QueryOptions,
+    values?: any | undefined
+  ): Promise<any> {
     return await new Promise((resolve, reject) => {
       pool.query(query, values, (error, result) => {
         if (error) reject(error);

@@ -7,6 +7,7 @@ import { isLogin } from "./feature/middleware";
 import productRoute from "./feature/product/view/product_route";
 import purchaseRoute from "./feature/purchase/view/purchase_route";
 import userRoute from "./feature/user/view/user_route";
+import { MySql } from "./helper/mysql";
 
 const app = express();
 const server = http.createServer(app);
@@ -47,19 +48,90 @@ app.get("/", async (req, res) => {
     //   });
     // });
 
-    // const a = await MySql.query(
-    //   "select users.*,activities.description,activities.created from users right join activities on users.id = activities.userId"
-    // );
-
     // for await (let _ of [...Array(200)]) {
     // }
 
     // const a = new PurchaseRepository();
     // const b = await a.purchaseDetail(req.params.id);
 
-    console.log("OKE");
+    // const query = await MySql.query(
+    //   "select purchases.*, inventories.productName, inventories.qty, inventories.price, inventories.total from purchases left join inventories on purchases.id = inventories.purchaseId"
+    // );
 
-    return res.json("OKE");
+    const table = `(select * from purchases where deleted is null order by created asc limit 2 offset 0) as purchases`;
+
+    let query = `
+    select purchases.*, inventories.*, payments.*
+    from ${table}
+    left join inventories on purchases.id = inventories.purchaseId
+    left join payments on purchases.id = payments.purchaseId
+    `;
+
+    const purchases = await MySql.query({ sql: query, nestTables: true });
+
+    const result = purchases.reduce((acc: any, item: any) => {
+      let index = acc.findIndex((e: any) => e.id == item.purchases.id);
+
+      if (index >= 0) {
+        const invIndex = acc[index].inventory.findIndex(
+          (e: any) => e.id == item.inventories.id
+        );
+
+        const payIndex = acc[index].payment.findIndex(
+          (e: any) => e.id == item.payments.id
+        );
+
+        if (invIndex < 0) {
+          if (item.inventories.id != null) {
+            acc[index].inventory.push(item.inventories);
+          }
+        }
+
+        if (payIndex < 0) {
+          if (item.payments.id != null) {
+            acc[index].payment.push(item.payments);
+          }
+        }
+      } else {
+        const element = { ...item.purchases, inventory: [], payment: [] };
+
+        if (item.inventories.id != null) {
+          element.inventory.push(item.inventories);
+        }
+
+        if (item.payments.id != null) {
+          element.payment.push(item.payments);
+        }
+
+        acc.push(element);
+      }
+
+      return acc;
+    }, []);
+
+    // const result = [];
+
+    // const query2 = await MySql.query(
+    //   "select * from purchases where deleted is null limit 10 offset 0"
+    // );
+
+    // for await (const item of query2) {
+    //   const i = await MySql.query(
+    //     "select * from inventories where purchaseId = ?",
+    //     item.id
+    //   );
+
+    //   const p = await MySql.query(
+    //     "select * from payments where purchaseId = ?",
+    //     item.id
+    //   );
+
+    //   result.push({ ...item, inventory: i, payment: p });
+    // }
+
+    console.log(result.length);
+
+    return res.json(result);
   } catch (error: any) {
     return Failure(error, res);
   }
