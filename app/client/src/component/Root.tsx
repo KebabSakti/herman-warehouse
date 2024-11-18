@@ -3,8 +3,8 @@ import { useContext } from "react";
 import { FaSignOutAlt } from "react-icons/fa";
 import { HiChevronDown, HiCog, HiUser } from "react-icons/hi";
 import { Outlet } from "react-router-dom";
-import { Repository } from "../../App";
-import logo from "../../asset/logo.png";
+import { Repository } from "./App";
+import logo from "../asset/logo.png";
 import { MDrawer } from "./MDrawer";
 import { Menu } from "./Menu";
 

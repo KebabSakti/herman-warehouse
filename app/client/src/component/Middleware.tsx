@@ -1,6 +1,6 @@
 import { ReactNode, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Repository } from "../../App";
+import { Repository } from "./App";
 
 export function Middleware({ children }: { children: ReactNode }) {
   const { auth } = useContext(Repository)!;

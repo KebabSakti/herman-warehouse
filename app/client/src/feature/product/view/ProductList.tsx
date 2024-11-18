@@ -3,9 +3,9 @@ import { useContext, useEffect } from "react";
 import { HiPencil, HiPlus, HiSearch, HiTrash } from "react-icons/hi";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Repository } from "../../../App";
+import { Repository } from "../../../component/App";
 import { Result } from "../../../common/type";
-import { LoadingContainer } from "../../../view/component/LoadingContainer";
+import { LoadingContainer } from "../../../component/LoadingContainer";
 import { Product } from "../model/product_type";
 import { useProductHook } from "./ProductHook";
 

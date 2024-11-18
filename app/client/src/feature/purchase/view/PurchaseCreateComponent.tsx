@@ -2,7 +2,7 @@ import { Modal } from "flowbite-react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useLocation, useNavigate } from "react-router-dom";
 import { object, string } from "yup";
-import { LoadingContainer } from "../../../view/component/LoadingContainer";
+import { LoadingContainer } from "../../../component/LoadingContainer";
 
 export function PurchaseCreateComponent() {
   const navigate = useNavigate();
