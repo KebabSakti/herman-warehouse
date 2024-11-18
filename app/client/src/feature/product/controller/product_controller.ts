@@ -1,5 +1,14 @@
+import axios from "axios";
+import { server } from "../../../common/common";
 import { ProductApi } from "../model/product_api";
-import { ProductCreate } from "../model/product_type";
+import {
+  Product,
+  ProductCreate,
+  ProductList,
+  ProductUpdate,
+} from "../model/product_type";
+import { Failure } from "../../../common/error";
+import { Result } from "../../../common/type";
 
 export class ProductController {
   productApi: ProductApi;

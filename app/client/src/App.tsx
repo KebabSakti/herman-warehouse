@@ -25,6 +25,13 @@ import { AuthApi } from "./feature/authentication/model/auth_api";
 import { AuthAxios } from "./feature/authentication/model/auth_axios";
 import { AuthController } from "./feature/authentication/controller/auth_controller";
 import { LoginPage } from "./feature/authentication/view/LoginPage";
+import {
+  ProductHookType,
+  useProductHook,
+} from "./feature/product/view/ProductHook";
+import { ProductApi } from "./feature/product/model/product_api";
+import { ProductAxios } from "./feature/product/model/product_axios";
+import { ProductController } from "./feature/product/controller/product_controller";
 
 export type Dependency = {
   auth: AuthHookType;

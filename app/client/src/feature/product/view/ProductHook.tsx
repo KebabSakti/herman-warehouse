@@ -1,34 +1,43 @@
 import { useState } from "react";
 import { Result, State } from "../../../common/type";
+import { ProductController } from "../controller/product_controller";
 import {
   Product,
-  ProductCreateParam,
-  ProductListParam,
-  ProductUpdateParam,
+  ProductCreate,
+  ProductList,
+  ProductUpdate,
 } from "../model/product_type";
-import { productRepository } from "../../../view/service";
 
 type ProductState = State<Result<Product[]> | Product | null | undefined>;
 
 export type ProductHookType = {
   state: ProductState;
-  list(param: ProductListParam, token: string): Promise<void>;
-  create(param: ProductCreateParam, token: string): Promise<void>;
-  read(id: string, token: string): Promise<void>;
-  update(id: string, param: ProductUpdateParam, token: string): Promise<void>;
-  remove(id: string, token: string): Promise<void>;
+  list(param: ProductList, extra?: Record<string, any>): Promise<void>;
+  create(param: ProductCreate, extra?: Record<string, any>): Promise<void>;
+  read(id: string, extra?: Record<string, any>): Promise<void>;
+  update(
+    id: string,
+    param: ProductUpdate,
+    extra?: Record<string, any>
+  ): Promise<void>;
+  remove(id: string, extra?: Record<string, any>): Promise<void>;
 };
 
-export function useProductHook(): ProductHookType {
+export function useProductHook(
+  productController: ProductController
+): ProductHookType {
   const [state, setState] = useState<ProductState>({
     action: "idle",
     status: "idle",
   });
 
-  async function list(param: ProductListParam, token: string): Promise<void> {
+  async function list(
+    param: ProductList,
+    extra?: Record<string, any>
+  ): Promise<void> {
     try {
       setState({ action: "list", status: "loading" });
-      const data = await productRepository.list(param, token);
+      const data = await productController.list(param, extra);
       setState({ action: "list", status: "complete", data: data });
     } catch (error: any) {
       setState({ action: "list", status: "complete", error: error });
@@ -36,22 +45,22 @@ export function useProductHook(): ProductHookType {
   }
 
   async function create(
-    param: ProductCreateParam,
-    token: string
+    param: ProductCreate,
+    extra?: Record<string, any>
   ): Promise<void> {
     try {
       setState({ action: "create", status: "loading" });
-      await productRepository.create(param, token);
+      await productController.create(param, extra);
       setState({ action: "create", status: "complete" });
     } catch (error: any) {
       setState({ action: "create", status: "complete", error: error });
     }
   }
 
-  async function read(id: string, token: string): Promise<void> {
+  async function read(id: string, extra?: Record<string, any>): Promise<void> {
     try {
       setState({ action: "read", status: "loading" });
-      const data = await productRepository.read(id, token);
+      const data = await productController.read(id, extra);
       setState({ action: "read", status: "complete", data: data });
     } catch (error: any) {
       setState({ action: "read", status: "complete", error: error });
@@ -60,22 +69,25 @@ export function useProductHook(): ProductHookType {
 
   async function update(
     id: string,
-    param: ProductUpdateParam,
-    token: string
+    param: ProductUpdate,
+    extra?: Record<string, any>
   ): Promise<void> {
     try {
       setState({ action: "update", status: "loading" });
-      await productRepository.update(id, param, token);
+      await productController.update(id, param, extra);
       setState({ action: "update", status: "complete" });
     } catch (error: any) {
       setState({ action: "update", status: "complete", error: error });
     }
   }
 
-  async function remove(id: string, token: string): Promise<void> {
+  async function remove(
+    id: string,
+    extra?: Record<string, any>
+  ): Promise<void> {
     try {
       setState({ action: "remove", status: "loading" });
-      await productRepository.remove(id, token);
+      await productController.delete(id, extra);
       setState({ action: "remove", status: "complete" });
     } catch (error: any) {
       setState({ action: "remove", status: "complete", error: error });
