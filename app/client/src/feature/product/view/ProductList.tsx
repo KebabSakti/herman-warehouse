@@ -4,14 +4,14 @@ import { HiPencil, HiPlus, HiSearch, HiTrash } from "react-icons/hi";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Repository } from "../../../App";
-import { Product, ProductListParam } from "../model/product_type";
+import { Result } from "../../../common/type";
 import { LoadingContainer } from "../../../view/component/LoadingContainer";
+import { Product } from "../model/product_type";
 import { useProductHook } from "./ProductHook";
-import { Result, State } from "../../../common/type";
 
 export function ProductList() {
-  const { auth } = useContext(Repository)!;
-  const product = useProductHook();
+  const { auth, productController } = useContext(Repository)!;
+  const product = useProductHook(productController);
   const result = product.state.data as Result<Product[]> | null;
   const location = useLocation();
   const [search, setSearch] = useSearchParams({
@@ -19,7 +19,7 @@ export function ProductList() {
     limit: "10",
     search: "",
   });
-  const param = Object.fromEntries(search.entries());
+  const param: any = Object.fromEntries(search.entries());
 
   useEffect(() => {
     if (
@@ -27,19 +27,19 @@ export function ProductList() {
       product.state.status == "complete" &&
       product.state.error == null
     ) {
-      product.list(param as ProductListParam, auth.state.data!);
+      product.list(param, { token: auth.state.data! });
       toast.success("Produk berhasil dihapus");
     }
 
     if (product.state.status == "complete" && product.state.error != null) {
-      product.list(param as ProductListParam, auth.state.data!);
+      product.list(param, { token: auth.state.data! });
       toast.error(product.state.error.message);
     }
   }, [product.state]);
 
   useEffect(() => {
     if (search.size == 3) {
-      product.list(param as ProductListParam, auth.state.data!);
+      product.list(param, { token: auth.state.data! });
     }
   }, [search]);
 
@@ -113,10 +113,9 @@ export function ProductList() {
                                             "Data akan dihapus, proses ini tidak dapat dikembalikan, lanjutkan?"
                                           )
                                         ) {
-                                          product.remove(
-                                            e.id,
-                                            auth.state.data!
-                                          );
+                                          product.remove(e.id, {
+                                            token: auth.state.data!,
+                                          });
                                         }
                                       }}
                                     >

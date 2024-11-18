@@ -9,15 +9,15 @@ import { LoadingContainer } from "../../../view/component/LoadingContainer";
 import { useProductHook } from "./ProductHook";
 
 export function ProductEdit() {
-  const { auth } = useContext(Repository)!;
+  const { auth, productController } = useContext(Repository)!;
   const param = useParams();
-  const product = useProductHook();
+  const product = useProductHook(productController);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     if (product.state.action == "idle" && product.state.status == "idle") {
-      product.read(param.id!, auth.state.data!);
+      product.read(param.id!, { token: auth.state.data! });
     }
 
     if (
@@ -68,7 +68,9 @@ export function ProductEdit() {
                   }}
                   validationSchema={productUpdateSchema}
                   onSubmit={(values) => {
-                    product.update(param.id!, values, auth.state.data!);
+                    product.update(param.id!, values, {
+                      token: auth.state.data!,
+                    });
                   }}
                 >
                   <Form className="flex flex-col gap-4">

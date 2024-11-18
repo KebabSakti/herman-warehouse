@@ -5,37 +5,38 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { Flip, ToastContainer } from "react-toastify";
+import { AuthController } from "./feature/authentication/controller/auth_controller";
+import { AuthApi } from "./feature/authentication/model/auth_api";
+import { AuthAxios } from "./feature/authentication/model/auth_axios";
+import {
+  AuthHookType,
+  useAuthHook,
+} from "./feature/authentication/view/AuthHook";
+import { LoginPage } from "./feature/authentication/view/LoginPage";
+import { ProductController } from "./feature/product/controller/product_controller";
+import { ProductApi } from "./feature/product/model/product_api";
+import { ProductAxios } from "./feature/product/model/product_axios";
+import { ProductCreate } from "./feature/product/view/ProductCreate";
+import { ProductEdit } from "./feature/product/view/ProductEdit";
+import { ProductPage } from "./feature/product/view/ProductPage";
+import { PurchaseController } from "./feature/purchase/controller/purchase_controller";
+import { PurchaseApi } from "./feature/purchase/model/purchase_api";
+import { PurchaseAxios } from "./feature/purchase/model/purchase_axios";
+import { PurchaseCreateComponent } from "./feature/purchase/view/PurchaseCreateComponent";
+import { PurchasePage } from "./feature/purchase/view/PurchasePage";
 import { UserController } from "./feature/user/controller/user_controller";
 import { UserApi } from "./feature/user/model/user_api";
 import { UserAxios } from "./feature/user/model/user_axios";
 import { UserHookType, useUserHook } from "./feature/user/view/UserHook";
 import { Root } from "./view/component/Root";
-import { DashboardPage } from "./view/page/dashboard/DashboardPage";
-import { InventoryCreate } from "./view/page/inventory/InventoryCreate";
-import { InventoryPage } from "./view/page/inventory/InventoryPage";
+import { DashboardPage } from "./feature/dashboard/view/DashboardPage";
 import { Middleware } from "./view/page/Middleware";
-import { ProductCreate } from "./feature/product/view/ProductCreate";
-import { ProductEdit } from "./feature/product/view/ProductEdit";
-import { ProductPage } from "./feature/product/view/ProductPage";
-import {
-  AuthHookType,
-  useAuthHook,
-} from "./feature/authentication/view/AuthHook";
-import { AuthApi } from "./feature/authentication/model/auth_api";
-import { AuthAxios } from "./feature/authentication/model/auth_axios";
-import { AuthController } from "./feature/authentication/controller/auth_controller";
-import { LoginPage } from "./feature/authentication/view/LoginPage";
-import {
-  ProductHookType,
-  useProductHook,
-} from "./feature/product/view/ProductHook";
-import { ProductApi } from "./feature/product/model/product_api";
-import { ProductAxios } from "./feature/product/model/product_axios";
-import { ProductController } from "./feature/product/controller/product_controller";
 
 export type Dependency = {
   auth: AuthHookType;
   user: UserHookType;
+  productController: ProductController;
+  purchaseController: PurchaseController;
 };
 
 export const Repository = createContext<Dependency | null>(null);
@@ -63,11 +64,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/app/inventory",
-        element: <InventoryPage />,
+        element: <PurchasePage />,
         children: [
           {
             path: "/app/inventory/create",
-            element: <InventoryCreate />,
+            element: <PurchaseCreateComponent />,
           },
         ],
       },
@@ -116,10 +117,14 @@ const router = createBrowserRouter([
 export function App() {
   const authApi: AuthApi = new AuthAxios();
   const userApi: UserApi = new UserAxios();
+  const productApi: ProductApi = new ProductAxios();
+  const purchaseApi: PurchaseApi = new PurchaseAxios();
 
   const dependencies: Dependency = {
     auth: useAuthHook(new AuthController(authApi)),
     user: useUserHook(new UserController(userApi)),
+    productController: new ProductController(productApi),
+    purchaseController: new PurchaseController(purchaseApi),
   };
 
   return (

@@ -3,15 +3,15 @@ import { LoadingContainer } from "../../../view/component/LoadingContainer";
 import { productCreateSchema } from "../model/product_type";
 import { useContext, useEffect } from "react";
 import { Repository } from "../../../App";
-import { useProductHook } from "../../../view/page/product/ProductHook";
 import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { Modal } from "flowbite-react";
+import { useProductHook } from "./ProductHook";
 
 export function ProductCreate() {
-  const { auth } = useContext(Repository)!;
-  const product = useProductHook();
+  const { auth, productController } = useContext(Repository)!;
+  const product = useProductHook(productController);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -55,7 +55,7 @@ export function ProductCreate() {
               initialValues={{ id: uuidv4(), code: "", name: "", note: "" }}
               validationSchema={productCreateSchema}
               onSubmit={(values) => {
-                product.create(values, auth.state.data!);
+                product.create(values, { token: auth.state.data! });
               }}
             >
               <Form className="flex flex-col gap-4">

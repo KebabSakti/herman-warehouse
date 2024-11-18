@@ -42,7 +42,7 @@ export function LoginPage() {
                   <Field
                     type="text"
                     name="uid"
-                    placeholder="authname"
+                    placeholder="Username"
                     className="bg-slate-100 p-3 rounded w-full border-none"
                   />
                   <ErrorMessage
