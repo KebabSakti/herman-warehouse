@@ -5,8 +5,8 @@ import {
   ProductCreateParam,
   ProductListParam,
   ProductUpdateParam,
-} from "../../../feature/product/product_type";
-import { productRepository } from "../../service";
+} from "../model/product_type";
+import { productRepository } from "../../../view/service";
 
 type ProductState = State<Result<Product[]> | Product | null | undefined>;
 

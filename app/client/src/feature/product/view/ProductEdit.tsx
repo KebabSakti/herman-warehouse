@@ -4,11 +4,8 @@ import { useContext, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Repository } from "../../../App";
-import {
-  Product,
-  productUpdateSchema,
-} from "../../../feature/product/product_type";
-import { LoadingContainer } from "../../component/LoadingContainer";
+import { Product, productUpdateSchema } from "../model/product_type";
+import { LoadingContainer } from "../../../view/component/LoadingContainer";
 import { useProductHook } from "./ProductHook";
 
 export function ProductEdit() {

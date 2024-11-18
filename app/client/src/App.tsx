@@ -5,19 +5,30 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { Flip, ToastContainer } from "react-toastify";
+import { UserController } from "./feature/user/controller/user_controller";
+import { UserApi } from "./feature/user/model/user_api";
+import { UserAxios } from "./feature/user/model/user_axios";
+import { UserHookType, useUserHook } from "./feature/user/view/UserHook";
 import { Root } from "./view/component/Root";
-import { AuthHookType, useAuthHook } from "./view/page/auth/AuthHook";
-import { LoginPage } from "./view/page/auth/LoginPage";
 import { DashboardPage } from "./view/page/dashboard/DashboardPage";
+import { InventoryCreate } from "./view/page/inventory/InventoryCreate";
 import { InventoryPage } from "./view/page/inventory/InventoryPage";
 import { Middleware } from "./view/page/Middleware";
-import { ProductCreate } from "./view/page/product/ProductCreate";
-import { ProductEdit } from "./view/page/product/ProductEdit";
-import { ProductPage } from "./view/page/product/ProductPage";
-import { InventoryCreate } from "./view/page/inventory/InventoryCreate";
+import { ProductCreate } from "./feature/product/view/ProductCreate";
+import { ProductEdit } from "./feature/product/view/ProductEdit";
+import { ProductPage } from "./feature/product/view/ProductPage";
+import {
+  AuthHookType,
+  useAuthHook,
+} from "./feature/authentication/view/AuthHook";
+import { AuthApi } from "./feature/authentication/model/auth_api";
+import { AuthAxios } from "./feature/authentication/model/auth_axios";
+import { AuthController } from "./feature/authentication/controller/auth_controller";
+import { LoginPage } from "./feature/authentication/view/LoginPage";
 
 export type Dependency = {
   auth: AuthHookType;
+  user: UserHookType;
 };
 
 export const Repository = createContext<Dependency | null>(null);
@@ -96,8 +107,12 @@ const router = createBrowserRouter([
 ]);
 
 export function App() {
+  const authApi: AuthApi = new AuthAxios();
+  const userApi: UserApi = new UserAxios();
+
   const dependencies: Dependency = {
-    auth: useAuthHook(),
+    auth: useAuthHook(new AuthController(authApi)),
+    user: useUserHook(new UserController(userApi)),
   };
 
   return (

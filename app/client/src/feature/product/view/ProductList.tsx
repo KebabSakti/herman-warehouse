@@ -4,11 +4,8 @@ import { HiPencil, HiPlus, HiSearch, HiTrash } from "react-icons/hi";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Repository } from "../../../App";
-import {
-  Product,
-  ProductListParam,
-} from "../../../feature/product/product_type";
-import { LoadingContainer } from "../../component/LoadingContainer";
+import { Product, ProductListParam } from "../model/product_type";
+import { LoadingContainer } from "../../../view/component/LoadingContainer";
 import { useProductHook } from "./ProductHook";
 import { Result, State } from "../../../common/type";
 

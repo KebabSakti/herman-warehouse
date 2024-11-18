@@ -1,9 +1,9 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { LoadingContainer } from "../../component/LoadingContainer";
-import { productCreateSchema } from "../../../feature/product/product_type";
+import { LoadingContainer } from "../../../view/component/LoadingContainer";
+import { productCreateSchema } from "../model/product_type";
 import { useContext, useEffect } from "react";
 import { Repository } from "../../../App";
-import { useProductHook } from "./ProductHook";
+import { useProductHook } from "../../../view/page/product/ProductHook";
 import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
