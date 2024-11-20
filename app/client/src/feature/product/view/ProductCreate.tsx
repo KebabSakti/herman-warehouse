@@ -2,7 +2,7 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import { LoadingContainer } from "../../../component/LoadingContainer";
 import { productCreateSchema } from "../model/product_type";
 import { useContext, useEffect } from "react";
-import { Repository } from "../../../component/App";
+import { Dependency } from "../../../component/App";
 import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -10,7 +10,7 @@ import { Modal } from "flowbite-react";
 import { useProductHook } from "./ProductHook";
 
 export function ProductCreate() {
-  const { auth, productController } = useContext(Repository)!;
+  const { auth, productController } = useContext(Dependency)!;
   const product = useProductHook(productController);
   const navigate = useNavigate();
   const location = useLocation();

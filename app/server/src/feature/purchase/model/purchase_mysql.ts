@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { randomUUID } from "crypto";
 import { Result } from "../../../common/type";
 import { MySql, pool } from "../../../helper/mysql";
@@ -16,8 +17,16 @@ export class PurchaseMysql implements PurchaseApi {
     }
 
     if (param.search?.length == 0) {
-      const start = pool.escape(`${param.start} 00:00:00`);
-      const end = pool.escape(`${param.end} 23:59:59`);
+      const startDate = dayjs
+        .utc(`${param.start}T00:00:00`)
+        .format("YYYY-MM-DD HH:mm:ss");
+
+      const endDate = dayjs
+        .utc(`${param.end}T23:59:59`)
+        .format("YYYY-MM-DD HH:mm:ss");
+
+      const start = pool.escape(startDate);
+      const end = pool.escape(endDate);
       table += ` and created between ${start} and ${end}`;
     }
 

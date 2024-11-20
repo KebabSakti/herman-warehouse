@@ -24,7 +24,7 @@ import { ProductPage } from "../feature/product/view/ProductPage";
 import { PurchaseController } from "../feature/purchase/controller/purchase_controller";
 import { PurchaseApi } from "../feature/purchase/model/purchase_api";
 import { PurchaseAxios } from "../feature/purchase/model/purchase_axios";
-import { PurchaseCreateComponent } from "../feature/purchase/view/PurchaseCreateComponent";
+import { PurchaseCreate } from "../feature/purchase/view/PurchaseCreate";
 import { PurchasePage } from "../feature/purchase/view/PurchasePage";
 import { Root } from "./Root";
 
@@ -34,7 +34,7 @@ export type Dependency = {
   purchaseController: PurchaseController;
 };
 
-export const Repository = createContext<Dependency | null>(null);
+export const Dependency = createContext<Dependency | null>(null);
 
 const router = createBrowserRouter([
   {
@@ -63,7 +63,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/app/inventory/create",
-            element: <PurchaseCreateComponent />,
+            element: <PurchaseCreate />,
           },
         ],
       },
@@ -121,7 +121,7 @@ export function App() {
   };
 
   return (
-    <Repository.Provider value={dependencies}>
+    <Dependency.Provider value={dependencies}>
       <ToastContainer
         position="top-center"
         autoClose={2000}
@@ -135,6 +135,6 @@ export function App() {
         transition={Flip}
       />
       <RouterProvider router={router} />
-    </Repository.Provider>
+    </Dependency.Provider>
   );
 }

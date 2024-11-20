@@ -3,25 +3,31 @@ import { useContext, useEffect } from "react";
 import { HiPencil, HiPlus, HiSearch, HiTrash } from "react-icons/hi";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Repository } from "../../../component/App";
 import { Result } from "../../../common/type";
+import { Dependency } from "../../../component/App";
 import { LoadingContainer } from "../../../component/LoadingContainer";
 import { Product } from "../model/product_type";
 import { useProductHook } from "./ProductHook";
 
 export function ProductList() {
-  const { auth, productController } = useContext(Repository)!;
+  const { auth, productController } = useContext(Dependency)!;
   const product = useProductHook(productController);
   const result = product.state.data as Result<Product[]> | null;
   const location = useLocation();
+
   const [search, setSearch] = useSearchParams({
     page: "1",
     limit: "10",
     search: "",
   });
+
   const param: any = Object.fromEntries(search.entries());
 
   useEffect(() => {
+    if (product.state.status == "complete" && product.state.error != null) {
+      toast.error(product.state.error.message);
+    }
+
     if (
       product.state.action == "remove" &&
       product.state.status == "complete" &&
@@ -29,11 +35,6 @@ export function ProductList() {
     ) {
       product.list(param, { token: auth.state.data! });
       toast.success("Produk berhasil dihapus");
-    }
-
-    if (product.state.status == "complete" && product.state.error != null) {
-      product.list(param, { token: auth.state.data! });
-      toast.error(product.state.error.message);
     }
   }, [product.state]);
 

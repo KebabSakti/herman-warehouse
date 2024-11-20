@@ -12,7 +12,7 @@ export class AuthController {
     const token = await this.authApi.login(param);
 
     if (token) {
-      localStorage.setItem("token", token);
+      localStorage.setItem("token", token); 
     }
 
     return token;

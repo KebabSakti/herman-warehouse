@@ -3,11 +3,11 @@ import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { object, string } from "yup";
-import { Repository } from "../../../component/App";
+import { Dependency } from "../../../component/App";
 import { LoadingContainer } from "../../../component/LoadingContainer";
 
 export function LoginPage() {
-  const { auth } = useContext(Repository)!;
+  const { auth } = useContext(Dependency)!;
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -3,13 +3,13 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useContext, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Repository } from "../../../component/App";
+import { Dependency } from "../../../component/App";
 import { Product, productUpdateSchema } from "../model/product_type";
 import { LoadingContainer } from "../../../component/LoadingContainer";
 import { useProductHook } from "./ProductHook";
 
 export function ProductEdit() {
-  const { auth, productController } = useContext(Repository)!;
+  const { auth, productController } = useContext(Dependency)!;
   const param = useParams();
   const product = useProductHook(productController);
   const navigate = useNavigate();

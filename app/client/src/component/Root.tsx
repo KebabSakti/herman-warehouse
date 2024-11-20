@@ -3,13 +3,13 @@ import { useContext } from "react";
 import { FaSignOutAlt } from "react-icons/fa";
 import { HiChevronDown, HiCog, HiUser } from "react-icons/hi";
 import { Outlet } from "react-router-dom";
-import { Repository } from "./App";
+import { Dependency } from "./App";
 import logo from "../asset/logo.png";
 import { MDrawer } from "./MDrawer";
 import { Menu } from "./Menu";
 
 export function Root() {
-  const { auth } = useContext(Repository)!;
+  const { auth } = useContext(Dependency)!;
 
   return (
     <>
@@ -56,7 +56,7 @@ export function Root() {
             <Menu />
           </div>
         </div>
-        <div className="w-full mt-[65px] lg:ml-[250px]">
+        <div className="w-full mt-[65px] lg:ml-[250px] overflow-x-hidden">
           <Outlet />
         </div>
       </div>

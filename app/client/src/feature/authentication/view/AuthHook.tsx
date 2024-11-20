@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { State } from "../../../common/type";
-import { AuthLoginParam } from "../../auth/model/auth_type";
 import { AuthController } from "../controller/auth_controller";
 import { AuthLogin } from "../model/auth_type";
 
@@ -27,7 +26,7 @@ export function useAuthHook(authController: AuthController): AuthHookType {
     setState({ action: "init", status: "complete", data: token });
   }
 
-  async function login(param: AuthLoginParam): Promise<void> {
+  async function login(param: AuthLogin): Promise<void> {
     try {
       setState({ action: "login", status: "loading" });
       const token = await authController.login(param);

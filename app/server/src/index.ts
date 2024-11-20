@@ -8,6 +8,10 @@ import productRoute from "./feature/product/view/product_route";
 import purchaseRoute from "./feature/purchase/view/purchase_route";
 import userRoute from "./feature/user/view/user_route";
 import { MySql } from "./helper/mysql";
+import utc from "dayjs/plugin/utc";
+import dayjs from "dayjs";
+
+dayjs.extend(utc);
 
 const app = express();
 const server = http.createServer(app);

@@ -1,11 +1,11 @@
 import { Outlet } from "react-router-dom";
-import { PurchaseListComponent } from "./PurchaseListComponent";
+import { PurchaseList } from "./PurchaseList";
 
 export function PurchasePage() {
   return (
     <>
       <Outlet />
-      <PurchaseListComponent />
+      <PurchaseList />
     </>
   );
 }

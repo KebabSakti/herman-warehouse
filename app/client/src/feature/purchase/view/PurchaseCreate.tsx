@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { object, string } from "yup";
 import { LoadingContainer } from "../../../component/LoadingContainer";
 
-export function PurchaseCreateComponent() {
+export function PurchaseCreate() {
   const navigate = useNavigate();
   const location = useLocation();
 

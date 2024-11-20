@@ -4,14 +4,14 @@ import { useContext, useEffect } from "react";
 import { HiDownload, HiPencil, HiSearch, HiTrash } from "react-icons/hi";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Repository } from "../../../component/App";
+import { Dependency } from "../../../component/App";
 import { DateRangePicker } from "../../../component/DateRangePicker";
 import { LoadingContainer } from "../../../component/LoadingContainer";
 import { Purchase } from "../model/purchase_type";
 import { usePurchaseHook } from "./PurchaseHook";
 
-export function PurchaseListComponent() {
-  const { auth, purchaseController } = useContext(Repository)!;
+export function PurchaseList() {
+  const { auth, purchaseController } = useContext(Dependency)!;
   const purchase = usePurchaseHook(purchaseController);
   const location = useLocation();
 
