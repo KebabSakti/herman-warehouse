@@ -50,7 +50,7 @@ export function PurchaseList() {
   return (
     <>
       <div className="bg-container rounded p-4 min-h-screen flex flex-col gap-4">
-        <Title index title="DAFTAR BARANG MASUK" />
+        <Title index title="DAFTAR NOTA MASUK" />
         <div className="flex flex-col gap-2 lg:flex-row lg:justify-between">
           <Link
             to="/app/inventory/create"
@@ -60,7 +60,7 @@ export function PurchaseList() {
             className="bg-primary text-onprimary text-nowrap flex items-center p-2 px-3 rounded-md"
           >
             <HiDownload className="mr-2 h-5 w-5" />
-            <span>Barang Masuk</span>
+            <span>Buat Nota Baru</span>
           </Link>
           <div className="flex gap-2 items-center">
             <DateRangePicker
