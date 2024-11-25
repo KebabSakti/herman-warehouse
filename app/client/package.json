@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
     "axios": "^1.7.7",
     "dayjs": "^1.11.13",
     "flowbite-react": "^0.10.2",

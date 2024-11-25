@@ -2,6 +2,7 @@ import { createContext } from "react";
 import {
   createBrowserRouter,
   Navigate,
+  Outlet,
   RouterProvider,
 } from "react-router-dom";
 import { Flip, ToastContainer } from "react-toastify";
@@ -25,6 +26,7 @@ import { PurchaseController } from "../feature/purchase/controller/purchase_cont
 import { PurchaseApi } from "../feature/purchase/model/purchase_api";
 import { PurchaseAxios } from "../feature/purchase/model/purchase_axios";
 import { PurchaseCreate } from "../feature/purchase/view/PurchaseCreate";
+import { PurchaseList } from "../feature/purchase/view/PurchaseList";
 import { PurchasePage } from "../feature/purchase/view/PurchasePage";
 import { Root } from "./Root";
 
@@ -59,8 +61,12 @@ const router = createBrowserRouter([
       },
       {
         path: "/app/inventory",
-        element: <PurchasePage />,
+        element: <Outlet />,
         children: [
+          {
+            index: true,
+            element: <PurchaseList />,
+          },
           {
             path: "/app/inventory/create",
             element: <PurchaseCreate />,

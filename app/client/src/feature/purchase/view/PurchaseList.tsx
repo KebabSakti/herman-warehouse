@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { Dependency } from "../../../component/App";
 import { DateRangePicker } from "../../../component/DateRangePicker";
 import { LoadingContainer } from "../../../component/LoadingContainer";
+import { Title } from "../../../component/Title";
 import { Purchase } from "../model/purchase_type";
 import { usePurchaseHook } from "./PurchaseHook";
 
@@ -49,6 +50,7 @@ export function PurchaseList() {
   return (
     <>
       <div className="bg-container rounded p-4 min-h-screen flex flex-col gap-4">
+        <Title index title="DAFTAR BARANG MASUK" />
         <div className="flex flex-col gap-2 lg:flex-row lg:justify-between">
           <Link
             to="/app/inventory/create"
