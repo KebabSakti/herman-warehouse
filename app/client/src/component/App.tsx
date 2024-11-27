@@ -27,7 +27,6 @@ import { PurchaseApi } from "../feature/purchase/model/purchase_api";
 import { PurchaseAxios } from "../feature/purchase/model/purchase_axios";
 import { PurchaseCreate } from "../feature/purchase/view/PurchaseCreate";
 import { PurchaseList } from "../feature/purchase/view/PurchaseList";
-import { PurchasePage } from "../feature/purchase/view/PurchasePage";
 import { Root } from "./Root";
 
 export type Dependency = {

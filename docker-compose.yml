@@ -74,3 +74,17 @@ services:
       ADMINER_DESIGN: dracula
     networks:
       - herman-warehouse
+
+  test:
+    image: node:20-alpine3.19
+    restart: on-failure
+    working_dir: /test
+    ports:
+      - "1004:5173"
+    volumes:
+      - ./app/test:/test
+    environment:
+      - NODE_ENV=development
+    networks:
+      - herman-warehouse
+    command: sh -c "npm install && npm run dev"
