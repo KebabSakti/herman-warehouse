@@ -1,12 +1,22 @@
-import { Modal } from "flowbite-react";
-import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useContext, useEffect } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Dependency } from "../../../component/App";
-import { Product, productUpdateSchema } from "../model/product_type";
-import { LoadingContainer } from "../../../component/LoadingContainer";
 import { useProductHook } from "./ProductHook";
+import {
+  Button,
+  Flex,
+  Input,
+  Modal,
+  notification,
+  Spin,
+  Form,
+  Typography,
+} from "antd";
+import {
+  Product,
+  productCreateSchema,
+  productUpdateSchema,
+} from "../model/product_type";
 
 export function ProductEdit() {
   const { auth, productController } = useContext(Dependency)!;
@@ -14,6 +24,8 @@ export function ProductEdit() {
   const product = useProductHook(productController);
   const navigate = useNavigate();
   const location = useLocation();
+  const [form] = Form.useForm();
+  const { Text } = Typography;
 
   useEffect(() => {
     if (product.state.action == "idle" && product.state.status == "idle") {
@@ -25,7 +37,10 @@ export function ProductEdit() {
       product.state.status == "complete"
     ) {
       if (product.state.error == null) {
-        toast.success("Produk berhasil di update");
+        notification.success({
+          message: "Sukses",
+          description: "Produk berhasil di update",
+        });
 
         const target =
           location.state?.from == null
@@ -34,7 +49,10 @@ export function ProductEdit() {
 
         navigate(target);
       } else {
-        toast.error(product.state.error.message);
+        notification.error({
+          message: "Error",
+          description: product.state.error.message,
+        });
       }
     }
   }, [product.state]);
@@ -42,8 +60,13 @@ export function ProductEdit() {
   return (
     <>
       <Modal
-        show={location.pathname.includes("/app/product/edit")}
-        onClose={() => {
+        centered
+        loading={product.state.data == null}
+        title="Edit Produk"
+        maskClosable={false}
+        open={location.pathname.includes("/app/product/edit")}
+        footer={null}
+        onCancel={() => {
           const target =
             location.state?.from == null
               ? "/app/product?page=1&limit=10&search="
@@ -52,79 +75,71 @@ export function ProductEdit() {
           navigate(target);
         }}
       >
-        <Modal.Header>Edit Produk</Modal.Header>
-        <LoadingContainer loading={product.state.data == null}>
-          <Modal.Body>
-            {(() => {
-              const productEdit = product.state.data as Product | null;
+        {(() => {
+          if (product.state.data != null) {
+            const productEdit = product.state.data as Product | null;
 
-              return (
-                <Formik
-                  enableReinitialize
-                  initialValues={{
-                    code: productEdit?.code ?? "",
-                    name: productEdit?.name ?? "",
-                    note: productEdit?.note ?? "",
-                  }}
-                  validationSchema={productUpdateSchema}
-                  onSubmit={(values) => {
-                    product.update(param.id!, values, {
-                      token: auth.state.data!,
-                    });
-                  }}
-                >
-                  <Form className="flex flex-col gap-4">
-                    <div>
-                      <Field
-                        type="text"
-                        name="code"
-                        placeholder="Kode Produk"
-                        className="bg-slate-100 p-3 rounded w-full border-none"
-                      />
-                      <ErrorMessage
-                        name="code"
-                        component="div"
-                        className="text-red-500 text-sm"
-                      />
-                    </div>
-                    <div>
-                      <Field
-                        type="text"
-                        name="name"
-                        placeholder="Nama Produk"
-                        className="bg-slate-100 p-3 rounded w-full border-none"
-                      />
-                      <ErrorMessage
-                        name="name"
-                        component="div"
-                        className="text-red-500 text-sm"
-                      />
-                    </div>
-                    <div>
-                      <Field
-                        type="text"
-                        name="note"
-                        placeholder="Catatan"
-                        className="bg-slate-100 p-3 rounded w-full border-none"
-                      />
-                      <ErrorMessage
-                        name="note"
-                        component="div"
-                        className="text-red-500 text-sm"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="bg-primary text-onprimary font-semibold rounded p-3"
-                    >
-                      Submit
-                    </button>
+            return (
+              <>
+                <Spin spinning={product.state.status == "loading"}>
+                  <Form
+                    size="large"
+                    form={form}
+                    style={{ paddingTop: "14px" }}
+                    initialValues={{
+                      code: productEdit!.code,
+                      name: productEdit!.name,
+                    }}
+                    onFinish={async (values) => {
+                      await productUpdateSchema
+                        .validate(values, { strict: true, abortEarly: false })
+                        .then(() => {
+                          product.update(param.id!, values, {
+                            token: auth.state.data!,
+                          });
+                        })
+                        .catch((e) => {
+                          notification.error({
+                            message: "Error",
+                            description: (
+                              <Flex vertical gap={1}>
+                                {e.errors.map((e: any, i: any) => {
+                                  return (
+                                    <Text key={i} type="danger">
+                                      {e}
+                                    </Text>
+                                  );
+                                })}
+                              </Flex>
+                            ),
+                          });
+                        });
+                    }}
+                  >
+                    <Flex vertical gap="middle">
+                      <Form.Item noStyle name="code">
+                        <Input type="text" placeholder="Kode produk" />
+                      </Form.Item>
+                      <Form.Item noStyle name="name">
+                        <Input type="text" placeholder="Nama produk" />
+                      </Form.Item>
+                      <Form.Item noStyle>
+                        <Button
+                          htmlType="submit"
+                          type="primary"
+                          size="large"
+                          loading={product.state.status == "loading"}
+                        >
+                          Submit
+                        </Button>
+                      </Form.Item>
+                    </Flex>
                   </Form>
-                </Formik>
-              );
-            })()}
-          </Modal.Body>
-        </LoadingContainer>
+                </Spin>
+              </>
+            );
+          }
+        })()}
       </Modal>
     </>
   );

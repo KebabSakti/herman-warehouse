@@ -17,15 +17,14 @@ export const productListSchema = object({
 });
 
 export const productCreateSchema = object({
-  id: string().required(),
-  code: string().required("Field tidak boleh kosong"),
-  name: string().required("Field tidak boleh kosong"),
+  code: string().required("Kode produk tidak boleh kosong"),
+  name: string().required("Nama produk tidak boleh kosong"),
   note: string().nullable(),
 });
 
 export const productUpdateSchema = object({
-  code: string().required("Field tidak boleh kosong"),
-  name: string().required("Field tidak boleh kosong"),
+  code: string().required("Kode produk tidak boleh kosong"),
+  name: string().required("Nama produk tidak boleh kosong"),
   note: string().nullable(),
 });
 

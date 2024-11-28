@@ -1,6 +1,7 @@
 import { ReactNode, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dependency } from "./App";
+import { Flex } from "antd";
 
 export function Middleware({ children }: { children: ReactNode }) {
   const { auth } = useContext(Dependency)!;
@@ -20,9 +21,9 @@ export function Middleware({ children }: { children: ReactNode }) {
     <>
       {(() => {
         return (
-          <div className="h-screen flex justify-center items-center">
+          <Flex align="center" justify="center" style={{ height: "100vh" }}>
             LOADING...
-          </div>
+          </Flex>
         );
       })()}
     </>

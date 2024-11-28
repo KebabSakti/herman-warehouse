@@ -11,23 +11,26 @@ import {
   Row,
   Skeleton,
   Table,
+  DatePicker,
   Result as AntdResult,
 } from "antd";
 import Title from "antd/es/typography/Title";
+import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Result } from "../../../common/type";
 import { Dependency } from "../../../component/App";
 import { debounce } from "../../../helper/debounce";
-import { Product } from "../model/product_type";
-import { useProductHook } from "./ProductHook";
+import { Purchase } from "../model/purchase_type";
+import { usePurchaseHook } from "./PurchaseHook";
 
-export function ProductList() {
-  const { auth, productController } = useContext(Dependency)!;
-  const product = useProductHook(productController);
-  const result = product.state.data as Result<Product[]> | null;
+export function PurchaseList() {
+  const { auth, purchaseController } = useContext(Dependency)!;
+  const purchase = usePurchaseHook(purchaseController);
+  const result = purchase.state.data as Result<Purchase[]> | null;
   const location = useLocation();
   const navigate = useNavigate();
+  const { RangePicker } = DatePicker;
   const [search, setSearch] = useSearchParams();
   const initParam = {
     page: "1",
@@ -36,7 +39,7 @@ export function ProductList() {
   const param: any =
     search.size == 0 ? initParam : Object.fromEntries(search.entries());
 
-  const productSearch = debounce((message: string) => {
+  const searchRecord = debounce((message: string) => {
     const searchValue = {
       ...param,
       page: "1",
@@ -56,40 +59,38 @@ export function ProductList() {
 
   useEffect(() => {
     if (search.size >= 2) {
-      product.list(param, {
-        token: auth.state.data!,
-      });
+      purchase.list(param, { token: auth.state.data! });
     }
   }, [search]);
 
   useEffect(() => {
-    if (product.state.status == "complete" && product.state.error != null) {
+    if (purchase.state.status == "complete" && purchase.state.error != null) {
       notification.error({
         message: "Error",
-        description: product.state.error.message,
+        description: purchase.state.error.message,
       });
     }
 
     if (
-      product.state.action == "remove" &&
-      product.state.status == "complete" &&
-      product.state.error == null
+      purchase.state.action == "remove" &&
+      purchase.state.status == "complete" &&
+      purchase.state.error == null
     ) {
-      product.list(param, { token: auth.state.data! });
+      purchase.list(param, { token: auth.state.data! });
 
       notification.success({
         message: "Sukses",
-        description: "Produk berhasil dihapus",
+        description: "Data berhasil dihapus",
       });
     }
-  }, [product.state]);
+  }, [purchase.state]);
 
   return (
     <Flex vertical style={{ padding: "16px" }}>
-      <Title level={4}>Product List</Title>
+      <Title level={4}>Daftar Nota Masuk</Title>
       <Card>
         {(() => {
-          if (product.state.error != null) {
+          if (purchase.state.error != null) {
             return (
               <AntdResult
                 status="error"
@@ -121,38 +122,61 @@ export function ProductList() {
                       variant="solid"
                       size="large"
                       onClick={() => {
-                        navigate("/app/product/create", {
+                        navigate("/app/purchase/create", {
                           state: { from: location.pathname + location.search },
                         });
                       }}
                     >
-                      Tambah Produk
+                      Buat Nota Baru
                     </Button>
                   </Col>
-                  <Col xs={24} md={10} xl={8}>
-                    <Input.Search
-                      placeholder="Kode / nama produk"
-                      size="large"
-                      onChange={(e) => {
-                        productSearch(e.target.value);
-                      }}
-                    />
+                  <Col xs={24} md={18} xl={20}>
+                    <Row gutter={[6, 6]} justify={{ xl: "end" }}>
+                      <Col>
+                        <RangePicker
+                          size="large"
+                          onChange={(date, dateString) => {
+                            const dateRangeValue = {
+                              ...param,
+                              start: dateString[0],
+                              end: dateString[1],
+                            };
+
+                            if (date == null) {
+                              delete dateRangeValue.start;
+                              delete dateRangeValue.end;
+                            }
+
+                            setSearch(dateRangeValue);
+                          }}
+                        />
+                      </Col>
+                      <Col>
+                        <Input.Search
+                          placeholder="Kode / nama supplier"
+                          size="large"
+                          onChange={(e) => {
+                            searchRecord(e.target.value);
+                          }}
+                        />
+                      </Col>
+                    </Row>
                   </Col>
                 </Row>
                 {(() => {
-                  const products = result.data;
+                  const datas = result.data;
 
                   return (
                     <Flex vertical gap="middle">
                       <Table
                         bordered
-                        loading={product.state.status == "loading"}
+                        loading={purchase.state.status == "loading"}
                         style={{ overflowX: "scroll" }}
                         pagination={false}
                         dataSource={
-                          products.length == 0
+                          datas.length == 0
                             ? []
-                            : products.map((e, i) => {
+                            : datas.map((e, i) => {
                                 return { ...e, key: i };
                               })
                         }
@@ -163,9 +187,42 @@ export function ProductList() {
                             minWidth: 60,
                           },
                           {
-                            title: "Product",
-                            dataIndex: "name",
+                            title: "Supplier",
+                            dataIndex: "supplierName",
                             minWidth: 60,
+                          },
+                          {
+                            title: "Total",
+                            dataIndex: "total",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Fee %",
+                            dataIndex: "fee",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Biaya",
+                            dataIndex: "other",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Bayar",
+                            dataIndex: "paid",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Hutang",
+                            dataIndex: "balance",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Tanggal",
+                            dataIndex: "created",
+                            minWidth: 60,
+                            render: (value) => {
+                              return <>{dayjs(value).format("DD-MM-YYYY")}</>;
+                            },
                           },
                           {
                             render: (_, e) => (
@@ -177,7 +234,7 @@ export function ProductList() {
                                     size="small"
                                     variant="solid"
                                     onClick={() => {
-                                      navigate(`/app/product/edit/${e.id}`, {
+                                      navigate(`/app/purchase/edit/${e.id}`, {
                                         state: {
                                           from:
                                             location.pathname + location.search,
@@ -192,9 +249,9 @@ export function ProductList() {
                                     okText="Ya"
                                     cancelText="Batal"
                                     onConfirm={() => {
-                                      product.remove(e.id, {
-                                        token: auth.state.data!,
-                                      });
+                                      //   purchase.remove(e.id, {
+                                      //     token: auth.state.data!,
+                                      //   });
                                     }}
                                   >
                                     <Button

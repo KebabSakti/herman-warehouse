@@ -9,6 +9,8 @@ import { Purchase, PurchaseCreate, PurchaseList } from "./purchase_type";
 
 export class PurchaseMysql implements PurchaseApi {
   async list(param: PurchaseList): Promise<Result<Purchase[]>> {
+    console.log(param);
+
     let table = `select * from purchases where deleted is null`;
 
     if (param.search != null) {
@@ -16,7 +18,7 @@ export class PurchaseMysql implements PurchaseApi {
       table += ` and (supplierName like "%"${search}"%" or supplierPhone like "%"${search}"%" or code like "%"${search}"%")`;
     }
 
-    if (param.search?.length == 0) {
+    if (param.start != null && param.end != null) {
       const startDate = dayjs
         .utc(`${param.start}T00:00:00`)
         .format("YYYY-MM-DD HH:mm:ss");

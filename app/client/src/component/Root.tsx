@@ -1,65 +1,125 @@
-import { Dropdown } from "flowbite-react";
+import {
+  AuditOutlined,
+  BarChartOutlined,
+  DashboardOutlined,
+  DatabaseOutlined,
+  FileSearchOutlined,
+  IdcardOutlined,
+  LogoutOutlined,
+  ProductOutlined,
+  ShopOutlined,
+  UserOutlined
+} from "@ant-design/icons";
+import { Button, Layout, Menu } from "antd";
+import { Content, Header } from "antd/es/layout/layout";
+import Sider from "antd/es/layout/Sider";
 import { useContext } from "react";
-import { FaSignOutAlt } from "react-icons/fa";
-import { HiChevronDown, HiCog, HiUser } from "react-icons/hi";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Dependency } from "./App";
-import logo from "../asset/logo.png";
-import { MDrawer } from "./MDrawer";
-import { Menu } from "./Menu";
 
 export function Root() {
   const { auth } = useContext(Dependency)!;
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const items: any[] = [
+    {
+      key: "/app/dashboard",
+      label: "Dashboard",
+      icon: <DashboardOutlined />,
+    },
+    {
+      key: "/app/inventory",
+      label: "Inventory",
+      icon: <DatabaseOutlined />,
+    },
+    {
+      key: "/app/order",
+      label: "Order",
+      icon: <AuditOutlined />,
+    },
+    {
+      key: "/app/supplier",
+      label: "Supplier",
+      icon: <ShopOutlined />,
+    },
+    {
+      key: "/app/customer",
+      label: "Customer",
+      icon: <UserOutlined />,
+    },
+    {
+      key: "/app/report",
+      label: "Report",
+      icon: <BarChartOutlined />,
+    },
+    {
+      key: "/app/product",
+      label: "Product",
+      icon: <ProductOutlined />,
+    },
+    {
+      key: "/app/account",
+      label: "Account",
+      icon: <IdcardOutlined />,
+    },
+    {
+      key: "/app/log",
+      label: "Log",
+      icon: <FileSearchOutlined />,
+    },
+    {
+      key: "/app/logout",
+      label: "Logout",
+      icon: <LogoutOutlined />,
+      danger: true,
+    },
+  ];
 
   return (
-    <>
-      <div className="min-h-screen w-full bg-surface flex">
-        <div className="bg-container h-[65px] w-full fixed flex justify-between items-center px-4 border lg:justify-end lg:pl-[270px] z-10">
-          <div className="flex gap-2 lg:hidden">
-            <MDrawer />
-            <div className="flex items-center gap-2 text-[16px] font-bold text-primary">
-              <img src={logo} className="w-[28px]" />
-              <span>WR SYSTEM</span>
-            </div>
-          </div>
-          <Dropdown
-            dismissOnClick
-            inline
-            label=""
-            placement="bottom-end"
-            renderTrigger={() => (
-              <button
-                type="button"
-                className="text-oncontainer flex gap-2 items-center text-sm"
-              >
-                <span>Julian Aryo (Admin)</span> <HiChevronDown />
-              </button>
-            )}
-          >
-            <Dropdown.Item icon={HiUser}>My Account</Dropdown.Item>
-            <Dropdown.Item icon={HiCog}>Setting</Dropdown.Item>
-            <Dropdown.Item
-              icon={FaSignOutAlt}
-              onClick={auth.logout}
-              className="text-red-500"
-            >
-              Logout
-            </Dropdown.Item>
-          </Dropdown>
-        </div>
-        <div className="hidden lg:block lg:bg-container lg:min-h-screen lg:w-[250px] lg:fixed border z-20">
-          <div className="px-6 py-2 flex flex-col gap-10">
-            <div className="flex items-center gap-2 text-xl font-bold text-primary">
-              <img src={logo} className="w-[40px]" />
-              <span>WR SYSTEM</span>
-            </div>
-            <Menu />
-          </div>
-        </div>
-        <div className="w-full mt-[65px] lg:ml-[250px] overflow-x-hidden">
+    <Layout style={{ height: "100vh" }}>
+      <Header
+        style={{
+          backgroundColor: "#fff",
+          borderBottom: "1px solid #ededed",
+          display: "flex",
+          justifyContent: "end",
+          alignItems: "center",
+          padding: 0,
+        }}
+      >
+        <Button type="link">Julian Aryo (Admin)</Button>
+      </Header>
+      <Layout>
+        <Sider
+          breakpoint="sm"
+          width="20%"
+          trigger={null}
+          style={{ backgroundColor: "#fff", borderRight: "1px solid #ededed" }}
+        >
+          <Menu
+            mode="inline"
+            defaultSelectedKeys={["/app/dashboard"]}
+            selectedKeys={[location.pathname]}
+            items={items}
+            onClick={({ key }) => {
+              if (key == "/app/logout") {
+                auth.logout();
+              } else {
+                navigate(key);
+              }
+            }}
+            style={{ width: "100%", border: "none" }}
+          />
+        </Sider>
+        <Content
+          style={{
+            overflowY: "scroll",
+          }}
+        >
           <Outlet />
-        </div>
-      </div>
-    </>
+        </Content>
+      </Layout>
+    </Layout>
   );
 }

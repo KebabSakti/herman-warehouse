@@ -36,11 +36,11 @@ export function useProductHook(
     extra?: Record<string, any>
   ): Promise<void> {
     try {
-      setState({ action: "list", status: "loading" });
+      setState({ ...state, action: "list", status: "loading" });
       const data = await productController.list(param, extra);
       setState({ action: "list", status: "complete", data: data });
     } catch (error: any) {
-      setState({ action: "list", status: "complete", error: error });
+      setState({ ...state, action: "list", status: "complete", error: error });
     }
   }
 
@@ -49,21 +49,26 @@ export function useProductHook(
     extra?: Record<string, any>
   ): Promise<void> {
     try {
-      setState({ action: "create", status: "loading" });
+      setState({ ...state, action: "create", status: "loading" });
       await productController.create(param, extra);
       setState({ action: "create", status: "complete" });
     } catch (error: any) {
-      setState({ action: "create", status: "complete", error: error });
+      setState({
+        ...state,
+        action: "create",
+        status: "complete",
+        error: error,
+      });
     }
   }
 
   async function read(id: string, extra?: Record<string, any>): Promise<void> {
     try {
-      setState({ action: "read", status: "loading" });
+      setState({ ...state, action: "read", status: "loading" });
       const data = await productController.read(id, extra);
       setState({ action: "read", status: "complete", data: data });
     } catch (error: any) {
-      setState({ action: "read", status: "complete", error: error });
+      setState({ ...state, action: "read", status: "complete", error: error });
     }
   }
 
@@ -73,11 +78,16 @@ export function useProductHook(
     extra?: Record<string, any>
   ): Promise<void> {
     try {
-      setState({ action: "update", status: "loading" });
+      setState({ ...state, action: "update", status: "loading" });
       await productController.update(id, param, extra);
       setState({ action: "update", status: "complete" });
     } catch (error: any) {
-      setState({ action: "update", status: "complete", error: error });
+      setState({
+        ...state,
+        action: "update",
+        status: "complete",
+        error: error,
+      });
     }
   }
 
@@ -86,11 +96,16 @@ export function useProductHook(
     extra?: Record<string, any>
   ): Promise<void> {
     try {
-      setState({ action: "remove", status: "loading" });
+      setState({ ...state, action: "remove", status: "loading" });
       await productController.delete(id, extra);
       setState({ action: "remove", status: "complete" });
     } catch (error: any) {
-      setState({ action: "remove", status: "complete", error: error });
+      setState({
+        ...state,
+        action: "remove",
+        status: "complete",
+        error: error,
+      });
     }
   }
 

@@ -125,8 +125,8 @@ export const purchaseListSchema = object({
   page: number().required(),
   limit: number().required(),
   search: string().nullable(),
-  start: string().required(),
-  end: string().required(),
+  start: string().nullable(),
+  end: string().nullable(),
 });
 
 export type Purchase = InferType<typeof purchaseSchema>;

@@ -23,11 +23,11 @@ export function usePurchaseHook(
     extra?: Record<string, any>
   ): Promise<void> {
     try {
-      setState({ action: "list", status: "loading" });
+      setState({ ...state, action: "list", status: "loading" });
       const data = await purchaseController.list(param, extra);
       setState({ action: "list", status: "complete", data: data });
     } catch (error: any) {
-      setState({ action: "list", status: "complete", error: error });
+      setState({ ...state, action: "list", status: "complete", error: error });
     }
   }
 
