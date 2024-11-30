@@ -5,7 +5,6 @@ import {
   Outlet,
   RouterProvider,
 } from "react-router-dom";
-import { Flip, ToastContainer } from "react-toastify";
 import { Middleware } from "../component/Middleware";
 import { AuthController } from "../feature/authentication/controller/auth_controller";
 import { AuthApi } from "../feature/authentication/model/auth_api";
@@ -19,15 +18,15 @@ import { DashboardPage } from "../feature/dashboard/view/DashboardPage";
 import { ProductController } from "../feature/product/controller/product_controller";
 import { ProductApi } from "../feature/product/model/product_api";
 import { ProductAxios } from "../feature/product/model/product_axios";
+import { ProductCreate } from "../feature/product/view/ProductCreate";
 import { ProductEdit } from "../feature/product/view/ProductEdit";
 import { ProductPage } from "../feature/product/view/ProductPage";
 import { PurchaseController } from "../feature/purchase/controller/purchase_controller";
 import { PurchaseApi } from "../feature/purchase/model/purchase_api";
 import { PurchaseAxios } from "../feature/purchase/model/purchase_axios";
 import { PurchaseCreate } from "../feature/purchase/view/PurchaseCreate";
-import { PurchaseList } from "../feature/purchase/view/PurchaseListOther";
+import { PurchaseList } from "../feature/purchase/view/PurchaseList";
 import { Root } from "./Root";
-import { ProductCreate } from "../feature/product/view/ProductCreate";
 
 export type Dependency = {
   auth: AuthHookType;
@@ -127,18 +126,6 @@ export function App() {
 
   return (
     <Dependency.Provider value={dependencies}>
-      <ToastContainer
-        position="top-center"
-        autoClose={2000}
-        newestOnTop={false}
-        closeOnClick={true}
-        rtl={false}
-        pauseOnFocusLoss
-        draggable={false}
-        pauseOnHover={true}
-        theme="light"
-        transition={Flip}
-      />
       <RouterProvider router={router} />
     </Dependency.Provider>
   );

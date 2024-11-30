@@ -1,240 +1,333 @@
-import { Table } from "flowbite-react";
-import { HiOutlineX } from "react-icons/hi";
-import { Title } from "../../../component/Title";
+import {
+  DeleteFilled,
+  DollarOutlined,
+  PercentageOutlined,
+  PlusOutlined,
+  ProductOutlined,
+} from "@ant-design/icons";
+import {
+  AutoComplete,
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Dropdown,
+  Flex,
+  Input,
+  InputNumber,
+  Row,
+  Table,
+} from "antd";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { HeadTitle } from "../../../component/HeadTitle";
+import { randomID } from "../../../helper/util";
+import { PurchaseCreate as PurchaseCreateType } from "../model/purchase_type";
 
 export function PurchaseCreate() {
+  console.log("PURCHASE REBUILD");
+
+  const navigate = useNavigate();
+  const datas: any[] = [];
+  const [purchaseForm, setPurchaseForm] = useState<PurchaseCreateType>({
+    supplierId: "",
+    supplierName: "",
+    fee: 0,
+    paid: 0,
+    total: 0,
+    balance: 0,
+    other: 0,
+    note: "",
+    due: "",
+    inventory: [],
+    payment: [],
+  });
+  const items: any = [
+    {
+      key: "produk",
+      label: "Produk",
+      icon: <ProductOutlined />,
+    },
+    {
+      key: "biaya",
+      label: "Biaya lain",
+      icon: <DollarOutlined />,
+    },
+  ];
+
+  for (const inventory of purchaseForm.inventory) {
+    datas.push({
+      key: inventory.id,
+      productId: inventory.productId,
+      name: inventory.productName,
+      quantity: inventory.qty,
+      price: inventory.price,
+      total: inventory.qty * inventory.price,
+    });
+  }
+
+  if (datas.length > 0) {
+    datas.push({
+      key: "fee",
+      name: "Fee %",
+      total: purchaseForm.fee,
+    });
+  }
+
+  for (const payment of purchaseForm.payment) {
+    datas.push({
+      key: payment.id,
+      name: payment.note,
+      total: payment.amount,
+    });
+  }
+
+  if (datas.length > 0) {
+    datas.push({
+      key: "note",
+    });
+  }
+
+  useEffect(() => {
+    console.log(purchaseForm);
+  }, [purchaseForm]);
+
   return (
-    <>
-      <div className="bg-container rounded p-4 min-h-screen flex flex-col gap-4">
-        <Title title="BUAT NOTA BARU" />
-        <div className="w-full flex flex-col gap-2">
-          <div className="flex flex-col gap-2 xl:flex-row-reverse justify-between">
-            <div className="flex flex-col gap-2 xl:justify-end xl:flex-row">
-              <button className="border border-primary text-primary text-nowrap text-center p-2 px-3 rounded-md">
-                Tambah Item
-              </button>
-              <button className="border border-primary text-primary text-nowrap text-center p-2 px-3 rounded-md">
-                Tambah Biaya Lain
-              </button>
-            </div>
-            <div className="flex flex-col gap-2 lg:flex-row">
-              <Combobox value={""} onChange={() => {}} onClose={() => {}}>
-                <ComboboxInput
-                  // displayValue={(person) => "UDIN"}
-                  // onChange={(event) => {}}
-                  placeholder="Supplier"
-                  className="bg-slate-100 p-3 rounded w-full h-fit border-none"
-                />
-                <ComboboxOptions
-                  anchor="bottom"
-                  className="border w-[var(--input-width)] mt-1 bg-container shadow empty:invisible"
+    <Flex vertical gap="small" style={{ padding: "16px" }}>
+      <HeadTitle
+        title="Nota Baru"
+        onClick={() => {
+          navigate(-1);
+        }}
+      />
+      <Card>
+        <Flex vertical gap="small">
+          <Row gutter={[0, 6]} justify={{ xl: "space-between" }}>
+            <Col xs={24} md={6} xl={4}>
+              <Dropdown
+                menu={{
+                  items,
+                  onClick: ({ key }) => {
+                    if (key == "produk") {
+                      const inventory = [...purchaseForm.inventory];
+
+                      inventory.push({
+                        id: randomID(),
+                        productId: randomID(),
+                        productName: "Bandeng",
+                        qty: 0,
+                        price: 0,
+                        total: 0,
+                      });
+
+                      setPurchaseForm({
+                        ...purchaseForm,
+                        inventory: inventory,
+                      });
+                    }
+
+                    if (key == "biaya") {
+                      const payment = [...purchaseForm.payment];
+
+                      payment.push({
+                        id: randomID(),
+                        note: "Biaya macam-macam",
+                        amount: 0,
+                      });
+
+                      setPurchaseForm({
+                        ...purchaseForm,
+                        payment: payment,
+                      });
+                    }
+                  },
+                }}
+              >
+                <Button
+                  block
+                  color="primary"
+                  variant="solid"
+                  size="large"
+                  icon={<PlusOutlined />}
                 >
-                  {[...Array(10)].map((_, i) => (
-                    <ComboboxOption
-                      key={i}
-                      value={`Nama orang ${i}`}
-                      className="data-[focus]:bg-slate-100 p-2"
-                    >
-                      Nama orang {i}
-                    </ComboboxOption>
-                  ))}
-                </ComboboxOptions>
-              </Combobox>
-              <input
-                type="text"
-                placeholder="Tanggal"
-                className="bg-slate-100 p-3 rounded w-full h-fit border-none"
-              />
-            </div>
-          </div>
+                  Tambah Item
+                </Button>
+              </Dropdown>
+            </Col>
+            <Col xs={24} md={18} xl={20}>
+              <Row gutter={[6, 14]} justify={{ xl: "end" }}>
+                <Col xs={24} md={6} xl={6}>
+                  <AutoComplete
+                    options={[]}
+                    style={{ display: "block" }}
+                    onChange={(value) => {
+                      console.log(value);
+                    }}
+                  >
+                    <Input.Search size="large" placeholder="Supplier" />
+                  </AutoComplete>
+                </Col>
+                <Col xs={24} md={6} xl={6}>
+                  <DatePicker
+                    size="large"
+                    placeholder="Tanggal nota"
+                    style={{ display: "block" }}
+                  />
+                </Col>
+                <Col xs={24} md={4} xl={4}>
+                  <InputNumber
+                    min={0}
+                    size="large"
+                    placeholder="Fee"
+                    style={{ display: "block" }}
+                    addonAfter={<PercentageOutlined />}
+                  />
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+          <Table
+            bordered
+            loading={false}
+            style={{ overflowX: "scroll" }}
+            pagination={false}
+            dataSource={datas}
+            columns={[
+              {
+                title: "Item",
+                dataIndex: "name",
+                minWidth: 60,
+                onCell: (record) => {
+                  if (
+                    record.quantity == null &&
+                    record.price == null &&
+                    record.key != "note"
+                  ) {
+                    return { colSpan: 3 };
+                  }
 
-          <div className="overflow-x-auto">
-            <Table striped hoverable>
-              <Table.Head>
-                <Table.HeadCell></Table.HeadCell>
-                <Table.HeadCell>Produk</Table.HeadCell>
-                <Table.HeadCell>Qty (Kg)</Table.HeadCell>
-                <Table.HeadCell>Harga</Table.HeadCell>
-                <Table.HeadCell className="text-end">Total</Table.HeadCell>
-              </Table.Head>
-              <Table.Body className="divide-y">
-                {[...Array(12)].map((_, i) => {
+                  if (record.key == "note") {
+                    return { colSpan: 5 };
+                  }
+
+                  return {};
+                },
+                render: (_, record) => {
+                  if (record.key == "note") {
+                    return <Input.TextArea placeholder="Catatan" />;
+                  }
+
+                  return <>{record.name}</>;
+                },
+              },
+              {
+                title: "Quantity",
+                dataIndex: "quantity",
+                minWidth: 60,
+                onCell: (record) => {
+                  if (
+                    record.quantity == null ||
+                    record.price == null ||
+                    record.key == "note"
+                  ) {
+                    return { colSpan: 0 };
+                  }
+
+                  return {};
+                },
+                render: (value) => {
                   return (
-                    <Table.Row key={i} className="text-nowrap">
-                      <Table.Cell>
-                        <button className="h-6 w-6 bg-red-500 text-white rounded flex items-center justify-center">
-                          <HiOutlineX />
-                        </button>
-                      </Table.Cell>
-                      <Table.Cell>Nama produk {i}</Table.Cell>
-                      <Table.Cell>
-                        <input
-                          type="number"
-                          min={1}
-                          defaultValue={1}
-                          className="rounded w-24 text-center border border-slate-100"
-                        />
-                      </Table.Cell>
-                      <Table.Cell>
-                        <input
-                          type="text"
-                          defaultValue={10000}
-                          className="rounded w-28 text-center border border-slate-100"
-                        />
-                      </Table.Cell>
-                      <Table.Cell className="text-end">
-                        Rp 100.000.000
-                      </Table.Cell>
-                    </Table.Row>
-                  );
-                })}
-                <Table.Row className="text-nowrap">
-                  <Table.Cell className="bg-red-50">
-                    <button className="h-6 w-6 bg-red-500 text-white rounded flex items-center justify-center">
-                      <HiOutlineX />
-                    </button>
-                  </Table.Cell>
-                  <Table.Cell colSpan={3} className="bg-red-50">
-                    Sewa Kapal
-                  </Table.Cell>
-                  <Table.Cell className="bg-red-50 text-red-500 text-end">
-                    - Rp 100.000.000
-                  </Table.Cell>
-                </Table.Row>
-                <Table.Row className="text-nowrap">
-                  <Table.Cell className="bg-red-50"></Table.Cell>
-                  <Table.Cell colSpan={2} className="bg-red-50">
-                    Fee %
-                  </Table.Cell>
-                  <Table.Cell className="bg-red-50">
-                    <input
-                      type="number"
-                      min={0}
-                      defaultValue={4}
-                      className="rounded w-28 text-center border border-slate-100"
+                    <InputNumber
+                      placeholder="Quantity"
+                      defaultValue={value}
+                      style={{ display: "block" }}
+                      addonAfter={<>Kg</>}
                     />
-                  </Table.Cell>
-                  <Table.Cell className="bg-red-50 text-red-500 text-end">
-                    - Rp 40.000
-                  </Table.Cell>
-                </Table.Row>
-                <Table.Row className="text-nowrap font-bold">
-                  <Table.Cell className="bg-green-100"></Table.Cell>
-                  <Table.Cell colSpan={3} className="bg-green-100">
-                    TOTAL
-                  </Table.Cell>
-                  <Table.Cell className="bg-green-100 text-end">
-                    Rp 200.000.000
-                  </Table.Cell>
-                </Table.Row>
-              </Table.Body>
-            </Table>
-          </div>
-
-          <div className="flex flex-col gap-2 xl:justify-between xl:flex-row-reverse">
-            <div className="flex flex-col gap-2 xl:flex-row">
-              <button className="border border-primary text-primary text-nowrap text-center p-2 px-3 rounded-md">
-                Tambah Item
-              </button>
-              <button className="border border-primary text-primary text-nowrap text-center p-2 px-3 rounded-md">
-                Tambah Biaya Lain
-              </button>
-            </div>
-            <button className="bg-primary text-onprimary text-nowrap text-center p-2 px-3 rounded-md">
-              Submit & Cetak Nota
-            </button>
-          </div>
-        </div>
-        {/* <LoadingContainer loading={false}>
-          <div className="flex flex-col gap-4 xl:flex-row">
-            <div className="w-full flex flex-col gap-2">
-              <input
-                type="text"
-                placeholder="Kode / nama produk"
-                className="bg-slate-100 p-3 rounded w-full border-none"
-              />
-              <div className="grid grid-cols-2 gap-2 2xl:grid-cols-4">
-                {[...Array(16)].map((_, i) => {
-                  return (
-                    <div
-                      key={i}
-                      className="flex flex-col h-[140px] gap-4 border p-2 items-center justify-between rounded"
-                    >
-                      <div className="text-center text-wrap">
-                        <div>BD</div>
-                        <div>Nama ikan asd asd asd asd  {i}</div>
-                      </div>
-                      <div className="flex gap-1 h-8">
-                        <button className="w-8 h-8 bg-red-500 text-onprimary rounded">
-                          -
-                        </button>
-                        <input
-                          type="text"
-                          defaultValue={0}
-                          className="rounded w-12 text-center border border-slate-100 text-sm"
-                        />
-                        <button className="w-8 h-8 bg-green-500 text-onprimary rounded">
-                          +
-                        </button>
-                      </div>
-                    </div>
                   );
-                })}
-              </div>
-              <div className="flex justify-center">
-                <Pagination
-                  layout="navigation"
-                  currentPage={1}
-                  totalPages={100}
-                  onPageChange={(_) => {
-                    //
-                  }}
-                />
-              </div>
-            </div>
-            
-          </div>
-        </LoadingContainer> */}
-      </div>
-      <MyModal />
-    </>
-  );
-}
+                },
+              },
+              {
+                title: "Harga",
+                dataIndex: "price",
+                minWidth: 60,
+                onCell: (record) => {
+                  if (
+                    record.quantity == null ||
+                    record.price == null ||
+                    record.key == "note"
+                  ) {
+                    return { colSpan: 0 };
+                  }
 
-import {
-  Combobox,
-  ComboboxInput,
-  ComboboxOption,
-  ComboboxOptions,
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-} from "@headlessui/react";
-import { useState } from "react";
+                  return {};
+                },
+                render: (value) => {
+                  return (
+                    <InputNumber
+                      placeholder="Harga"
+                      defaultValue={value}
+                      style={{ display: "block" }}
+                      addonAfter={<>Rp</>}
+                    />
+                  );
+                },
+              },
+              {
+                title: "Total",
+                dataIndex: "total",
+                minWidth: 60,
+                onCell: (record) => {
+                  if (record.key == "note") {
+                    return { colSpan: 0 };
+                  }
 
-export default function MyModal() {
-  let [isOpen, setIsOpen] = useState(true);
+                  return {};
+                },
+              },
+              {
+                onCell: (record) => {
+                  if (record.key == "note") {
+                    return { colSpan: 0 };
+                  }
 
-  function open() {
-    setIsOpen(true);
-  }
+                  return {};
+                },
+                render: (_, record) => {
+                  if (record.key == "fee") {
+                    return null;
+                  }
 
-  function close() {
-    setIsOpen(false);
-  }
+                  return (
+                    <Flex gap={4}>
+                      <Button
+                        icon={<DeleteFilled />}
+                        color="danger"
+                        size="small"
+                        variant="solid"
+                        onClick={() => {
+                          const inventory = [...purchaseForm.inventory].filter(
+                            (e) => e.id != record.key
+                          );
 
-  return (
-    <>
-      <Dialog open={isOpen} className="relative z-50" onClose={close}>
-        <DialogBackdrop className="fixed inset-0 bg-black/30" />
-        <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-          <DialogPanel
-            transition
-            className="w-full max-w-md rounded-xl bg-container shadow-xl p-4"
-            // onClick={close}
-          ></DialogPanel>
-        </div>
-      </Dialog>
-    </>
+                          const payment = [...purchaseForm.payment].filter(
+                            (e) => e.id != record.key
+                          );
+
+                          setPurchaseForm({
+                            ...purchaseForm,
+                            inventory: inventory,
+                            payment: payment,
+                          });
+                        }}
+                      />
+                    </Flex>
+                  );
+                },
+              },
+            ]}
+          />
+        </Flex>
+      </Card>
+    </Flex>
   );
 }

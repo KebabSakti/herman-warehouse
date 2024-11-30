@@ -9,8 +9,6 @@ import { Purchase, PurchaseCreate, PurchaseList } from "./purchase_type";
 
 export class PurchaseMysql implements PurchaseApi {
   async list(param: PurchaseList): Promise<Result<Purchase[]>> {
-    console.log(param);
-
     let table = `select * from purchases where deleted is null`;
 
     if (param.search != null) {

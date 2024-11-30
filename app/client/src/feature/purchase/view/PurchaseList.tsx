@@ -1,34 +1,74 @@
+import { DeleteFilled, EditFilled } from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  Flex,
+  Input,
+  notification,
+  Pagination,
+  Popconfirm,
+  Row,
+  Skeleton,
+  Table,
+  DatePicker,
+  Result as AntdResult,
+} from "antd";
+import Title from "antd/es/typography/Title";
 import dayjs from "dayjs";
-import { Pagination, Table, TextInput } from "flowbite-react";
 import { useContext, useEffect } from "react";
-import { HiDownload, HiPencil, HiSearch, HiTrash } from "react-icons/hi";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Result } from "../../../common/type";
 import { Dependency } from "../../../component/App";
-import { DateRangePicker } from "../../../component/DateRangePicker";
-import { LoadingContainer } from "../../../component/LoadingContainer";
-import { Title } from "../../../component/Title";
+import { debounce } from "../../../helper/debounce";
 import { Purchase } from "../model/purchase_type";
 import { usePurchaseHook } from "./PurchaseHook";
 
 export function PurchaseList() {
   const { auth, purchaseController } = useContext(Dependency)!;
   const purchase = usePurchaseHook(purchaseController);
+  const result = purchase.state.data as Result<Purchase[]> | null;
   const location = useLocation();
-
-  const [search, setSearch] = useSearchParams({
+  const navigate = useNavigate();
+  const { RangePicker } = DatePicker;
+  const [search, setSearch] = useSearchParams();
+  const initParam = {
     page: "1",
     limit: "10",
-    search: "",
-    start: dayjs().format("YYYY-MM-DD"),
-    end: dayjs().format("YYYY-MM-DD"),
-  });
+  };
+  const param: any =
+    search.size == 0 ? initParam : Object.fromEntries(search.entries());
 
-  const param: any = Object.fromEntries(search.entries());
+  const searchRecord = debounce((message: string) => {
+    const searchValue = {
+      ...param,
+      ...initParam,
+      search: message,
+    };
+
+    if (message.length == 0) {
+      delete searchValue.search;
+    }
+
+    setSearch(searchValue);
+  }, 500);
+
+  useEffect(() => {
+    setSearch(param);
+  }, []);
+
+  useEffect(() => {
+    if (search.size >= 2) {
+      purchase.list(param, { token: auth.state.data! });
+    }
+  }, [search]);
 
   useEffect(() => {
     if (purchase.state.status == "complete" && purchase.state.error != null) {
-      toast.error(purchase.state.error.message);
+      notification.error({
+        message: "Error",
+        description: purchase.state.error.message,
+      });
     }
 
     if (
@@ -37,178 +77,227 @@ export function PurchaseList() {
       purchase.state.error == null
     ) {
       purchase.list(param, { token: auth.state.data! });
-      toast.success("Data berhasil dihapus");
+
+      notification.success({
+        message: "Sukses",
+        description: "Data berhasil dihapus",
+      });
     }
   }, [purchase.state]);
 
-  useEffect(() => {
-    if (search.size == 5) {
-      purchase.list(param, { token: auth.state.data! });
-    }
-  }, [search]);
-
   return (
-    <>
-      <div className="bg-container rounded p-4 min-h-screen flex flex-col gap-4">
-        <Title index title="DAFTAR NOTA MASUK" />
-        <div className="flex flex-col gap-2 lg:flex-row lg:justify-between">
-          <Link
-            to="/app/inventory/create"
-            state={{
-              from: location.pathname + location.search,
-            }}
-            className="bg-primary text-onprimary text-nowrap flex items-center p-2 px-3 rounded-md"
-          >
-            <HiDownload className="mr-2 h-5 w-5" />
-            <span>Buat Nota Baru</span>
-          </Link>
-          <div className="flex gap-2 items-center">
-            <DateRangePicker
-              onChange={(date) => {
-                const start = dayjs(date.start).format("YYYY-MM-DD");
-                const end = dayjs(date.end).format("YYYY-MM-DD");
+    <Flex vertical gap="small" style={{ padding: "16px" }}>
+      <Title level={4}>Daftar Nota Masuk</Title>
+      <Card>
+        {(() => {
+          if (purchase.state.error != null) {
+            return (
+              <AntdResult
+                status="error"
+                title="Error"
+                subTitle="Klik tombol di bawah untuk mengulang, atau coba beberapa saat lagi"
+                extra={[
+                  <Button
+                    type="primary"
+                    key="0"
+                    onClick={() => {
+                      setSearch(initParam);
+                    }}
+                  >
+                    Coba lagi
+                  </Button>,
+                ]}
+              />
+            );
+          }
 
-                setSearch({
-                  ...param,
-                  start: start,
-                  end: end,
-                  search: "",
-                });
-              }}
-            />
-            <TextInput
-              icon={HiSearch}
-              placeholder="Kode / nama supplier"
-              value={search.get("search") ?? ""}
-              onChange={(event) => {
-                setSearch({
-                  ...param,
-                  page: "1",
-                  search: event.target.value,
-                });
-              }}
-            />
-          </div>
-        </div>
-        <LoadingContainer loading={purchase.state.status == "loading"}>
-          <div className="overflow-x-auto">
-            <Table striped hoverable>
-              <Table.Head>
-                <Table.HeadCell>Kode</Table.HeadCell>
-                <Table.HeadCell>Supplier</Table.HeadCell>
-                <Table.HeadCell>Total</Table.HeadCell>
-                <Table.HeadCell>Fee %</Table.HeadCell>
-                <Table.HeadCell>Biaya</Table.HeadCell>
-                <Table.HeadCell>Bayar</Table.HeadCell>
-                <Table.HeadCell>Hutang</Table.HeadCell>
-                <Table.HeadCell>Tanggal</Table.HeadCell>
-                <Table.HeadCell></Table.HeadCell>
-              </Table.Head>
-              <Table.Body className="divide-y">
+          if (result?.data != null) {
+            return (
+              <Flex vertical gap="small">
+                <Row gutter={[0, 6]} justify={{ xl: "space-between" }}>
+                  <Col xs={24} md={6} xl={4}>
+                    <Button
+                      block
+                      color="primary"
+                      variant="solid"
+                      size="large"
+                      onClick={() => {
+                        navigate("/app/inventory/create", {
+                          state: { from: location.pathname + location.search },
+                        });
+                      }}
+                    >
+                      Buat Nota Baru
+                    </Button>
+                  </Col>
+                  <Col xs={24} md={18} xl={20}>
+                    <Row gutter={[6, 6]} justify={{ xl: "end" }}>
+                      <Col>
+                        <RangePicker
+                          size="large"
+                          defaultValue={
+                            param.start == null && param.end == null
+                              ? undefined
+                              : [dayjs(param.start), dayjs(param.start)]
+                          }
+                          onChange={(date, dateString) => {
+                            const dateRangeValue = {
+                              ...param,
+                              ...initParam,
+                              start: dateString[0],
+                              end: dateString[1],
+                            };
+
+                            if (date == null) {
+                              delete dateRangeValue.start;
+                              delete dateRangeValue.end;
+                            }
+
+                            setSearch(dateRangeValue);
+                          }}
+                        />
+                      </Col>
+                      <Col>
+                        <Input.Search
+                          allowClear
+                          placeholder="Kode / nama supplier"
+                          size="large"
+                          defaultValue={param.search}
+                          onChange={(e) => {
+                            searchRecord(e.target.value);
+                          }}
+                        />
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
                 {(() => {
-                  if (purchase.state.data?.data != null) {
-                    const inventories = purchase.state.data
-                      .data as Array<Purchase>;
-
-                    if (inventories.length > 0) {
-                      return (
-                        <>
-                          {inventories.map((e, i) => {
-                            return (
-                              <Table.Row key={i} className="text-nowrap">
-                                <Table.Cell>{e.code}</Table.Cell>
-                                <Table.Cell>{e.supplierName}</Table.Cell>
-                                <Table.Cell>Rp {e.total}</Table.Cell>
-                                <Table.Cell>Rp {e.fee}</Table.Cell>
-                                <Table.Cell>Rp {e.other}</Table.Cell>
-                                <Table.Cell>Rp {e.paid}</Table.Cell>
-                                <Table.Cell>Rp {e.balance}</Table.Cell>
-                                <Table.Cell>
-                                  {dayjs(e.created).format("DD-MM-YYYY")}
-                                </Table.Cell>
-                                <Table.Cell>
-                                  <div className="flex gap-1">
-                                    <Link
-                                      to={`/app/purchase/edit/${e.id}`}
-                                      state={{
-                                        from:
-                                          location.pathname + location.search,
-                                      }}
-                                      className="p-2 rounded-full bg-cyan-500 hover:bg-cyan-600"
-                                    >
-                                      <HiPencil className="text-white" />
-                                    </Link>
-                                    <button
-                                      className="p-2 rounded-full bg-red-600 hover:bg-red-700"
-                                      onClick={() => {
-                                        if (
-                                          confirm(
-                                            "Data akan dihapus, proses ini tidak dapat dikembalikan, lanjutkan?"
-                                          )
-                                        ) {
-                                          //
-                                        }
-                                      }}
-                                    >
-                                      <HiTrash className="text-white" />
-                                    </button>
-                                  </div>
-                                </Table.Cell>
-                              </Table.Row>
-                            );
-                          })}
-                        </>
-                      );
-                    }
-
-                    return (
-                      <Table.Row>
-                        <Table.Cell
-                          colSpan={9}
-                          className="text-center bg-surface"
-                        >
-                          No data
-                        </Table.Cell>
-                      </Table.Row>
-                    );
-                  }
+                  const datas = result.data;
 
                   return (
-                    <Table.Row>
-                      <Table.Cell
-                        colSpan={9}
-                        className="text-center bg-surface"
-                      >
-                        Loading
-                      </Table.Cell>
-                    </Table.Row>
+                    <Flex vertical gap="middle">
+                      <Table
+                        bordered
+                        loading={purchase.state.status == "loading"}
+                        style={{ overflowX: "scroll" }}
+                        pagination={false}
+                        dataSource={
+                          datas.length == 0
+                            ? []
+                            : datas.map((e, i) => {
+                                return { ...e, key: i };
+                              })
+                        }
+                        columns={[
+                          {
+                            title: "Kode",
+                            dataIndex: "code",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Supplier",
+                            dataIndex: "supplierName",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Total",
+                            dataIndex: "total",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Fee %",
+                            dataIndex: "fee",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Biaya",
+                            dataIndex: "other",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Bayar",
+                            dataIndex: "paid",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Hutang",
+                            dataIndex: "balance",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Tanggal",
+                            dataIndex: "created",
+                            minWidth: 60,
+                            render: (value) => {
+                              return <>{dayjs(value).format("DD-MM-YYYY")}</>;
+                            },
+                          },
+                          {
+                            render: (_, e) => (
+                              <>
+                                <Flex gap={4}>
+                                  <Button
+                                    icon={<EditFilled />}
+                                    color="primary"
+                                    size="small"
+                                    variant="solid"
+                                    onClick={() => {
+                                      navigate(`/app/inventory/edit/${e.id}`, {
+                                        state: {
+                                          from:
+                                            location.pathname + location.search,
+                                        },
+                                      });
+                                    }}
+                                  />
+                                  <Popconfirm
+                                    placement="topLeft"
+                                    title="Data akan dihapus"
+                                    description="Proses ini tidak dapat dikembalikan, lanjutkan?"
+                                    okText="Ya"
+                                    cancelText="Batal"
+                                    onConfirm={() => {
+                                      //   purchase.remove(e.id, {
+                                      //     token: auth.state.data!,
+                                      //   });
+                                    }}
+                                  >
+                                    <Button
+                                      icon={<DeleteFilled />}
+                                      color="danger"
+                                      size="small"
+                                      variant="solid"
+                                    />
+                                  </Popconfirm>
+                                </Flex>
+                              </>
+                            ),
+                          },
+                        ]}
+                      />
+                      <Pagination
+                        simple
+                        align="center"
+                        showSizeChanger={false}
+                        current={result?.paging!.page}
+                        total={result?.paging!.total}
+                        onChange={(page) => {
+                          setSearch({
+                            ...param,
+                            page: page.toString(),
+                          });
+                        }}
+                      />
+                    </Flex>
                   );
                 })()}
-              </Table.Body>
-            </Table>
-          </div>
-        </LoadingContainer>
-        <div className="w-full flex justify-center">
-          <Pagination
-            layout="navigation"
-            currentPage={Number(search.get("page")!)}
-            totalPages={
-              purchase.state.data?.paging!.total! == 0
-                ? 1
-                : Math.ceil(
-                    purchase.state.data?.paging!.total! /
-                      Number(search.get("limit")!)
-                  )
-            }
-            onPageChange={(page) => {
-              setSearch({
-                ...param,
-                page: page.toString(),
-              });
-            }}
-          />
-        </div>
-      </div>
-    </>
+              </Flex>
+            );
+          }
+
+          return <Skeleton />;
+        })()}
+      </Card>
+    </Flex>
   );
 }

@@ -8,63 +8,74 @@ import {
   LogoutOutlined,
   ProductOutlined,
   ShopOutlined,
-  UserOutlined
+  UserOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu } from "antd";
+import { Button, Typography, Layout, Menu, Space } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
 import { useContext } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Dependency } from "./App";
+import logo from "../asset/logo.png";
+import { string } from "yup";
 
 export function Root() {
   const { auth } = useContext(Dependency)!;
   const navigate = useNavigate();
   const location = useLocation();
+  const { Text } = Typography;
+
+  function currentMenuKey(key: string): string {
+    if (location.pathname.search(key) >= 0) {
+      return location.pathname;
+    } else {
+      return key;
+    }
+  }
 
   const items: any[] = [
     {
-      key: "/app/dashboard",
+      key: currentMenuKey("/app/dashboard"),
       label: "Dashboard",
       icon: <DashboardOutlined />,
     },
     {
-      key: "/app/inventory",
+      key: currentMenuKey("/app/inventory"),
       label: "Inventory",
       icon: <DatabaseOutlined />,
     },
     {
-      key: "/app/order",
+      key: currentMenuKey("/app/order"),
       label: "Order",
       icon: <AuditOutlined />,
     },
     {
-      key: "/app/supplier",
+      key: currentMenuKey("/app/supplier"),
       label: "Supplier",
       icon: <ShopOutlined />,
     },
     {
-      key: "/app/customer",
+      key: currentMenuKey("/app/customer"),
       label: "Customer",
       icon: <UserOutlined />,
     },
     {
-      key: "/app/report",
+      key: currentMenuKey("/app/report"),
       label: "Report",
       icon: <BarChartOutlined />,
     },
     {
-      key: "/app/product",
+      key: currentMenuKey("/app/product"),
       label: "Product",
       icon: <ProductOutlined />,
     },
     {
-      key: "/app/account",
+      key: currentMenuKey("/app/account"),
       label: "Account",
       icon: <IdcardOutlined />,
     },
     {
-      key: "/app/log",
+      key: currentMenuKey("/app/log"),
       label: "Log",
       icon: <FileSearchOutlined />,
     },
@@ -83,11 +94,15 @@ export function Root() {
           backgroundColor: "#fff",
           borderBottom: "1px solid #ededed",
           display: "flex",
-          justifyContent: "end",
+          justifyContent: "space-between",
           alignItems: "center",
           padding: 0,
         }}
       >
+        <Space>
+          <img src={logo} style={{ width: "34px", marginLeft: "20px" }} />
+          <Text strong>Pos System</Text>
+        </Space>
         <Button type="link">Julian Aryo (Admin)</Button>
       </Header>
       <Layout>
@@ -102,6 +117,7 @@ export function Root() {
             defaultSelectedKeys={["/app/dashboard"]}
             selectedKeys={[location.pathname]}
             items={items}
+            style={{ width: "100%", border: "none" }}
             onClick={({ key }) => {
               if (key == "/app/logout") {
                 auth.logout();
@@ -109,7 +125,6 @@ export function Root() {
                 navigate(key);
               }
             }}
-            style={{ width: "100%", border: "none" }}
           />
         </Sider>
         <Content

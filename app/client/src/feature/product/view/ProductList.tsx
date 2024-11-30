@@ -39,7 +39,7 @@ export function ProductList() {
   const productSearch = debounce((message: string) => {
     const searchValue = {
       ...param,
-      page: "1",
+      ...initParam,
       search: message,
     };
 
@@ -85,7 +85,7 @@ export function ProductList() {
   }, [product.state]);
 
   return (
-    <Flex vertical style={{ padding: "16px" }}>
+    <Flex vertical gap="small" style={{ padding: "16px" }}>
       <Title level={4}>Product List</Title>
       <Card>
         {(() => {
@@ -131,8 +131,10 @@ export function ProductList() {
                   </Col>
                   <Col xs={24} md={10} xl={8}>
                     <Input.Search
+                      allowClear
                       placeholder="Kode / nama produk"
                       size="large"
+                      defaultValue={param.search}
                       onChange={(e) => {
                         productSearch(e.target.value);
                       }}

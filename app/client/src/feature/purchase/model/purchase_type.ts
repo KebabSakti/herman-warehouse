@@ -17,15 +17,12 @@ export const inventorySchema = object({
 });
 
 export const inventoryCreateSchema = object({
-  purchaseId: string().required(),
+  id: string().required(),
   productId: string().required(),
-  productCode: string().required(),
   productName: string().required(),
-  productNote: string().nullable(),
   qty: number().required(),
   price: number().required(),
   total: number().required(),
-  keyword: string().nullable(),
 });
 
 export const paymentSchema = object({
@@ -39,7 +36,7 @@ export const paymentSchema = object({
 });
 
 export const paymentCreateSchema = object({
-  purchaseId: string().required(),
+  id: string().required(),
   amount: number().required(),
   note: string().required(),
 });
@@ -80,24 +77,17 @@ export const purchaseSchema = object({
 });
 
 export const purchaseCreateSchema = object({
-  userId: string().required(),
-  userName: string().required(),
-  userPhone: string().required(),
   supplierId: string().required(),
   supplierName: string().required(),
-  supplierPhone: string().required(),
-  supplierAddress: string().nullable(),
-  supplierNote: string().nullable(),
-  code: string().required(),
   fee: number().required(),
   paid: number().required(),
   total: number().required(),
   balance: number().required(),
   other: number().required(),
   note: string().nullable(),
-  due: date().nullable(),
+  due: string().nullable(),
   inventory: array(inventoryCreateSchema).min(1).required(),
-  payment: array(paymentCreateSchema).optional(),
+  payment: array(paymentCreateSchema).default([]),
 });
 
 export const purchaseUpdateSchema = object({
