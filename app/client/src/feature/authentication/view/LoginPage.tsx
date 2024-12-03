@@ -20,7 +20,6 @@ import { userLoginSchema } from "../model/auth_type";
 export function LoginPage() {
   const { auth } = useContext(Dependency)!;
   const navigate = useNavigate();
-  const loading = auth.state.status == "loading";
   const [messageApi, contextHolder] = notification.useNotification();
 
   useEffect(() => {
@@ -50,7 +49,7 @@ export function LoginPage() {
       >
         <Col xs={20} md={8} xl={6}>
           <Spin
-            spinning={loading}
+            spinning={auth.state.status == "loading"}
             tip="Loading.."
             size="large"
             indicator={<LoadingOutlined spin />}
@@ -97,7 +96,7 @@ export function LoginPage() {
                       htmlType="submit"
                       type="primary"
                       size="large"
-                      loading={loading}
+                      loading={auth.state.status == "loading"}
                     >
                       Login
                     </Button>

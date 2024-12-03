@@ -5,6 +5,7 @@ import multer from "multer";
 import { Failure } from "./common/error";
 import { isLogin } from "./feature/middleware";
 import productRoute from "./feature/product/view/product_route";
+import supplierRoute from "./feature/supplier/view/supplier_route";
 import purchaseRoute from "./feature/purchase/view/purchase_route";
 import userRoute from "./feature/user/view/user_route";
 import { MySql } from "./helper/mysql";
@@ -144,6 +145,7 @@ app.get("/", async (req, res) => {
 app.use("/", userRoute);
 app.use("/app", isLogin);
 app.use("/app/product", productRoute);
+app.use("/app/supplier", supplierRoute);
 app.use("/app/purchase", purchaseRoute);
 
 //route not found 404

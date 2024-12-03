@@ -24,6 +24,7 @@ import { ProductPage } from "../feature/product/view/ProductPage";
 import { PurchaseController } from "../feature/purchase/controller/purchase_controller";
 import { PurchaseApi } from "../feature/purchase/model/purchase_api";
 import { PurchaseAxios } from "../feature/purchase/model/purchase_axios";
+import { PurchaseAddProduct } from "../feature/purchase/view/PurchaseAddProduct";
 import { PurchaseCreate } from "../feature/purchase/view/PurchaseCreate";
 import { PurchaseList } from "../feature/purchase/view/PurchaseList";
 import { Root } from "./Root";
@@ -68,6 +69,12 @@ const router = createBrowserRouter([
           {
             path: "/app/inventory/create",
             element: <PurchaseCreate />,
+            children: [
+              {
+                path: "/app/inventory/create/product/add",
+                element: <PurchaseAddProduct />,
+              },
+            ],
           },
         ],
       },

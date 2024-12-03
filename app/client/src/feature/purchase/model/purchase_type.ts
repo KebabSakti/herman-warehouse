@@ -119,6 +119,15 @@ export const purchaseListSchema = object({
   end: string().required(),
 });
 
+export const purchaseTableColumnSchema = object({
+  key: string().required(),
+  productId: string().nullable(),
+  name: string().nullable(),
+  quantity: number().nullable(),
+  price: number().nullable(),
+  total: number().nullable(),
+});
+
 export type Purchase = InferType<typeof purchaseSchema>;
 export type PurchaseList = InferType<typeof purchaseListSchema>;
 export type PurchaseCreate = InferType<typeof purchaseCreateSchema>;
@@ -127,3 +136,4 @@ export type InventoryCreate = InferType<typeof inventoryCreateSchema>;
 export type Payment = InferType<typeof paymentSchema>;
 export type PaymentCreate = InferType<typeof paymentCreateSchema>;
 export type Stock = InferType<typeof stockSchema>;
+export type PurchaseTableColumn = InferType<typeof purchaseTableColumnSchema>;
