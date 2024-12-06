@@ -25,13 +25,17 @@ import { PurchaseController } from "../feature/purchase/controller/purchase_cont
 import { PurchaseApi } from "../feature/purchase/model/purchase_api";
 import { PurchaseAxios } from "../feature/purchase/model/purchase_axios";
 import { PurchaseAddProduct } from "../feature/purchase/view/PurchaseAddProduct";
-import { PurchaseCreate } from "../feature/purchase/view/PurchaseCreate";
+import { PurchaseCreate } from "../feature/purchase/view/PurchaseCreateOther";
 import { PurchaseList } from "../feature/purchase/view/PurchaseList";
 import { Root } from "./Root";
+import { SupplierController } from "../feature/supplier/controller/supplier_controller";
+import { SupplierApi } from "../feature/supplier/model/supplier_api";
+import { SupplierAxios } from "../feature/supplier/model/supplier_axios";
 
 export type Dependency = {
   auth: AuthHookType;
   productController: ProductController;
+  supplierController: SupplierController;
   purchaseController: PurchaseController;
 };
 
@@ -123,11 +127,13 @@ const router = createBrowserRouter([
 export function App() {
   const authApi: AuthApi = new AuthAxios();
   const productApi: ProductApi = new ProductAxios();
+  const supplierApi: SupplierApi = new SupplierAxios();
   const purchaseApi: PurchaseApi = new PurchaseAxios();
 
   const dependencies: Dependency = {
     auth: useAuthHook(new AuthController(authApi)),
     productController: new ProductController(productApi),
+    supplierController: new SupplierController(supplierApi),
     purchaseController: new PurchaseController(purchaseApi),
   };
 

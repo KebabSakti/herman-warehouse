@@ -80,6 +80,7 @@ export const purchaseCreateSchema = object({
   supplierId: string().required(),
   supplierName: string().required(),
   fee: number().required(),
+  margin: number().required(),
   paid: number().required(),
   total: number().required(),
   balance: number().required(),

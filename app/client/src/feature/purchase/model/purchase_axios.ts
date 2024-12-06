@@ -3,11 +3,11 @@ import { server } from "../../../common/common";
 import { Failure } from "../../../common/error";
 import { Result } from "../../../common/type";
 import { PurchaseApi } from "./purchase_api";
-import { Purchase, PurchaseList } from "./purchase_type";
+import { Purchase } from "./purchase_model";
 
 export class PurchaseAxios implements PurchaseApi {
   async list(
-    param: PurchaseList,
+    param: Purchase,
     extra?: Record<string, any>
   ): Promise<Result<Purchase[]>> {
     try {

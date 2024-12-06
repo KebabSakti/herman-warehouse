@@ -1,6 +1,6 @@
 import { Result } from "../../../common/type";
 import { PurchaseApi } from "../model/purchase_api";
-import { Purchase, PurchaseList } from "../model/purchase_type";
+import { Purchase } from "../model/purchase_model";
 
 export class PurchaseController {
   purchaseApi: PurchaseApi;
@@ -10,7 +10,7 @@ export class PurchaseController {
   }
 
   async list(
-    param: PurchaseList,
+    param: Purchase,
     extra?: Record<string, any>
   ): Promise<Result<Purchase[]>> {
     const result = await this.purchaseApi.list(param, extra);

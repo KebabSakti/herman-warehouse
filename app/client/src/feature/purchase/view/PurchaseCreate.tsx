@@ -6,7 +6,7 @@ import {
   ProductOutlined,
 } from "@ant-design/icons";
 import {
-  AutoComplete,
+  Result as AntdResult,
   Button,
   Card,
   Col,
@@ -15,28 +15,90 @@ import {
   Flex,
   Input,
   InputNumber,
+  Modal,
+  Pagination,
   Row,
+  Skeleton,
+  Space,
   Table,
 } from "antd";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Result } from "../../../common/type";
+import { Dependency } from "../../../component/App";
 import { HeadTitle } from "../../../component/HeadTitle";
+import { debounce } from "../../../helper/debounce";
+import { Num } from "../../../helper/num";
 import { randomID } from "../../../helper/util";
+import { Product } from "../../product/model/product_type";
+import { useProductHook } from "../../product/view/ProductHook";
+import { Supplier } from "../../supplier/model/supplier_model";
+import { useSupplierHook } from "../../supplier/view/supplier_hook";
 import {
   PurchaseCreate as PurchaseCreateType,
   PurchaseTableColumn,
 } from "../model/purchase_type";
-import { PurchaseAddProduct } from "./PurchaseAddProduct";
-import { Num } from "../../../helper/num";
+
+type TableColumnType = {
+  key: string;
+  name: string;
+  tag: TableItemTag;
+  id?: string | null | undefined;
+  qty?: string | null | undefined;
+  price?: string | null | undefined;
+  total?: string | null | undefined;
+};
+
+type Inventory = {
+  id: string;
+  productId: string;
+  productName: string;
+  qty: number;
+  price: number;
+  total: number;
+};
+
+type Payment = {
+  id: string;
+  amount: number;
+};
+
+type Purchase = {
+  id: string;
+  supplierId: string;
+  supplierName: string;
+  fee: number;
+  margin: number;
+  paid: number;
+  total: number;
+  balance: number;
+  note: "";
+  created: string;
+};
+
+enum TableItemTag {
+  Product,
+  Payment,
+  Fee,
+  Total,
+  Note,
+}
 
 export function PurchaseCreate() {
   const navigate = useNavigate();
   const [modal, setModal] = useState("");
   const [tableData, setTableData] = useState<PurchaseTableColumn[]>([]);
+
+  const [data, setData] = useState<TableColumnType[]>([]);
+  const [inventory, setInventory] = useState<Inventory[]>([]);
+  const [payment, setPayment] = useState<Payment[]>([]);
+  const [purchase, setPurchase] = useState<Purchase>();
+
   const [purchaseForm, setPurchaseForm] = useState<PurchaseCreateType>({
     supplierId: "",
     supplierName: "",
     fee: 0,
+    margin: 0,
     paid: 0,
     total: 0,
     balance: 0,
@@ -65,7 +127,7 @@ export function PurchaseCreate() {
       datas.push({
         key: "fee",
         name: "Fee %",
-        total: purchaseForm.fee,
+        total: purchaseForm.margin,
       });
     }
 
@@ -96,7 +158,13 @@ export function PurchaseCreate() {
 
   return (
     <>
-      <PurchaseAddProduct
+      <AddSupplier
+        modal={modal}
+        setModal={setModal}
+        purchaseForm={purchaseForm}
+        setPurchaseForm={setPurchaseForm}
+      />
+      <AddProduct
         modal={modal}
         setModal={setModal}
         purchaseForm={purchaseForm}
@@ -152,8 +220,7 @@ export function PurchaseCreate() {
                 >
                   <Button
                     block
-                    color="primary"
-                    variant="solid"
+                    type="primary"
                     size="large"
                     icon={<PlusOutlined />}
                   >
@@ -164,15 +231,22 @@ export function PurchaseCreate() {
               <Col xs={24} md={18} xl={20}>
                 <Row gutter={[6, 14]} justify={{ xl: "end" }}>
                   <Col xs={24} md={6} xl={6}>
-                    <AutoComplete
-                      options={[]}
-                      style={{ display: "block" }}
-                      onChange={(value) => {
-                        console.log(value);
-                      }}
-                    >
-                      <Input.Search size="large" placeholder="Supplier" />
-                    </AutoComplete>
+                    <Space.Compact>
+                      <Input
+                        readOnly
+                        placeholder="Supplier"
+                        size="large"
+                        value={purchaseForm.supplierName}
+                      />
+                      <Button
+                        type="primary"
+                        size="large"
+                        icon={<PlusOutlined />}
+                        onClick={() => {
+                          setModal("supplier");
+                        }}
+                      />
+                    </Space.Compact>
                   </Col>
                   <Col xs={24} md={6} xl={6}>
                     <DatePicker
@@ -190,7 +264,21 @@ export function PurchaseCreate() {
                       addonAfter={<PercentageOutlined />}
                       defaultValue={purchaseForm.fee}
                       onChange={(value) => {
-                        setPurchaseForm({ ...purchaseForm, fee: value ?? 0 });
+                        const val = value ?? 0;
+                        const invTotal = purchaseForm.inventory.reduce(
+                          (acc, item) => acc + item.total,
+                          0
+                        );
+
+                        const margin = invTotal * (val / 100);
+                        const grandTotal = invTotal - margin;
+
+                        setPurchaseForm({
+                          ...purchaseForm,
+                          fee: val,
+                          margin: margin,
+                          total: grandTotal,
+                        });
                       }}
                     />
                   </Col>
@@ -288,9 +376,19 @@ export function PurchaseCreate() {
                             total: total,
                           };
 
+                          const invTotal = inventory.reduce(
+                            (acc, item) => acc + item.total,
+                            0
+                          );
+
+                          const margin = invTotal * (purchaseForm.fee / 100);
+                          const grandTotal = invTotal - margin;
+
                           setPurchaseForm({
                             ...purchaseForm,
                             inventory: inventory,
+                            total: grandTotal,
+                            margin: margin,
                           });
                         }}
                       />
@@ -336,9 +434,19 @@ export function PurchaseCreate() {
                               total: total,
                             };
 
+                            const invTotal = inventory.reduce(
+                              (acc, item) => acc + item.total,
+                              0
+                            );
+
+                            const margin = invTotal * (purchaseForm.fee / 100);
+                            const grandTotal = invTotal - margin;
+
                             setPurchaseForm({
                               ...purchaseForm,
                               inventory: inventory,
+                              total: grandTotal,
+                              margin: margin,
                             });
                           }
                         }}
@@ -401,11 +509,21 @@ export function PurchaseCreate() {
                             const note =
                               inventory.length == 0 ? "" : purchaseForm.note;
 
+                            const invTotal = inventory.reduce(
+                              (acc, item) => acc + item.total,
+                              0
+                            );
+
+                            const margin = invTotal * (purchaseForm.fee / 100);
+                            const grandTotal = invTotal - margin;
+
                             setPurchaseForm({
                               ...purchaseForm,
                               inventory: inventory,
                               payment: payment,
                               note: note,
+                              margin: margin,
+                              total: grandTotal,
                             });
                           }}
                         />
@@ -418,6 +536,348 @@ export function PurchaseCreate() {
           </Flex>
         </Card>
       </Flex>
+    </>
+  );
+}
+
+function AddProduct(props: any) {
+  const active = props.modal == "product";
+  const { auth, productController } = useContext(Dependency)!;
+  const product = useProductHook(productController);
+  const result = product.state.data as Result<Product[]> | null;
+  const initParam = {
+    page: "1",
+    limit: "10",
+  };
+  const [param, setParam] = useState<any>(initParam);
+
+  const productSearch = debounce((message: string) => {
+    const searchValue = {
+      ...param,
+      search: message,
+    };
+
+    if (message.length == 0) {
+      delete searchValue.search;
+    }
+
+    setParam(searchValue);
+  }, 500);
+
+  useEffect(() => {
+    if (active) {
+      product.list(param, {
+        token: auth.state.data!,
+      });
+    }
+  }, [active, param]);
+
+  return (
+    <>
+      <Modal
+        centered
+        destroyOnClose
+        width={800}
+        title="Tambah Produk"
+        maskClosable={false}
+        open={active}
+        footer={null}
+        onCancel={() => {
+          props.setModal("");
+        }}
+      >
+        {(() => {
+          if (product.state.error != null) {
+            return (
+              <AntdResult
+                status="error"
+                title="Error"
+                subTitle="Klik tombol di bawah untuk mengulang, atau coba beberapa saat lagi"
+                extra={[
+                  <Button
+                    type="primary"
+                    key="0"
+                    onClick={() => {
+                      setParam(initParam);
+                    }}
+                  >
+                    Coba lagi
+                  </Button>,
+                ]}
+              />
+            );
+          }
+
+          if (result?.data != null) {
+            return (
+              <Flex vertical gap="small">
+                <Input.Search
+                  allowClear
+                  placeholder="Kode / nama produk"
+                  size="large"
+                  defaultValue={param.search}
+                  onChange={(e) => {
+                    productSearch(e.target.value);
+                  }}
+                />
+                {(() => {
+                  const products = result.data;
+
+                  return (
+                    <Flex vertical gap="middle">
+                      <Table
+                        bordered
+                        loading={product.state.status == "loading"}
+                        style={{ overflowX: "scroll" }}
+                        pagination={false}
+                        dataSource={
+                          products.length == 0
+                            ? []
+                            : products.map((e, i) => {
+                                return { ...e, key: i };
+                              })
+                        }
+                        columns={[
+                          {
+                            title: "Kode",
+                            dataIndex: "code",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Product",
+                            dataIndex: "name",
+                            minWidth: 60,
+                          },
+                          {
+                            render: (_, record) => {
+                              const total = props.purchaseForm.inventory.filter(
+                                (e: any) => e.productId == record.id
+                              ).length;
+
+                              return (
+                                <InputNumber
+                                  min={0}
+                                  value={total}
+                                  onStep={(_, info) => {
+                                    let inventory = [
+                                      ...props.purchaseForm.inventory,
+                                    ];
+
+                                    if (info.type == "down") {
+                                      const index = inventory.findIndex(
+                                        (e: any) => e.productId == record.id
+                                      );
+
+                                      inventory.splice(index, 1);
+                                    }
+
+                                    if (info.type == "up") {
+                                      inventory.push({
+                                        id: randomID(),
+                                        productId: record.id,
+                                        productName: record.name,
+                                        qty: 0,
+                                        price: 0,
+                                        total: 0,
+                                      });
+                                    }
+
+                                    props.setPurchaseForm({
+                                      ...props.purchaseForm,
+                                      inventory: inventory,
+                                    });
+                                  }}
+                                />
+                              );
+                            },
+                          },
+                        ]}
+                      />
+                      <Pagination
+                        simple
+                        align="center"
+                        showSizeChanger={false}
+                        current={result?.paging!.page}
+                        total={result?.paging!.total}
+                        onChange={(page) => {
+                          setParam({
+                            ...param,
+                            page: page.toString(),
+                          });
+                        }}
+                      />
+                    </Flex>
+                  );
+                })()}
+              </Flex>
+            );
+          }
+
+          return <Skeleton />;
+        })()}
+      </Modal>
+    </>
+  );
+}
+
+function AddSupplier(props: any) {
+  const active = props.modal == "supplier";
+  const { auth, supplierController } = useContext(Dependency)!;
+  const supplier = useSupplierHook(supplierController);
+  const result = supplier.state.data as Result<Supplier[]> | null;
+  const initParam = {
+    page: "1",
+    limit: "10",
+  };
+  const [param, setParam] = useState<any>(initParam);
+
+  const makeSearch = debounce((message: string) => {
+    const searchValue = {
+      ...param,
+      search: message,
+    };
+
+    if (message.length == 0) {
+      delete searchValue.search;
+    }
+
+    setParam(searchValue);
+  }, 500);
+
+  useEffect(() => {
+    if (active) {
+      supplier.list(param, {
+        token: auth.state.data!,
+      });
+    }
+  }, [active, param]);
+
+  return (
+    <>
+      <Modal
+        centered
+        destroyOnClose
+        width={800}
+        title="Daftar Supplier"
+        maskClosable={false}
+        open={active}
+        footer={null}
+        onCancel={() => {
+          props.setModal("");
+        }}
+      >
+        {(() => {
+          if (supplier.state.error != null) {
+            return (
+              <AntdResult
+                status="error"
+                title="Error"
+                subTitle="Klik tombol di bawah untuk mengulang, atau coba beberapa saat lagi"
+                extra={[
+                  <Button
+                    type="primary"
+                    key="0"
+                    onClick={() => {
+                      setParam(initParam);
+                    }}
+                  >
+                    Coba lagi
+                  </Button>,
+                ]}
+              />
+            );
+          }
+
+          if (result?.data != null) {
+            return (
+              <Flex vertical gap="small">
+                <Input.Search
+                  allowClear
+                  placeholder="Nama supplier"
+                  size="large"
+                  defaultValue={param.search}
+                  onChange={(e) => {
+                    makeSearch(e.target.value);
+                  }}
+                />
+                {(() => {
+                  const products = result.data;
+
+                  return (
+                    <Flex vertical gap="middle">
+                      <Table
+                        bordered
+                        loading={supplier.state.status == "loading"}
+                        style={{ overflowX: "scroll" }}
+                        pagination={false}
+                        dataSource={
+                          products.length == 0
+                            ? []
+                            : products.map((e, i) => {
+                                return { ...e, key: i };
+                              })
+                        }
+                        columns={[
+                          {
+                            title: "Supplier",
+                            dataIndex: "name",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "No. Hp",
+                            dataIndex: "phone",
+                            minWidth: 60,
+                          },
+                          {
+                            render: (_, record) => {
+                              return (
+                                <Button
+                                  type="primary"
+                                  disabled={
+                                    props.purchaseForm.supplierId == record.id
+                                  }
+                                  onClick={() => {
+                                    props.setPurchaseForm({
+                                      ...props.purchaseForm,
+                                      supplierId: record.id,
+                                      supplierName: record.name,
+                                    });
+
+                                    props.setModal("");
+                                  }}
+                                >
+                                  {props.purchaseForm.supplierId == record.id
+                                    ? "Terpilih"
+                                    : "Pilih"}
+                                </Button>
+                              );
+                            },
+                          },
+                        ]}
+                      />
+                      <Pagination
+                        simple
+                        align="center"
+                        showSizeChanger={false}
+                        current={result?.paging!.page}
+                        total={result?.paging!.total}
+                        onChange={(page) => {
+                          setParam({
+                            ...param,
+                            page: page.toString(),
+                          });
+                        }}
+                      />
+                    </Flex>
+                  );
+                })()}
+              </Flex>
+            );
+          }
+
+          return <Skeleton />;
+        })()}
+      </Modal>
     </>
   );
 }

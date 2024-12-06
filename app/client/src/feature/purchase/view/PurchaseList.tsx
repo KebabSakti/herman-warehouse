@@ -21,7 +21,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Result } from "../../../common/type";
 import { Dependency } from "../../../component/App";
 import { debounce } from "../../../helper/debounce";
-import { Purchase } from "../model/purchase_type";
+import { Purchase } from "../model/purchase_model";
 import { usePurchaseHook } from "./PurchaseHook";
 
 export function PurchaseList() {
