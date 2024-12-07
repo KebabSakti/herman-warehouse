@@ -24,13 +24,12 @@ import { ProductPage } from "../feature/product/view/ProductPage";
 import { PurchaseController } from "../feature/purchase/controller/purchase_controller";
 import { PurchaseApi } from "../feature/purchase/model/purchase_api";
 import { PurchaseAxios } from "../feature/purchase/model/purchase_axios";
-import { PurchaseAddProduct } from "../feature/purchase/view/PurchaseAddProduct";
-import { PurchaseCreate } from "../feature/purchase/view/PurchaseCreateOther";
+import { PurchaseCreate } from "../feature/purchase/view/PurchaseCreate";
 import { PurchaseList } from "../feature/purchase/view/PurchaseList";
-import { Root } from "./Root";
 import { SupplierController } from "../feature/supplier/controller/supplier_controller";
 import { SupplierApi } from "../feature/supplier/model/supplier_api";
 import { SupplierAxios } from "../feature/supplier/model/supplier_axios";
+import { Root } from "./Root";
 
 export type Dependency = {
   auth: AuthHookType;
@@ -73,12 +72,6 @@ const router = createBrowserRouter([
           {
             path: "/app/inventory/create",
             element: <PurchaseCreate />,
-            children: [
-              {
-                path: "/app/inventory/create/product/add",
-                element: <PurchaseAddProduct />,
-              },
-            ],
           },
         ],
       },

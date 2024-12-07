@@ -13,15 +13,21 @@ import {
   Flex,
   Input,
   InputNumber,
+  notification,
   Row,
   Space,
   Table,
+  Typography,
 } from "antd";
-import { PurchaseCreateProps } from "./PurchaseCreateOther";
-import { ReceiptTableTag } from "./ReceiptTableHook";
+import { array, number, object, string } from "yup";
 import { Num } from "../../../helper/num";
+import { randomID } from "../../../helper/util";
+import { PurchaseCreateProps } from "./PurchaseCreate";
+import { ReceiptTableTag } from "./ReceiptTableHook";
 
 export function ReceiptTable(props: PurchaseCreateProps) {
+  const { Text } = Typography;
+  // const { auth, purchaseController } = useContext(Dependency)!;
   const inventories = props.hook.state.item.filter(
     (a) => a.tag == ReceiptTableTag.Inventory
   );
@@ -29,6 +35,68 @@ export function ReceiptTable(props: PurchaseCreateProps) {
     (a) => a.tag == ReceiptTableTag.Payment
   );
   const tableData = inventories.concat(payments);
+
+  async function submitForm(): Promise<void> {
+    const id = randomID();
+
+    const values = {
+      id: id,
+      supplierId: props.hook.state.supplier?.id,
+      fee: props.hook.state.fee,
+      printed: props.hook.state.created,
+      note: props.hook.state.note,
+      inventory: inventories.map((a) => {
+        return { purchaseId: id, productId: a.id, qty: a.qty, price: a.price };
+      }),
+      payment: payments.map((a) => {
+        return { purchaseId: id, note: a.name, amount: a.total };
+      }),
+    };
+
+    const schema = object({
+      supplierId: string().required("Supplier tidak boleh kosong"),
+      fee: number().required("Fee tidak boleh kosong"),
+      printed: string().required("Tanggal tidak boleh kosong"),
+      note: string().nullable(),
+      inventory: array(
+        object({
+          productId: string(),
+          qty: number(),
+          price: number(),
+        })
+      )
+        .min(1)
+        .required("Harap tambahkan minimal 1 produk"),
+      payment: array(
+        object({
+          note: string(),
+          amount: number(),
+        })
+      ).optional(),
+    });
+
+    await schema
+      .validate(values, { strict: true, abortEarly: false })
+      .then(() => {
+        console.log(values);
+      })
+      .catch((e) => {
+        notification.error({
+          message: "Error",
+          description: (
+            <Flex vertical gap={1}>
+              {e.errors.map((e: any, i: any) => {
+                return (
+                  <Text key={i} type="danger">
+                    {e}
+                  </Text>
+                );
+              })}
+            </Flex>
+          ),
+        });
+      });
+  }
 
   return (
     <>
@@ -129,7 +197,7 @@ export function ReceiptTable(props: PurchaseCreateProps) {
                   <Col span={24}>
                     <Row justify="space-between">
                       <Col>Fee %</Col>
-                      <Col>{Num.format(props.hook.state.margin)}</Col>
+                      <Col>{Num.format(props.hook.state.total.margin)}</Col>
                     </Row>
                   </Col>
                   <Col span={24}>
@@ -262,13 +330,7 @@ export function ReceiptTable(props: PurchaseCreateProps) {
                     props.hook.note(e.target.value);
                   }}
                 />
-                <Button
-                  type="primary"
-                  size="large"
-                  onClick={() => {
-                    console.log(props.hook.state);
-                  }}
-                >
+                <Button type="primary" size="large" onClick={submitForm}>
                   Submit
                 </Button>
               </>

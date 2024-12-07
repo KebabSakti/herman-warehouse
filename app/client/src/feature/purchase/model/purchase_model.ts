@@ -46,21 +46,3 @@ export interface Payment {
   updated?: string | null | undefined;
   deleted?: string | null | undefined;
 }
-
-export interface SupplierReceiptTable {
-  key: string;
-  name: string;
-  tag: SupplierReceiptTableTag;
-  id?: string | null | undefined;
-  qty?: string | null | undefined;
-  price?: string | null | undefined;
-  total?: string | null | undefined;
-}
-
-export enum SupplierReceiptTableTag {
-  Product = "product",
-  Payment = "payment",
-  Fee = "fee",
-  Total = "total",
-  Note = "note",
-}

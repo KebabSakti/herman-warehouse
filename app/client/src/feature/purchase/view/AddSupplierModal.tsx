@@ -1,12 +1,12 @@
 import {
-    Result as AntdResult,
-    Button,
-    Flex,
-    Input,
-    Modal,
-    Pagination,
-    Skeleton,
-    Table,
+  Result as AntdResult,
+  Button,
+  Flex,
+  Input,
+  Modal,
+  Pagination,
+  Skeleton,
+  Table,
 } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { Result } from "../../../common/type";
@@ -14,7 +14,7 @@ import { Dependency } from "../../../component/App";
 import { debounce } from "../../../helper/debounce";
 import { Supplier } from "../../supplier/model/supplier_model";
 import { useSupplierHook } from "../../supplier/view/supplier_hook";
-import { PurchaseCreateProps } from "./PurchaseCreateOther";
+import { PurchaseCreateProps } from "./PurchaseCreate";
 
 export function AddSupplierModal(props: PurchaseCreateProps) {
   const active = props.modal == "supplier";

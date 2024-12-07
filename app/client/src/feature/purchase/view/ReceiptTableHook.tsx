@@ -32,7 +32,7 @@ type ReceiptTableState = {
   supplier?: ReceiptTableSupplier | null | undefined;
   note?: string | null | undefined;
   fee: number;
-  margin: number;
+  // margin: number;
   total: Total;
   item: ReceiptTableItem[];
 };
@@ -51,7 +51,6 @@ export type ReceiptTableHookType = {
 export function useReceiptTableHook(): ReceiptTableHookType {
   const [state, setState] = useState<ReceiptTableState>({
     fee: 0,
-    margin: 0,
     total: {
       item: 0,
       payment: 0,
@@ -94,7 +93,7 @@ export function useReceiptTableHook(): ReceiptTableHookType {
   function fee(value: number): void {
     const result = total(state.item, value);
 
-    setState({ ...state, fee: value, margin: result.margin, total: result });
+    setState({ ...state, fee: value, total: result });
   }
 
   function addItem(param: ReceiptTableItem): void {
@@ -102,12 +101,25 @@ export function useReceiptTableHook(): ReceiptTableHookType {
     item.push(param);
     const result = total(item, state.fee);
 
-    setState({ ...state, item: item, margin: result.margin, total: result });
+    setState({ ...state, item: item, total: result });
   }
 
   function removeItem(param: ReceiptTableItem): void {
     const item = [...state.item];
     const index = item.findIndex((a) => a.key == param.key);
+
+    // if (index == -1) {
+    //   setState({
+    //     ...state,
+    //     item: [],
+    //     total: {
+    //       item: 0,
+    //       payment: 0,
+    //       margin: 0,
+    //       sum: 0,
+    //     },
+    //   });
+    // }
 
     if (index >= 0) {
       item.splice(index, 1);
@@ -116,7 +128,6 @@ export function useReceiptTableHook(): ReceiptTableHookType {
       setState({
         ...state,
         item: item,
-        margin: result.margin,
         total: result,
       });
     }
@@ -131,7 +142,7 @@ export function useReceiptTableHook(): ReceiptTableHookType {
       item[index] = { ...param, total: itemTotal };
       const result = total(item, state.fee);
 
-      setState({ ...state, item: item, margin: result.margin, total: result });
+      setState({ ...state, item: item, total: result });
     }
   }
 

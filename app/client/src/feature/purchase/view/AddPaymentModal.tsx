@@ -8,7 +8,7 @@ import {
   notification,
   Typography,
 } from "antd";
-import { PurchaseCreateProps } from "./PurchaseCreateOther";
+import { PurchaseCreateProps } from "./PurchaseCreate";
 import { productCreateSchema } from "../../product/model/product_type";
 import { number, object, string } from "yup";
 import { randomID } from "../../../helper/util";

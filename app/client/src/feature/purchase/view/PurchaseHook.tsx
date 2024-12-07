@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Result, State } from "../../../common/type";
 import { PurchaseController } from "../controller/purchase_controller";
-import { Purchase, PurchaseList } from "../model/purchase_type";
+import { Purchase } from "../model/purchase_model";
 
 type PurchaseState = State<Result<Purchase | Purchase[]> | null | undefined>;
 
 export type PurchaseHookType = {
   state: PurchaseState;
-  list(param: PurchaseList, extra?: Record<string, any>): Promise<void>;
+  list(param: Purchase, extra?: Record<string, any>): Promise<void>;
 };
 
 export function usePurchaseHook(
@@ -19,7 +19,7 @@ export function usePurchaseHook(
   });
 
   async function list(
-    param: PurchaseList,
+    param: Purchase,
     extra?: Record<string, any>
   ): Promise<void> {
     try {
