@@ -1,36 +1,33 @@
 import {
-  Result as AntdResult,
-  Button,
-  Flex,
-  Input,
-  InputNumber,
-  Modal,
-  Pagination,
-  Skeleton,
-  Table,
+    Result as AntdResult,
+    Button,
+    Flex,
+    Input,
+    Modal,
+    Pagination,
+    Skeleton,
+    Table,
 } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { Result } from "../../../common/type";
 import { Dependency } from "../../../component/App";
 import { debounce } from "../../../helper/debounce";
-import { randomID } from "../../../helper/util";
-import { Product } from "../../product/model/product_type";
-import { useProductHook } from "../../product/view/ProductHook";
+import { Supplier } from "../../supplier/model/supplier_model";
+import { useSupplierHook } from "../../supplier/view/supplier_hook";
 import { PurchaseCreateProps } from "./PurchaseCreateOther";
-import { ReceiptTableTag } from "./ReceiptTableHook";
 
-export function AddProductModal(props: PurchaseCreateProps) {
-  const active = props.modal == "product";
-  const { auth, productController } = useContext(Dependency)!;
-  const product = useProductHook(productController);
-  const result = product.state.data as Result<Product[]> | null;
+export function AddSupplierModal(props: PurchaseCreateProps) {
+  const active = props.modal == "supplier";
+  const { auth, supplierController } = useContext(Dependency)!;
+  const supplier = useSupplierHook(supplierController);
+  const result = supplier.state.data as Result<Supplier[]> | null;
   const initParam = {
     page: "1",
     limit: "10",
   };
   const [param, setParam] = useState<any>(initParam);
 
-  const productSearch = debounce((message: string) => {
+  const makeSearch = debounce((message: string) => {
     const searchValue: any = {
       ...initParam,
       search: message,
@@ -45,7 +42,7 @@ export function AddProductModal(props: PurchaseCreateProps) {
 
   useEffect(() => {
     if (active) {
-      product.list(param, {
+      supplier.list(param, {
         token: auth.state.data!,
       });
     }
@@ -57,7 +54,7 @@ export function AddProductModal(props: PurchaseCreateProps) {
         centered
         destroyOnClose
         width={800}
-        title="Tambah Produk"
+        title="Daftar Supplier"
         maskClosable={false}
         open={active}
         footer={null}
@@ -66,7 +63,7 @@ export function AddProductModal(props: PurchaseCreateProps) {
         }}
       >
         {(() => {
-          if (product.state.error != null) {
+          if (supplier.state.error != null) {
             return (
               <AntdResult
                 status="error"
@@ -92,11 +89,11 @@ export function AddProductModal(props: PurchaseCreateProps) {
               <Flex vertical gap="small">
                 <Input.Search
                   allowClear
-                  placeholder="Kode / nama produk"
+                  placeholder="Nama supplier"
                   size="large"
                   defaultValue={param.search}
                   onChange={(e) => {
-                    productSearch(e.target.value);
+                    makeSearch(e.target.value);
                   }}
                 />
                 {(() => {
@@ -106,7 +103,7 @@ export function AddProductModal(props: PurchaseCreateProps) {
                     <Flex vertical gap="middle">
                       <Table
                         bordered
-                        loading={product.state.status == "loading"}
+                        loading={supplier.state.status == "loading"}
                         style={{ overflowX: "scroll" }}
                         pagination={false}
                         dataSource={
@@ -118,44 +115,36 @@ export function AddProductModal(props: PurchaseCreateProps) {
                         }
                         columns={[
                           {
-                            title: "Kode",
-                            dataIndex: "code",
-                            minWidth: 60,
-                          },
-                          {
-                            title: "Product",
+                            title: "Supplier",
                             dataIndex: "name",
                             minWidth: 60,
                           },
                           {
+                            title: "No. Hp",
+                            dataIndex: "phone",
+                            minWidth: 60,
+                          },
+                          {
                             render: (_, record) => {
-                              const item = props.hook.state.item.filter(
-                                (a) => a.id == record.id
-                              );
-
                               return (
-                                <InputNumber
-                                  min={0}
-                                  value={item.length}
-                                  onStep={(_, info) => {
-                                    if (info.type == "down") {
-                                      const index = item.length - 1;
-                                      props.hook.removeItem(item[index]);
-                                    }
+                                <Button
+                                  type="primary"
+                                  disabled={
+                                    props.hook.state.supplier?.id == record.id
+                                  }
+                                  onClick={() => {
+                                    props.hook.supplier({
+                                      id: record.id!,
+                                      name: record.name!,
+                                    });
 
-                                    if (info.type == "up") {
-                                      props.hook.addItem({
-                                        key: randomID(),
-                                        id: record.id,
-                                        name: record.name,
-                                        tag: ReceiptTableTag.Inventory,
-                                        qty: 0,
-                                        price: 0,
-                                        total: 0,
-                                      });
-                                    }
+                                    props.setModal("");
                                   }}
-                                />
+                                >
+                                  {props.hook.state.supplier?.id == record.id
+                                    ? "Terpilih"
+                                    : "Pilih"}
+                                </Button>
                               );
                             },
                           },

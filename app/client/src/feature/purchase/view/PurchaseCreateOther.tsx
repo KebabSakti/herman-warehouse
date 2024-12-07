@@ -1,10 +1,12 @@
 import { Card, Flex } from "antd";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HeadTitle } from "../../../component/HeadTitle";
+import { AddPaymentModal } from "./AddPaymentModal";
+import { AddProductModal } from "./AddProductModal";
+import { AddSupplierModal } from "./AddSupplierModal";
 import { ReceiptTable } from "./ReceiptTable";
 import { ReceiptTableHookType, useReceiptTableHook } from "./ReceiptTableHook";
-import { useState } from "react";
-import { AddProductModal } from "./AddProductModal";
 
 export type PurchaseCreateProps = {
   hook: ReceiptTableHookType;
@@ -20,6 +22,16 @@ export function PurchaseCreate() {
   return (
     <>
       <AddProductModal
+        hook={receiptTableHook}
+        modal={modal}
+        setModal={setModal}
+      />
+      <AddPaymentModal
+        hook={receiptTableHook}
+        modal={modal}
+        setModal={setModal}
+      />
+      <AddSupplierModal
         hook={receiptTableHook}
         modal={modal}
         setModal={setModal}

@@ -22,14 +22,13 @@ import { ReceiptTableTag } from "./ReceiptTableHook";
 import { Num } from "../../../helper/num";
 
 export function ReceiptTable(props: PurchaseCreateProps) {
-  console.log(props.hook.state);
-
   const inventories = props.hook.state.item.filter(
     (a) => a.tag == ReceiptTableTag.Inventory
   );
   const payments = props.hook.state.item.filter(
     (a) => a.tag == ReceiptTableTag.Payment
   );
+  const tableData = inventories.concat(payments);
 
   return (
     <>
@@ -52,9 +51,7 @@ export function ReceiptTable(props: PurchaseCreateProps) {
                   },
                 ],
                 onClick: ({ key }) => {
-                  if (key == "product") {
-                    props.setModal("product");
-                  }
+                  props.setModal(key);
                 },
               }}
             >
@@ -71,14 +68,14 @@ export function ReceiptTable(props: PurchaseCreateProps) {
                     readOnly
                     placeholder="Supplier"
                     size="large"
-                    // value={purchaseForm.supplierName}
+                    value={props.hook.state.supplier?.name ?? ""}
                   />
                   <Button
                     type="primary"
                     size="large"
                     icon={<PlusOutlined />}
                     onClick={() => {
-                      //   setModal("supplier");
+                      props.setModal("supplier");
                     }}
                   />
                 </Space.Compact>
@@ -88,6 +85,9 @@ export function ReceiptTable(props: PurchaseCreateProps) {
                   size="large"
                   placeholder="Tanggal nota"
                   style={{ display: "block" }}
+                  onChange={(_, dateString) => {
+                    props.hook.created(dateString.toString());
+                  }}
                 />
               </Col>
               <Col xs={24} md={4} xl={4}>
@@ -111,10 +111,10 @@ export function ReceiptTable(props: PurchaseCreateProps) {
           loading={false}
           style={{ overflowX: "scroll" }}
           pagination={false}
-          dataSource={props.hook.state.item}
+          dataSource={tableData}
           footer={(records) => {
             if (records.length == 0) {
-              return <></>;
+              return null;
             }
 
             return (
@@ -148,19 +148,6 @@ export function ReceiptTable(props: PurchaseCreateProps) {
                       </Col>
                     </Row>
                   </Col>
-                  <Col span={24}>
-                    <Row justify="space-between">
-                      <Col span={24}>
-                        <Input.TextArea
-                          placeholder="Catatan"
-                          defaultValue={props.hook.state.note ?? ""}
-                          onChange={(e) => {
-                            //
-                          }}
-                        />
-                      </Col>
-                    </Row>
-                  </Col>
                 </Row>
               </>
             );
@@ -187,10 +174,24 @@ export function ReceiptTable(props: PurchaseCreateProps) {
             {
               title: "Item",
               dataIndex: "name",
+              onCell: (record) => {
+                if (record.tag == ReceiptTableTag.Payment) {
+                  return { colSpan: 3 };
+                }
+
+                return {};
+              },
             },
             {
               title: "Quantity",
               dataIndex: "qty",
+              onCell: (record) => {
+                if (record.tag == ReceiptTableTag.Payment) {
+                  return { colSpan: 0 };
+                }
+
+                return {};
+              },
               render: (value, record) => {
                 return (
                   <InputNumber
@@ -212,6 +213,13 @@ export function ReceiptTable(props: PurchaseCreateProps) {
             {
               title: "Harga",
               dataIndex: "price",
+              onCell: (record) => {
+                if (record.tag == ReceiptTableTag.Payment) {
+                  return { colSpan: 0 };
+                }
+
+                return {};
+              },
               render: (value, record) => {
                 return (
                   <InputNumber
@@ -243,6 +251,30 @@ export function ReceiptTable(props: PurchaseCreateProps) {
             },
           ]}
         />
+        {(() => {
+          if (inventories.length > 0) {
+            return (
+              <>
+                <Input.TextArea
+                  placeholder="Catatan"
+                  defaultValue={props.hook.state.note ?? ""}
+                  onChange={(e) => {
+                    props.hook.note(e.target.value);
+                  }}
+                />
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={() => {
+                    console.log(props.hook.state);
+                  }}
+                >
+                  Submit
+                </Button>
+              </>
+            );
+          }
+        })()}
       </Flex>
     </>
   );
