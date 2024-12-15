@@ -1,10 +1,5 @@
-export function randomID(length: number = 16): string {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    result += characters[randomIndex];
-  }
-  return result;
+import { v4 as uuidv4 } from "uuid";
+
+export function randomID(): string {
+  return uuidv4();
 }

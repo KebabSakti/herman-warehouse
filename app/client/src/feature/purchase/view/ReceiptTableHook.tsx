@@ -32,7 +32,6 @@ type ReceiptTableState = {
   supplier?: ReceiptTableSupplier | null | undefined;
   note?: string | null | undefined;
   fee: number;
-  // margin: number;
   total: Total;
   item: ReceiptTableItem[];
 };
@@ -51,13 +50,13 @@ export type ReceiptTableHookType = {
 export function useReceiptTableHook(): ReceiptTableHookType {
   const [state, setState] = useState<ReceiptTableState>({
     fee: 0,
+    item: [],
     total: {
       item: 0,
       payment: 0,
       margin: 0,
       sum: 0,
     },
-    item: [],
   });
 
   function total(item: ReceiptTableItem[], fee: number): Total {
@@ -108,28 +107,35 @@ export function useReceiptTableHook(): ReceiptTableHookType {
     const item = [...state.item];
     const index = item.findIndex((a) => a.key == param.key);
 
-    // if (index == -1) {
-    //   setState({
-    //     ...state,
-    //     item: [],
-    //     total: {
-    //       item: 0,
-    //       payment: 0,
-    //       margin: 0,
-    //       sum: 0,
-    //     },
-    //   });
-    // }
-
     if (index >= 0) {
       item.splice(index, 1);
-      const result = total(item, state.fee);
+      const inventories = item.filter(
+        (a) => a.tag == ReceiptTableTag.Inventory
+      );
 
-      setState({
-        ...state,
-        item: item,
-        total: result,
-      });
+      if (inventories.length == 0) {
+        setState({
+          ...state,
+          note: null,
+          item: [],
+          total: {
+            item: 0,
+            payment: 0,
+            margin: 0,
+            sum: 0,
+          },
+        });
+      }
+
+      if (inventories.length > 0) {
+        const result = total(item, state.fee);
+
+        setState({
+          ...state,
+          item: item,
+          total: result,
+        });
+      }
     }
   }
 

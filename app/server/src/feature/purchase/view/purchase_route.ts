@@ -1,10 +1,10 @@
 import express from "express";
 import { BadRequest, Failure } from "../../../common/error";
+import { purchaseController } from "../../service";
 import {
   purchaseCreateSchema,
   purchaseListSchema,
 } from "../model/purchase_type";
-import { purchaseController } from "../../service";
 
 const router = express.Router();
 

@@ -1,7 +1,7 @@
 import { ReactNode, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dependency } from "./App";
-import { Flex } from "antd";
+import { Flex, Spin } from "antd";
 
 export function Middleware({ children }: { children: ReactNode }) {
   const { auth } = useContext(Dependency)!;
@@ -22,7 +22,7 @@ export function Middleware({ children }: { children: ReactNode }) {
       {(() => {
         return (
           <Flex align="center" justify="center" style={{ height: "100vh" }}>
-            LOADING...
+            <Spin spinning />
           </Flex>
         );
       })()}

@@ -1,6 +1,7 @@
 import { Result } from "../../../common/type";
 import { PurchaseApi } from "../model/purchase_api";
-import { Purchase, PurchaseCreate, PurchaseList } from "../model/purchase_type";
+import { Purchase } from "../model/purchase_model";
+import { PurchaseCreate, PurchaseList } from "../model/purchase_type";
 
 export class PurchaseController {
   private purchaseApi: PurchaseApi;

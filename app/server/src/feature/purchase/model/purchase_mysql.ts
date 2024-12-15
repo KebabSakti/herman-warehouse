@@ -1,11 +1,12 @@
-import dayjs from "dayjs";
 import { randomUUID } from "crypto";
+import dayjs from "dayjs";
 import { Result } from "../../../common/type";
 import { MySql, pool } from "../../../helper/mysql";
 import { Product } from "../../product/model/product_type";
 import { Supplier } from "../../supplier/model/supplier_type";
 import { PurchaseApi } from "./purchase_api";
-import { Purchase, PurchaseCreate, PurchaseList } from "./purchase_type";
+import { PurchaseCreate, PurchaseList } from "./purchase_type";
+import { Purchase } from "./purchase_model";
 
 export class PurchaseMysql implements PurchaseApi {
   async list(param: PurchaseList): Promise<Result<Purchase[]>> {
@@ -43,7 +44,6 @@ export class PurchaseMysql implements PurchaseApi {
     `;
 
     const purchases = await MySql.query({ sql: query, nestTables: true });
-
     const result = purchases.reduce((acc: any, item: any) => {
       const index = acc.findIndex((e: any) => e.id == item.purchases.id);
 
@@ -98,8 +98,15 @@ export class PurchaseMysql implements PurchaseApi {
 
   async create(param: PurchaseCreate): Promise<void> {
     await MySql.transaction(async (connection) => {
-      const purchaseId = randomUUID();
+      const purchaseId = param.id;
       const today = new Date();
+      const inventoryTotal = param.inventory.reduce(
+        (a, b) => a + b.qty * b.price,
+        0
+      );
+      const paymentTotal = param.payment.reduce((a, b) => a + b.amount, 0);
+      const margin = inventoryTotal * (param.fee / 100);
+      const total = inventoryTotal - margin - paymentTotal;
 
       const supplier = await new Promise<Supplier>((resolve, reject) => {
         connection.query(
@@ -122,13 +129,13 @@ export class PurchaseMysql implements PurchaseApi {
             supplierName: supplier.name,
             supplierPhone: supplier.phone,
             supplierAddress: supplier.address,
-            code: param.code,
             fee: param.fee,
-            total: param.total,
-            paid: param.paid,
-            balance: param.balance,
-            other: param.other,
+            margin: margin,
+            total: inventoryTotal,
+            balance: total,
+            other: paymentTotal,
             note: param.note,
+            printed: param.printed,
             created: today,
             updated: today,
           },
@@ -142,7 +149,7 @@ export class PurchaseMysql implements PurchaseApi {
       for await (let inventory of param.inventory) {
         const product = await new Promise<Product>((resolve, reject) => {
           connection.query(
-            "select * from products where productId = ?",
+            "select * from products where id = ?",
             inventory.productId,
             (err, res) => {
               if (err) reject(err);
@@ -163,6 +170,7 @@ export class PurchaseMysql implements PurchaseApi {
               productCode: product.code,
               productName: product.name,
               productNote: product.note,
+              total: inventory.qty * inventory.price,
               created: today,
               updated: today,
             },

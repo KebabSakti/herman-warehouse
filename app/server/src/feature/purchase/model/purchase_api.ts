@@ -1,5 +1,6 @@
 import { Result } from "../../../common/type";
-import { Purchase, PurchaseCreate, PurchaseList } from "../model/purchase_type";
+import { Purchase } from "./purchase_model";
+import { PurchaseCreate, PurchaseList } from "./purchase_type";
 
 export abstract class PurchaseApi {
   abstract list(param: PurchaseList): Promise<Result<Purchase[]>>;
