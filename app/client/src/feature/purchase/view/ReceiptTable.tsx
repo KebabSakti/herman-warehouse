@@ -313,6 +313,22 @@ export function ReceiptTable(props: PurchaseCreateProps) {
                         <Col>{Num.format(props.hook.state.total.payment)}</Col>
                       </Row>
                     </Col>
+                    {(() => {
+                      if (props.hook.state.outstanding > 0) {
+                        return (
+                          <Col span={24}>
+                            <Row justify="space-between">
+                              <Col>
+                                Sisa Hutang ({props.hook.state.supplier!.name})
+                              </Col>
+                              <Col>
+                                {Num.format(props.hook.state.outstanding)}
+                              </Col>
+                            </Row>
+                          </Col>
+                        );
+                      }
+                    })()}
                     <Col span={24}>
                       <Row justify="space-between">
                         <Col style={{ fontWeight: "bold", fontSize: "16px" }}>

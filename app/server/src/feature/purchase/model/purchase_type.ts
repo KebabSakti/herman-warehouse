@@ -5,7 +5,7 @@ export const purchaseCreateSchema = object({
   supplierId: string().required(),
   fee: number().required(),
   printed: string().required(),
-  note: string().notRequired(),
+  note: string().nullable(),
   inventory: array(
     object({
       purchaseId: string().required(),

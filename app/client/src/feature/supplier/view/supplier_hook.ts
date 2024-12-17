@@ -2,17 +2,22 @@ import { useState } from "react";
 import { Result, State } from "../../../common/type";
 import { SupplierController } from "../controller/supplier_controller";
 import { Supplier } from "../model/supplier_model";
+import {
+  SupplierCreate,
+  SupplierList,
+  SupplierUpdate,
+} from "../model/supplier_type";
 
 type SupplierState = State<Result<Supplier[]> | Supplier | null | undefined>;
 
 export type SupplierHookType = {
   state: SupplierState;
-  list(param: Supplier, extra?: Record<string, any>): Promise<void>;
-  create(param: Supplier, extra?: Record<string, any>): Promise<void>;
+  list(param: SupplierList, extra?: Record<string, any>): Promise<void>;
+  create(param: SupplierCreate, extra?: Record<string, any>): Promise<void>;
   read(id: string, extra?: Record<string, any>): Promise<void>;
   update(
     id: string,
-    param: Supplier,
+    param: SupplierUpdate,
     extra?: Record<string, any>
   ): Promise<void>;
   remove(id: string, extra?: Record<string, any>): Promise<void>;
@@ -27,7 +32,7 @@ export function useSupplierHook(
   });
 
   async function list(
-    param: Supplier,
+    param: SupplierList,
     extra?: Record<string, any>
   ): Promise<void> {
     try {
@@ -40,7 +45,7 @@ export function useSupplierHook(
   }
 
   async function create(
-    param: Supplier,
+    param: SupplierCreate,
     extra?: Record<string, any>
   ): Promise<void> {
     try {
@@ -69,7 +74,7 @@ export function useSupplierHook(
 
   async function update(
     id: string,
-    param: Supplier,
+    param: SupplierUpdate,
     extra?: Record<string, any>
   ): Promise<void> {
     try {

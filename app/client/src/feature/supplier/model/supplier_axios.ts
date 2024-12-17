@@ -4,9 +4,13 @@ import { Failure } from "../../../common/error";
 import { Result } from "../../../common/type";
 import { SupplierApi } from "./supplier_api";
 import { Supplier } from "./supplier_model";
+import { SupplierCreate, SupplierList, SupplierUpdate } from "./supplier_type";
 
 export class SupplierAxios implements SupplierApi {
-  async create(param: Supplier, extra?: Record<string, any>): Promise<void> {
+  async create(
+    param: SupplierCreate,
+    extra?: Record<string, any>
+  ): Promise<void> {
     try {
       await axios({
         url: `${server}/app/supplier`,
@@ -44,7 +48,7 @@ export class SupplierAxios implements SupplierApi {
 
   async update(
     id: string,
-    param: Supplier,
+    param: SupplierUpdate,
     extra?: Record<string, any>
   ): Promise<void> {
     try {
@@ -78,7 +82,7 @@ export class SupplierAxios implements SupplierApi {
   }
 
   async list(
-    param: Supplier,
+    param: SupplierList,
     extra?: Record<string, any>
   ): Promise<Result<Supplier[]>> {
     try {

@@ -1,8 +1,12 @@
 import { Result } from "../../../common/type";
 import { Supplier } from "./supplier_model";
+import { SupplierCreate, SupplierList, SupplierUpdate } from "./supplier_type";
 
 export abstract class SupplierApi {
-  abstract create(param: Supplier, extra?: Record<string, any>): Promise<void>;
+  abstract create(
+    param: SupplierCreate,
+    extra?: Record<string, any>
+  ): Promise<void>;
 
   abstract read(
     id: string,
@@ -11,14 +15,14 @@ export abstract class SupplierApi {
 
   abstract update(
     id: string,
-    param: Supplier,
+    param: SupplierUpdate,
     extra?: Record<string, any>
   ): Promise<void>;
 
   abstract delete(id: string, extra?: Record<string, any>): Promise<void>;
 
   abstract list(
-    param: Supplier,
+    param: SupplierList,
     extra?: Record<string, any>
   ): Promise<Result<Supplier[]>>;
 }

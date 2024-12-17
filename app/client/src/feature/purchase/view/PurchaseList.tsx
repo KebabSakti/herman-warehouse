@@ -23,6 +23,7 @@ import { Dependency } from "../../../component/App";
 import { debounce } from "../../../helper/debounce";
 import { Purchase } from "../model/purchase_model";
 import { usePurchaseHook } from "./PurchaseHook";
+import { Num } from "../../../helper/num";
 
 export function PurchaseList() {
   const { auth, purchaseController } = useContext(Dependency)!;
@@ -203,30 +204,41 @@ export function PurchaseList() {
                             title: "Total",
                             dataIndex: "total",
                             minWidth: 60,
+                            render: (value) => {
+                              return <>{Num.format(value)}</>;
+                            },
                           },
                           {
                             title: "Fee %",
                             dataIndex: "fee",
                             minWidth: 60,
+                            render: (_, record) => {
+                              return (
+                                <>
+                                  {Num.format(record.margin)} ({record.fee}%)
+                                </>
+                              );
+                            },
                           },
                           {
                             title: "Biaya",
                             dataIndex: "other",
                             minWidth: 60,
-                          },
-                          {
-                            title: "Bayar",
-                            dataIndex: "paid",
-                            minWidth: 60,
+                            render: (value) => {
+                              return <>{Num.format(value)}</>;
+                            },
                           },
                           {
                             title: "Hutang",
                             dataIndex: "balance",
                             minWidth: 60,
+                            render: (value) => {
+                              return <>{Num.format(value)}</>;
+                            },
                           },
                           {
                             title: "Tanggal",
-                            dataIndex: "created",
+                            dataIndex: "printed",
                             minWidth: 60,
                             render: (value) => {
                               return <>{dayjs(value).format("DD-MM-YYYY")}</>;

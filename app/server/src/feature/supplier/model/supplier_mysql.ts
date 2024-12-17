@@ -1,12 +1,8 @@
 import { Result } from "../../../common/type";
 import { MySql, pool } from "../../../helper/mysql";
 import { SupplierApi } from "./supplier_api";
-import {
-  Supplier,
-  SupplierCreate,
-  SupplierList,
-  SupplierUpdate,
-} from "./supplier_type";
+import { Supplier } from "./supplier_model";
+import { SupplierCreate, SupplierList, SupplierUpdate } from "./supplier_type";
 
 export class SupplierMysql implements SupplierApi {
   async create(param: SupplierCreate): Promise<void> {

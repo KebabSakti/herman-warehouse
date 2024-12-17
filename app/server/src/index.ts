@@ -11,6 +11,10 @@ import userRoute from "./feature/user/view/user_route";
 import { MySql } from "./helper/mysql";
 import utc from "dayjs/plugin/utc";
 import dayjs from "dayjs";
+import { Purchase } from "./feature/purchase/model/purchase_model";
+import { Invoice } from "./helper/invoice";
+import { Product } from "./feature/product/model/product_type";
+import { randomUUID } from "crypto";
 
 dayjs.extend(utc);
 
@@ -63,56 +67,56 @@ app.get("/", async (req, res) => {
     //   "select purchases.*, inventories.productName, inventories.qty, inventories.price, inventories.total from purchases left join inventories on purchases.id = inventories.purchaseId"
     // );
 
-    const table = `(select * from purchases where deleted is null order by created asc limit 2 offset 0) as purchases`;
+    // const table = `(select * from purchases where deleted is null order by created asc limit 2 offset 0) as purchases`;
 
-    let query = `
-    select purchases.*, inventories.*, payments.*
-    from ${table}
-    left join inventories on purchases.id = inventories.purchaseId
-    left join payments on purchases.id = payments.purchaseId
-    `;
+    // let query = `
+    // select purchases.*, inventories.*, payments.*
+    // from ${table}
+    // left join inventories on purchases.id = inventories.purchaseId
+    // left join payments on purchases.id = payments.purchaseId
+    // `;
 
-    const purchases = await MySql.query({ sql: query, nestTables: true });
+    // const purchases = await MySql.query({ sql: query, nestTables: true });
 
-    const result = purchases.reduce((acc: any, item: any) => {
-      let index = acc.findIndex((e: any) => e.id == item.purchases.id);
+    // const result = purchases.reduce((acc: any, item: any) => {
+    //   let index = acc.findIndex((e: any) => e.id == item.purchases.id);
 
-      if (index >= 0) {
-        const invIndex = acc[index].inventory.findIndex(
-          (e: any) => e.id == item.inventories.id
-        );
+    //   if (index >= 0) {
+    //     const invIndex = acc[index].inventory.findIndex(
+    //       (e: any) => e.id == item.inventories.id
+    //     );
 
-        const payIndex = acc[index].payment.findIndex(
-          (e: any) => e.id == item.payments.id
-        );
+    //     const payIndex = acc[index].payment.findIndex(
+    //       (e: any) => e.id == item.payments.id
+    //     );
 
-        if (invIndex < 0) {
-          if (item.inventories.id != null) {
-            acc[index].inventory.push(item.inventories);
-          }
-        }
+    //     if (invIndex < 0) {
+    //       if (item.inventories.id != null) {
+    //         acc[index].inventory.push(item.inventories);
+    //       }
+    //     }
 
-        if (payIndex < 0) {
-          if (item.payments.id != null) {
-            acc[index].payment.push(item.payments);
-          }
-        }
-      } else {
-        const element = { ...item.purchases, inventory: [], payment: [] };
+    //     if (payIndex < 0) {
+    //       if (item.payments.id != null) {
+    //         acc[index].payment.push(item.payments);
+    //       }
+    //     }
+    //   } else {
+    //     const element = { ...item.purchases, inventory: [], payment: [] };
 
-        if (item.inventories.id != null) {
-          element.inventory.push(item.inventories);
-        }
+    //     if (item.inventories.id != null) {
+    //       element.inventory.push(item.inventories);
+    //     }
 
-        if (item.payments.id != null) {
-          element.payment.push(item.payments);
-        }
+    //     if (item.payments.id != null) {
+    //       element.payment.push(item.payments);
+    //     }
 
-        acc.push(element);
-      }
+    //     acc.push(element);
+    //   }
 
-      return acc;
-    }, []);
+    //   return acc;
+    // }, []);
 
     // const result = [];
 
@@ -134,7 +138,50 @@ app.get("/", async (req, res) => {
     //   result.push({ ...item, inventory: i, payment: p });
     // }
 
-    console.log(result.length);
+    // const purchases: Purchase[] = await MySql.query("select * from purchases");
+
+    // for await (let purchase of purchases) {
+    //   await new Promise((resolve) => setTimeout(resolve, 100));
+
+    //   await MySql.query("update purchases set code = ? where id = ?", [
+    //     Invoice.supplier(),
+    //     purchase.id,
+    //   ]);
+    // }
+
+    // const products: Product[] = await MySql.query(
+    //   "select * from products where id in (?)",
+    //   [[11, 12, 100]]
+    // );
+
+    const values = [
+      {
+        id: randomUUID(),
+        supplierId: 1,
+        productId: 1,
+        qty: 1,
+        price: 1000,
+      },
+      {
+        id: randomUUID(),
+        supplierId: 2,
+        productId: 2,
+        qty: 2,
+        price: 2000,
+      },
+      {
+        id: randomUUID(),
+        supplierId: 3,
+        productId: 3,
+        qty: 9,
+        price: 3000,
+      },
+    ].map((e, i) => [e.id, e.supplierId, e.productId, e.qty, e.price]);
+
+    const result = await MySql.query(
+      "insert into stocks (id,supplierId,productId,qty,price) values ? on duplicate key update qty = qty + values(qty)",
+      [values]
+    );
 
     return res.json(result);
   } catch (error: any) {

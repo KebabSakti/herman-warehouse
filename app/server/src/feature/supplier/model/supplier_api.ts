@@ -1,10 +1,6 @@
 import { Result } from "../../../common/type";
-import {
-  SupplierCreate,
-  Supplier,
-  SupplierUpdate,
-  SupplierList,
-} from "./supplier_type";
+import { Supplier } from "./supplier_model";
+import { SupplierCreate, SupplierUpdate, SupplierList } from "./supplier_type";
 
 export abstract class SupplierApi {
   abstract create(param: SupplierCreate): Promise<void>;

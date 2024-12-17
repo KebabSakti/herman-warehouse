@@ -1,7 +1,7 @@
 import { Result } from "../../../common/type";
 import { SupplierApi } from "../model/supplier_api";
+import { Supplier } from "../model/supplier_model";
 import {
-  Supplier,
   SupplierCreate,
   SupplierList,
   SupplierUpdate,

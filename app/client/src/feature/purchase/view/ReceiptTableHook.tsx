@@ -15,6 +15,7 @@ type Total = {
 type ReceiptTableSupplier = {
   id: string;
   name: string;
+  outstanding: number;
 };
 
 type ReceiptTableItem = {
@@ -32,6 +33,7 @@ type ReceiptTableState = {
   supplier?: ReceiptTableSupplier | null | undefined;
   note?: string | null | undefined;
   fee: number;
+  outstanding: number;
   total: Total;
   item: ReceiptTableItem[];
 };
@@ -50,6 +52,7 @@ export type ReceiptTableHookType = {
 export function useReceiptTableHook(): ReceiptTableHookType {
   const [state, setState] = useState<ReceiptTableState>({
     fee: 0,
+    outstanding: 0,
     item: [],
     total: {
       item: 0,
@@ -59,13 +62,17 @@ export function useReceiptTableHook(): ReceiptTableHookType {
     },
   });
 
-  function total(item: ReceiptTableItem[], fee: number): Total {
+  function total(
+    item: ReceiptTableItem[],
+    fee: number,
+    outstanding: number
+  ): Total {
     const inventories = item.filter((a) => a.tag == ReceiptTableTag.Inventory);
     const payments = item.filter((a) => a.tag == ReceiptTableTag.Payment);
     const itemTotal = inventories.reduce((a, b) => a + b.total, 0);
     const paymentTotal = payments.reduce((a, b) => a + b.total, 0);
     const margin = itemTotal * (fee / 100);
-    const total = itemTotal - margin - paymentTotal;
+    const total = itemTotal - margin - paymentTotal + outstanding;
 
     const result = {
       item: itemTotal,
@@ -78,7 +85,14 @@ export function useReceiptTableHook(): ReceiptTableHookType {
   }
 
   function supplier(param: ReceiptTableSupplier): void {
-    setState({ ...state, supplier: param });
+    const result = total(state.item, state.fee, param.outstanding);
+
+    setState({
+      ...state,
+      supplier: param,
+      outstanding: param.outstanding,
+      total: result,
+    });
   }
 
   function created(value: string): void {
@@ -90,7 +104,7 @@ export function useReceiptTableHook(): ReceiptTableHookType {
   }
 
   function fee(value: number): void {
-    const result = total(state.item, value);
+    const result = total(state.item, value, state.outstanding);
 
     setState({ ...state, fee: value, total: result });
   }
@@ -98,7 +112,7 @@ export function useReceiptTableHook(): ReceiptTableHookType {
   function addItem(param: ReceiptTableItem): void {
     const item = [...state.item];
     item.push(param);
-    const result = total(item, state.fee);
+    const result = total(item, state.fee, state.outstanding);
 
     setState({ ...state, item: item, total: result });
   }
@@ -128,7 +142,7 @@ export function useReceiptTableHook(): ReceiptTableHookType {
       }
 
       if (inventories.length > 0) {
-        const result = total(item, state.fee);
+        const result = total(item, state.fee, state.outstanding);
 
         setState({
           ...state,
@@ -146,7 +160,7 @@ export function useReceiptTableHook(): ReceiptTableHookType {
     if (index >= 0) {
       const itemTotal = param.qty! * param.price!;
       item[index] = { ...param, total: itemTotal };
-      const result = total(item, state.fee);
+      const result = total(item, state.fee, state.outstanding);
 
       setState({ ...state, item: item, total: result });
     }

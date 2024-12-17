@@ -1,6 +1,11 @@
 import { Result } from "../../../common/type";
 import { SupplierApi } from "../model/supplier_api";
 import { Supplier } from "../model/supplier_model";
+import {
+  SupplierCreate,
+  SupplierList,
+  SupplierUpdate,
+} from "../model/supplier_type";
 
 export class SupplierController {
   api: SupplierApi;
@@ -9,7 +14,10 @@ export class SupplierController {
     this.api = api;
   }
 
-  async create(param: Supplier, extra?: Record<string, any>): Promise<void> {
+  async create(
+    param: SupplierCreate,
+    extra?: Record<string, any>
+  ): Promise<void> {
     await this.api.create(param, extra);
   }
 
@@ -24,7 +32,7 @@ export class SupplierController {
 
   async update(
     id: string,
-    param: Supplier,
+    param: SupplierUpdate,
     extra?: Record<string, any>
   ): Promise<void> {
     await this.api.update(id, param, extra);
@@ -35,7 +43,7 @@ export class SupplierController {
   }
 
   async list(
-    param: Supplier,
+    param: SupplierList,
     extra?: Record<string, any>
   ): Promise<Result<Supplier[]>> {
     const result = await this.api.list(param, extra);

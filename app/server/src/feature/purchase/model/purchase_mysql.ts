@@ -3,10 +3,12 @@ import dayjs from "dayjs";
 import { Result } from "../../../common/type";
 import { MySql, pool } from "../../../helper/mysql";
 import { Product } from "../../product/model/product_type";
-import { Supplier } from "../../supplier/model/supplier_type";
 import { PurchaseApi } from "./purchase_api";
 import { PurchaseCreate, PurchaseList } from "./purchase_type";
 import { Purchase } from "./purchase_model";
+import { Supplier } from "../../supplier/model/supplier_model";
+import { Invoice } from "../../../helper/invoice";
+import { InternalFailure } from "../../../common/error";
 
 export class PurchaseMysql implements PurchaseApi {
   async list(param: PurchaseList): Promise<Result<Purchase[]>> {
@@ -98,16 +100,6 @@ export class PurchaseMysql implements PurchaseApi {
 
   async create(param: PurchaseCreate): Promise<void> {
     await MySql.transaction(async (connection) => {
-      const purchaseId = param.id;
-      const today = new Date();
-      const inventoryTotal = param.inventory.reduce(
-        (a, b) => a + b.qty * b.price,
-        0
-      );
-      const paymentTotal = param.payment.reduce((a, b) => a + b.amount, 0);
-      const margin = inventoryTotal * (param.fee / 100);
-      const total = inventoryTotal - margin - paymentTotal;
-
       const supplier = await new Promise<Supplier>((resolve, reject) => {
         connection.query(
           "select * from suppliers where id = ?",
@@ -120,11 +112,81 @@ export class PurchaseMysql implements PurchaseApi {
         );
       });
 
+      const purchaseId = param.id;
+      const today = new Date();
+      const inventoryTotal = param.inventory.reduce(
+        (a, b) => a + b.qty * b.price,
+        0
+      );
+      const paymentTotal = param.payment.reduce((a, b) => a + b.amount, 0);
+      const margin = inventoryTotal * (param.fee / 100);
+      const total =
+        inventoryTotal - margin - paymentTotal + supplier.outstanding;
+
+      const productIds = param.inventory.reduce<string[]>(
+        (a, b) => [...a, b.productId],
+        []
+      );
+
+      const products = await new Promise<Product[]>((resolve, reject) => {
+        connection.query(
+          "select * from products where id in (?)",
+          [productIds],
+          (err, res) => {
+            if (err) reject(err);
+            if (res.length == 0) reject(err);
+            resolve(res);
+          }
+        );
+      });
+
+      const inventories = param.inventory.map((e) => {
+        const product = products.find((p) => p.id == e.productId);
+        const itemTotal = e.qty * e.price;
+
+        if (product == undefined) {
+          throw new InternalFailure();
+        }
+
+        return [
+          randomUUID(),
+          purchaseId,
+          product.id,
+          product.code,
+          product.name,
+          product.note,
+          e.qty,
+          e.price,
+          itemTotal,
+          today,
+          today,
+        ];
+      });
+
+      const stocks = param.inventory.map((e) => {
+        const product = products.find((p) => p.id == e.productId);
+
+        if (product == undefined) {
+          throw new InternalFailure();
+        }
+
+        return [
+          randomUUID(),
+          supplier.id,
+          product.id,
+          e.qty,
+          e.price,
+          today,
+          today,
+        ];
+      });
+
       await new Promise<void>((resolve, reject) => {
         connection.query(
           "insert into purchases set ?",
           {
             id: purchaseId,
+            code: Invoice.supplier(),
             supplierId: supplier.id,
             supplierName: supplier.name,
             supplierPhone: supplier.phone,
@@ -135,6 +197,7 @@ export class PurchaseMysql implements PurchaseApi {
             balance: total,
             other: paymentTotal,
             note: param.note,
+            outstanding: supplier.outstanding,
             printed: param.printed,
             created: today,
             updated: today,
@@ -146,34 +209,42 @@ export class PurchaseMysql implements PurchaseApi {
         );
       });
 
-      for await (let inventory of param.inventory) {
-        const product = await new Promise<Product>((resolve, reject) => {
-          connection.query(
-            "select * from products where id = ?",
-            inventory.productId,
-            (err, res) => {
-              if (err) reject(err);
-              if (res.length == 0) reject(err);
-              resolve(res[0]);
-            }
-          );
-        });
+      await new Promise<void>((resolve, reject) => {
+        connection.query(
+          "insert into inventories (id,purchaseId,productId,productCode,productName,productNote,qty,price,total,created,updated) values ?",
+          [inventories],
+          (err) => {
+            if (err) reject(err);
+            resolve();
+          }
+        );
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        connection.query(
+          "insert into stocks (id,supplierId,productId,qty,price,created,updated) values ? on duplicate key update qty = qty + values(qty) updated = values(updated)",
+          [stocks],
+          (err) => {
+            if (err) reject(err);
+            resolve();
+          }
+        );
+      });
+
+      if (param.payment.length > 0) {
+        const payments = param.payment.map((e) => [
+          randomUUID(),
+          purchaseId,
+          e.amount,
+          e.note,
+          today,
+          today,
+        ]);
 
         await new Promise<void>((resolve, reject) => {
           connection.query(
-            "insert into inventories set ?",
-            {
-              ...inventory,
-              id: randomUUID(),
-              purchaseId: purchaseId,
-              productId: product.id,
-              productCode: product.code,
-              productName: product.name,
-              productNote: product.note,
-              total: inventory.qty * inventory.price,
-              created: today,
-              updated: today,
-            },
+            "insert into payments (id,purchaseId,amount,note,created,updated) values ?",
+            [payments],
             (err) => {
               if (err) reject(err);
               resolve();
@@ -182,25 +253,17 @@ export class PurchaseMysql implements PurchaseApi {
         });
       }
 
-      if (param.payment) {
-        for await (let payment of param.payment) {
-          await new Promise<void>((resolve, reject) => {
-            connection.query(
-              "insert into payments set ?",
-              {
-                ...payment,
-                id: randomUUID(),
-                purchaseId: purchaseId,
-                created: today,
-                updated: today,
-              },
-              (err) => {
-                if (err) reject(err);
-                resolve();
-              }
-            );
-          });
-        }
+      if (supplier.outstanding > 0) {
+        await new Promise<void>((resolve, reject) => {
+          connection.query(
+            "update suppliers set ? where id = ?",
+            [{ outstanding: total }, supplier.id],
+            (err) => {
+              if (err) reject(err);
+              resolve();
+            }
+          );
+        });
       }
     });
   }

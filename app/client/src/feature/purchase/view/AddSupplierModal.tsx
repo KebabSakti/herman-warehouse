@@ -15,6 +15,7 @@ import { debounce } from "../../../helper/debounce";
 import { Supplier } from "../../supplier/model/supplier_model";
 import { useSupplierHook } from "../../supplier/view/supplier_hook";
 import { PurchaseCreateProps } from "./PurchaseCreate";
+import { Num } from "../../../helper/num";
 
 export function AddSupplierModal(props: PurchaseCreateProps) {
   const active = props.modal == "supplier";
@@ -125,6 +126,12 @@ export function AddSupplierModal(props: PurchaseCreateProps) {
                             minWidth: 60,
                           },
                           {
+                            title: "Hutang",
+                            dataIndex: "outstanding",
+                            minWidth: 60,
+                            render: (value) => <>{Num.format(value)}</>,
+                          },
+                          {
                             render: (_, record) => {
                               return (
                                 <Button
@@ -136,6 +143,7 @@ export function AddSupplierModal(props: PurchaseCreateProps) {
                                     props.hook.supplier({
                                       id: record.id!,
                                       name: record.name!,
+                                      outstanding: record.outstanding!,
                                     });
 
                                     props.setModal("");
