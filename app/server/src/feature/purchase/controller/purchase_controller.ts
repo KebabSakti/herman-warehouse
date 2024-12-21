@@ -25,4 +25,8 @@ export class PurchaseController {
 
     return result;
   }
+
+  async remove(id: string): Promise<void> {
+    await this.purchaseApi.remove(id);
+  }
 }

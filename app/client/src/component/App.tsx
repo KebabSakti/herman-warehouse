@@ -25,7 +25,9 @@ import { PurchaseController } from "../feature/purchase/controller/purchase_cont
 import { PurchaseApi } from "../feature/purchase/model/purchase_api";
 import { PurchaseAxios } from "../feature/purchase/model/purchase_axios";
 import { PurchaseCreate } from "../feature/purchase/view/PurchaseCreate";
+import { PurchaseEdit } from "../feature/purchase/view/PurchaseEdit";
 import { PurchaseList } from "../feature/purchase/view/PurchaseList";
+import { PurchaseRead } from "../feature/purchase/view/PurchaseRead";
 import { SupplierController } from "../feature/supplier/controller/supplier_controller";
 import { SupplierApi } from "../feature/supplier/model/supplier_api";
 import { SupplierAxios } from "../feature/supplier/model/supplier_axios";
@@ -66,12 +68,22 @@ const router = createBrowserRouter([
         element: <Outlet />,
         children: [
           {
-            index: true,
+            path: "/app/inventory",
             element: <PurchaseList />,
+            children: [
+              {
+                path: "/app/inventory/read/:id",
+                element: <PurchaseRead />,
+              },
+            ],
           },
           {
             path: "/app/inventory/create",
             element: <PurchaseCreate />,
+          },
+          {
+            path: "/app/inventory/edit/:id",
+            element: <PurchaseEdit />,
           },
         ],
       },

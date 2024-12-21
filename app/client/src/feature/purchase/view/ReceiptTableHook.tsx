@@ -18,7 +18,7 @@ type ReceiptTableSupplier = {
   outstanding: number;
 };
 
-type ReceiptTableItem = {
+export type ReceiptTableItem = {
   key: string;
   id: string;
   name: string;

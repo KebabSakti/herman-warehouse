@@ -8,7 +8,7 @@ import productRoute from "./feature/product/view/product_route";
 import supplierRoute from "./feature/supplier/view/supplier_route";
 import purchaseRoute from "./feature/purchase/view/purchase_route";
 import userRoute from "./feature/user/view/user_route";
-import { MySql } from "./helper/mysql";
+import { MySql, pool } from "./helper/mysql";
 import utc from "dayjs/plugin/utc";
 import dayjs from "dayjs";
 import { Purchase } from "./feature/purchase/model/purchase_model";
@@ -154,33 +154,86 @@ app.get("/", async (req, res) => {
     //   [[11, 12, 100]]
     // );
 
-    const values = [
-      {
-        id: randomUUID(),
-        supplierId: 1,
-        productId: 1,
-        qty: 1,
-        price: 1000,
-      },
-      {
-        id: randomUUID(),
-        supplierId: 2,
-        productId: 2,
-        qty: 2,
-        price: 2000,
-      },
-      {
-        id: randomUUID(),
-        supplierId: 3,
-        productId: 3,
-        qty: 9,
-        price: 3000,
-      },
-    ].map((e, i) => [e.id, e.supplierId, e.productId, e.qty, e.price]);
+    // const values = [
+    //   {
+    //     id: randomUUID(),
+    //     supplierId: 1,
+    //     productId: 1,
+    //     qty: 1,
+    //     price: 1000,
+    //   },
+    //   {
+    //     id: randomUUID(),
+    //     supplierId: 2,
+    //     productId: 2,
+    //     qty: 2,
+    //     price: 2000,
+    //   },
+    //   {
+    //     id: randomUUID(),
+    //     supplierId: 3,
+    //     productId: 3,
+    //     qty: 9,
+    //     price: 3000,
+    //   },
+    // ].map((e, i) => [e.id, e.supplierId, e.productId, e.qty, e.price]);
+
+    // const result = await MySql.query(
+    //   "insert into stocks (id,supplierId,productId,qty,price) values ? on duplicate key update qty = qty + values(qty)",
+    //   [values]
+    // );
+
+    // const id = pool.escape("95764e23-7e8a-4ffe-a580-d365afa6c295");
+    // const query = `
+    //     select purchases.*, inventories.*, payments.*
+    //     from purchases
+    //     left join inventories on purchases.id = inventories.purchaseId
+    //     left join payments on purchases.id = payments.purchaseId
+    //     where purchases.deleted is null`;
+
+    // const purchases = await MySql.query({
+    //   sql: query,
+    //   nestTables: true,
+    // });
+
+    // const result = purchases.reduce((a: any, b: any) => {
+    //   const purchase = a.find((c: any) => c.id == b.purchases.id);
+
+    //   if (purchase == undefined) {
+    //     const item = { ...b.purchases, inventory: [], payment: [] };
+
+    //     if (b.inventories.purchaseId == item.id) {
+    //       item.inventory.push(b.inventories);
+    //     }
+
+    //     if (b.payments.purchaseId == item.id) {
+    //       item.payment.push(b.payments);
+    //     }
+
+    //     a.push(item);
+    //   } else {
+    //     const inventory = purchase.inventory.find(
+    //       (c: any) => c.id == b.inventories.id
+    //     );
+
+    //     const payment = purchase.payment.find(
+    //       (c: any) => c.id == b.payments.id
+    //     );
+
+    //     if (inventory == undefined) {
+    //       purchase.inventory.push(b.inventories);
+    //     }
+
+    //     if (payment == undefined) {
+    //       purchase.payment.push(b.payments);
+    //     }
+    //   }
+
+    //   return a;
+    // }, []);
 
     const result = await MySql.query(
-      "insert into stocks (id,supplierId,productId,qty,price) values ? on duplicate key update qty = qty + values(qty)",
-      [values]
+      'update activities set userId = description where id = "019e9ff0-2d54-41cc-bb87-d6ee10c28618"'
     );
 
     return res.json(result);

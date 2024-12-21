@@ -35,3 +35,4 @@ export const purchaseListSchema = object({
 
 export type PurchaseList = InferType<typeof purchaseListSchema>;
 export type PurchaseCreate = InferType<typeof purchaseCreateSchema>;
+export type PurchaseUpdate = InferType<typeof purchaseCreateSchema>;

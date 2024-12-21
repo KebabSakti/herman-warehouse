@@ -12,6 +12,7 @@ export interface Purchase {
   paid: number | null | undefined;
   balance: number;
   other: number;
+  outstanding: number;
   note?: string | null | undefined;
   due?: string | null | undefined;
   printed?: string | null | undefined;

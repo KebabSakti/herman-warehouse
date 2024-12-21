@@ -1,8 +1,10 @@
-import { DeleteFilled, EditFilled } from "@ant-design/icons";
+import { DeleteFilled } from "@ant-design/icons";
 import {
+  Result as AntdResult,
   Button,
   Card,
   Col,
+  DatePicker,
   Flex,
   Input,
   notification,
@@ -11,19 +13,23 @@ import {
   Row,
   Skeleton,
   Table,
-  DatePicker,
-  Result as AntdResult,
 } from "antd";
 import Title from "antd/es/typography/Title";
 import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { Result } from "../../../common/type";
 import { Dependency } from "../../../component/App";
 import { debounce } from "../../../helper/debounce";
+import { Num } from "../../../helper/num";
 import { Purchase } from "../model/purchase_model";
 import { usePurchaseHook } from "./PurchaseHook";
-import { Num } from "../../../helper/num";
 
 export function PurchaseList() {
   const { auth, purchaseController } = useContext(Dependency)!;
@@ -87,181 +93,182 @@ export function PurchaseList() {
   }, [purchase.state]);
 
   return (
-    <Flex vertical gap="small" style={{ padding: "16px" }}>
-      <Title level={4}>Daftar Nota Masuk</Title>
-      <Card>
-        {(() => {
-          if (purchase.state.error != null) {
-            return (
-              <AntdResult
-                status="error"
-                title="Error"
-                subTitle="Klik tombol di bawah untuk mengulang, atau coba beberapa saat lagi"
-                extra={[
-                  <Button
-                    type="primary"
-                    key="0"
-                    onClick={() => {
-                      setSearch(initParam);
-                    }}
-                  >
-                    Coba lagi
-                  </Button>,
-                ]}
-              />
-            );
-          }
-
-          if (result?.data != null) {
-            return (
-              <Flex vertical gap="small">
-                <Row gutter={[0, 6]} justify={{ xl: "space-between" }}>
-                  <Col xs={24} md={6} xl={4}>
+    <>
+      <Outlet />
+      <Flex vertical gap="small" style={{ padding: "16px" }}>
+        <Title level={4}>Daftar Nota Masuk</Title>
+        <Card>
+          {(() => {
+            if (purchase.state.error != null) {
+              return (
+                <AntdResult
+                  status="error"
+                  title="Error"
+                  subTitle="Klik tombol di bawah untuk mengulang, atau coba beberapa saat lagi"
+                  extra={[
                     <Button
-                      block
-                      color="primary"
-                      variant="solid"
-                      size="large"
+                      type="primary"
+                      key="0"
                       onClick={() => {
-                        navigate("/app/inventory/create", {
-                          state: { from: location.pathname + location.search },
-                        });
+                        setSearch(initParam);
                       }}
                     >
-                      Buat Nota Baru
-                    </Button>
-                  </Col>
-                  <Col xs={24} md={18} xl={20}>
-                    <Row gutter={[6, 6]} justify={{ xl: "end" }}>
-                      <Col>
-                        <RangePicker
-                          size="large"
-                          defaultValue={
-                            param.start == null && param.end == null
-                              ? undefined
-                              : [dayjs(param.start), dayjs(param.start)]
-                          }
-                          onChange={(date, dateString) => {
-                            const dateRangeValue = {
-                              ...param,
-                              ...initParam,
-                              start: dateString[0],
-                              end: dateString[1],
-                            };
+                      Coba lagi
+                    </Button>,
+                  ]}
+                />
+              );
+            }
 
-                            if (date == null) {
-                              delete dateRangeValue.start;
-                              delete dateRangeValue.end;
+            if (result?.data != null) {
+              return (
+                <Flex vertical gap="small">
+                  <Row gutter={[0, 6]} justify={{ xl: "space-between" }}>
+                    <Col xs={24} md={6} xl={4}>
+                      <Button
+                        block
+                        color="primary"
+                        variant="solid"
+                        size="large"
+                        onClick={() => {
+                          navigate("/app/inventory/create", {
+                            state: {
+                              from: location.pathname + location.search,
+                            },
+                          });
+                        }}
+                      >
+                        Buat Nota Baru
+                      </Button>
+                    </Col>
+                    <Col xs={24} md={18} xl={20}>
+                      <Row gutter={[6, 6]} justify={{ xl: "end" }}>
+                        <Col>
+                          <RangePicker
+                            size="large"
+                            defaultValue={
+                              param.start == null && param.end == null
+                                ? undefined
+                                : [dayjs(param.start), dayjs(param.start)]
                             }
+                            onChange={(date, dateString) => {
+                              const dateRangeValue = {
+                                ...param,
+                                ...initParam,
+                                start: dateString[0],
+                                end: dateString[1],
+                              };
 
-                            setSearch(dateRangeValue);
-                          }}
-                        />
-                      </Col>
-                      <Col>
-                        <Input.Search
-                          allowClear
-                          placeholder="Kode / nama supplier"
-                          size="large"
-                          defaultValue={param.search}
-                          onChange={(e) => {
-                            searchRecord(e.target.value);
-                          }}
-                        />
-                      </Col>
-                    </Row>
-                  </Col>
-                </Row>
-                {(() => {
-                  const datas = result.data;
+                              if (date == null) {
+                                delete dateRangeValue.start;
+                                delete dateRangeValue.end;
+                              }
 
-                  return (
-                    <Flex vertical gap="middle">
-                      <Table
-                        bordered
-                        loading={purchase.state.status == "loading"}
-                        style={{ overflowX: "scroll" }}
-                        pagination={false}
-                        dataSource={
-                          datas.length == 0
-                            ? []
-                            : datas.map((e, i) => {
-                                return { ...e, key: i };
-                              })
-                        }
-                        columns={[
-                          {
-                            title: "Kode",
-                            dataIndex: "code",
-                            minWidth: 60,
-                          },
-                          {
-                            title: "Supplier",
-                            dataIndex: "supplierName",
-                            minWidth: 60,
-                          },
-                          {
-                            title: "Total",
-                            dataIndex: "total",
-                            minWidth: 60,
-                            render: (value) => {
-                              return <>{Num.format(value)}</>;
-                            },
-                          },
-                          {
-                            title: "Fee %",
-                            dataIndex: "fee",
-                            minWidth: 60,
-                            render: (_, record) => {
-                              return (
+                              setSearch(dateRangeValue);
+                            }}
+                          />
+                        </Col>
+                        <Col>
+                          <Input.Search
+                            allowClear
+                            placeholder="Kode / nama supplier"
+                            size="large"
+                            defaultValue={param.search}
+                            onChange={(e) => {
+                              searchRecord(e.target.value);
+                            }}
+                          />
+                        </Col>
+                      </Row>
+                    </Col>
+                  </Row>
+                  {(() => {
+                    const datas = result.data;
+
+                    return (
+                      <Flex vertical gap="middle">
+                        <Table
+                          bordered
+                          loading={purchase.state.status == "loading"}
+                          style={{ overflowX: "scroll" }}
+                          pagination={false}
+                          dataSource={
+                            datas.length == 0
+                              ? []
+                              : datas.map((e, i) => {
+                                  return { ...e, key: i };
+                                })
+                          }
+                          columns={[
+                            {
+                              title: "Kode",
+                              dataIndex: "code",
+                              minWidth: 60,
+                              render: (_, record) => (
                                 <>
-                                  {Num.format(record.margin)} ({record.fee}%)
-                                </>
-                              );
-                            },
-                          },
-                          {
-                            title: "Biaya",
-                            dataIndex: "other",
-                            minWidth: 60,
-                            render: (value) => {
-                              return <>{Num.format(value)}</>;
-                            },
-                          },
-                          {
-                            title: "Hutang",
-                            dataIndex: "balance",
-                            minWidth: 60,
-                            render: (value) => {
-                              return <>{Num.format(value)}</>;
-                            },
-                          },
-                          {
-                            title: "Tanggal",
-                            dataIndex: "printed",
-                            minWidth: 60,
-                            render: (value) => {
-                              return <>{dayjs(value).format("DD-MM-YYYY")}</>;
-                            },
-                          },
-                          {
-                            render: (_, e) => (
-                              <>
-                                <Flex gap={4}>
-                                  <Button
-                                    icon={<EditFilled />}
-                                    color="primary"
-                                    size="small"
-                                    variant="solid"
-                                    onClick={() => {
-                                      navigate(`/app/inventory/edit/${e.id}`, {
-                                        state: {
-                                          from:
-                                            location.pathname + location.search,
-                                        },
-                                      });
+                                  <Link
+                                    to={`/app/inventory/read/${record.id}`}
+                                    state={{
+                                      from: location.pathname + location.search,
                                     }}
-                                  />
+                                  >
+                                    {record.code}
+                                  </Link>
+                                </>
+                              ),
+                            },
+                            {
+                              title: "Supplier",
+                              dataIndex: "supplierName",
+                              minWidth: 60,
+                            },
+                            {
+                              title: "Total",
+                              dataIndex: "total",
+                              minWidth: 60,
+                              render: (value) => {
+                                return <>{Num.format(value)}</>;
+                              },
+                            },
+                            {
+                              title: "Fee %",
+                              dataIndex: "fee",
+                              minWidth: 60,
+                              render: (_, record) => {
+                                return (
+                                  <>
+                                    {Num.format(record.margin)} ({record.fee}%)
+                                  </>
+                                );
+                              },
+                            },
+                            {
+                              title: "Biaya",
+                              dataIndex: "other",
+                              minWidth: 60,
+                              render: (value) => {
+                                return <>{Num.format(value)}</>;
+                              },
+                            },
+                            {
+                              title: "Hutang",
+                              dataIndex: "balance",
+                              minWidth: 60,
+                              render: (value) => {
+                                return <>{Num.format(value)}</>;
+                              },
+                            },
+                            {
+                              title: "Tanggal",
+                              dataIndex: "printed",
+                              minWidth: 60,
+                              render: (value) => {
+                                return <>{dayjs(value).format("DD-MM-YYYY")}</>;
+                              },
+                            },
+                            {
+                              render: (_, e) => (
+                                <>
                                   <Popconfirm
                                     placement="topLeft"
                                     title="Data akan dihapus"
@@ -269,9 +276,9 @@ export function PurchaseList() {
                                     okText="Ya"
                                     cancelText="Batal"
                                     onConfirm={() => {
-                                      //   purchase.remove(e.id, {
-                                      //     token: auth.state.data!,
-                                      //   });
+                                      purchase.remove(e.id, {
+                                        token: auth.state.data!,
+                                      });
                                     }}
                                   >
                                     <Button
@@ -281,35 +288,35 @@ export function PurchaseList() {
                                       variant="solid"
                                     />
                                   </Popconfirm>
-                                </Flex>
-                              </>
-                            ),
-                          },
-                        ]}
-                      />
-                      <Pagination
-                        simple
-                        align="center"
-                        showSizeChanger={false}
-                        current={result?.paging!.page}
-                        total={result?.paging!.total}
-                        onChange={(page) => {
-                          setSearch({
-                            ...param,
-                            page: page.toString(),
-                          });
-                        }}
-                      />
-                    </Flex>
-                  );
-                })()}
-              </Flex>
-            );
-          }
+                                </>
+                              ),
+                            },
+                          ]}
+                        />
+                        <Pagination
+                          simple
+                          align="center"
+                          showSizeChanger={false}
+                          current={result?.paging!.page}
+                          total={result?.paging!.total}
+                          onChange={(page) => {
+                            setSearch({
+                              ...param,
+                              page: page.toString(),
+                            });
+                          }}
+                        />
+                      </Flex>
+                    );
+                  })()}
+                </Flex>
+              );
+            }
 
-          return <Skeleton />;
-        })()}
-      </Card>
-    </Flex>
+            return <Skeleton />;
+          })()}
+        </Card>
+      </Flex>
+    </>
   );
 }

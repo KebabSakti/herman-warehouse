@@ -4,11 +4,11 @@ import { Result } from "../../../common/type";
 import { MySql, pool } from "../../../helper/mysql";
 import { Product } from "../../product/model/product_type";
 import { PurchaseApi } from "./purchase_api";
-import { PurchaseCreate, PurchaseList } from "./purchase_type";
-import { Purchase } from "./purchase_model";
+import { PurchaseCreate, PurchaseList, PurchaseUpdate } from "./purchase_type";
+import { Inventory, Purchase } from "./purchase_model";
 import { Supplier } from "../../supplier/model/supplier_model";
 import { Invoice } from "../../../helper/invoice";
-import { InternalFailure } from "../../../common/error";
+import { BadRequest, InternalFailure } from "../../../common/error";
 
 export class PurchaseMysql implements PurchaseApi {
   async list(param: PurchaseList): Promise<Result<Purchase[]>> {
@@ -46,44 +46,40 @@ export class PurchaseMysql implements PurchaseApi {
     `;
 
     const purchases = await MySql.query({ sql: query, nestTables: true });
-    const result = purchases.reduce((acc: any, item: any) => {
-      const index = acc.findIndex((e: any) => e.id == item.purchases.id);
+    const result = purchases.reduce((a: any, b: any) => {
+      const purchase = a.find((c: any) => c.id == b.purchases.id);
 
-      if (index >= 0) {
-        const invIndex = acc[index].inventory.findIndex(
-          (e: any) => e.id == item.inventories.id
-        );
+      if (purchase == undefined) {
+        const item = { ...b.purchases, inventory: [], payment: [] };
 
-        const payIndex = acc[index].payment.findIndex(
-          (e: any) => e.id == item.payments.id
-        );
-
-        if (invIndex < 0) {
-          if (item.inventories.id != null) {
-            acc[index].inventory.push(item.inventories);
-          }
+        if (b.inventories.purchaseId == item.id) {
+          item.inventory.push(b.inventories);
         }
 
-        if (payIndex < 0) {
-          if (item.payments.id != null) {
-            acc[index].payment.push(item.payments);
-          }
+        if (b.payments.purchaseId == item.id) {
+          item.payment.push(b.payments);
         }
+
+        a.push(item);
       } else {
-        const element = { ...item.purchases, inventory: [], payment: [] };
+        const inventory = purchase.inventory.find(
+          (c: any) => c.id == b.inventories.id
+        );
 
-        if (item.inventories.id != null) {
-          element.inventory.push(item.inventories);
+        const payment = purchase.payment.find(
+          (c: any) => c.id == b.payments.id
+        );
+
+        if (inventory == undefined) {
+          purchase.inventory.push(b.inventories);
         }
 
-        if (item.payments.id != null) {
-          element.payment.push(item.payments);
+        if (payment == undefined) {
+          purchase.payment.push(b.payments);
         }
-
-        acc.push(element);
       }
 
-      return acc;
+      return a;
     }, []);
 
     const data = {
@@ -222,7 +218,7 @@ export class PurchaseMysql implements PurchaseApi {
 
       await new Promise<void>((resolve, reject) => {
         connection.query(
-          "insert into stocks (id,supplierId,productId,qty,price,created,updated) values ? on duplicate key update qty = qty + values(qty) updated = values(updated)",
+          "insert into stocks (id,supplierId,productId,qty,price,created,updated) values ? on duplicate key update qty = qty + values(qty), updated = values(updated)",
           [stocks],
           (err) => {
             if (err) reject(err);
@@ -253,11 +249,249 @@ export class PurchaseMysql implements PurchaseApi {
         });
       }
 
-      if (supplier.outstanding > 0) {
+      await new Promise<void>((resolve, reject) => {
+        connection.query(
+          "update suppliers set outstanding = ? where id = ?",
+          [total, supplier.id],
+          (err) => {
+            if (err) reject(err);
+            resolve();
+          }
+        );
+      });
+    });
+  }
+
+  async read(id: string): Promise<Purchase | null | undefined> {
+    const query = `
+        select purchases.*, inventories.*, payments.*
+        from purchases
+        left join inventories on purchases.id = inventories.purchaseId
+        left join payments on purchases.id = payments.purchaseId
+        where purchases.deleted is null
+        and purchases.id = ${pool.escape(id)}`;
+
+    const purchases = await MySql.query({ sql: query, nestTables: true });
+    const result = purchases.reduce((a: any, b: any) => {
+      const purchase = a.find((c: any) => c.id == b.purchases.id);
+
+      if (purchase == undefined) {
+        const item = { ...b.purchases, inventory: [], payment: [] };
+
+        if (b.inventories.purchaseId == item.id) {
+          item.inventory.push(b.inventories);
+        }
+
+        if (b.payments.purchaseId == item.id) {
+          item.payment.push(b.payments);
+        }
+
+        a.push(item);
+      } else {
+        const inventory = purchase.inventory.find(
+          (c: any) => c.id == b.inventories.id
+        );
+
+        const payment = purchase.payment.find(
+          (c: any) => c.id == b.payments.id
+        );
+
+        if (inventory == undefined) {
+          purchase.inventory.push(b.inventories);
+        }
+
+        if (payment == undefined) {
+          purchase.payment.push(b.payments);
+        }
+      }
+
+      return a;
+    }, []);
+
+    if (result.length > 0) {
+      return result[0];
+    }
+
+    return null;
+  }
+
+  async update(id: string, param: PurchaseUpdate): Promise<void> {
+    //
+  }
+
+  // async remove(id: string): Promise<void> {
+  //   await MySql.transaction(async (connection) => {
+  //     const purchase = await new Promise<Purchase>((resolve, reject) => {
+  //       connection.query(
+  //         "select * from purchases where id = ?",
+  //         [id],
+  //         (err, res) => {
+  //           if (err) reject(err);
+  //           if (res.length == 0) reject(err);
+  //           resolve(res[0]);
+  //         }
+  //       );
+  //     });
+
+  //     const inventories = await new Promise<Inventory[]>((resolve, reject) => {
+  //       connection.query(
+  //         "select * from inventories where purchaseId = ?",
+  //         [id],
+  //         (err, res) => {
+  //           if (err) reject(err);
+  //           if (res.length == 0) reject(err);
+  //           resolve(res);
+  //         }
+  //       );
+  //     });
+
+  //     for await (let inventory of inventories) {
+  //       await new Promise<void>((resolve, reject) => {
+  //         connection.query(
+  //           "update stocks set qty = qty - ? where supplierId = ? and productId = ? and price = ?",
+  //           [
+  //             inventory.qty,
+  //             purchase.supplierId,
+  //             inventory.productId,
+  //             inventory.price,
+  //           ],
+  //           (err) => {
+  //             if (err) reject(err);
+  //             resolve();
+  //           }
+  //         );
+  //       });
+  //     }
+
+  //     await new Promise<void>((resolve, reject) => {
+  //       connection.query(
+  //         "delete from inventories where purchaseId = ?",
+  //         [id],
+  //         (err) => {
+  //           if (err) reject(err);
+  //           resolve();
+  //         }
+  //       );
+  //     });
+
+  //     await new Promise<void>((resolve, reject) => {
+  //       connection.query(
+  //         "delete from payments where purchaseId = ?",
+  //         [id],
+  //         (err) => {
+  //           if (err) reject(err);
+  //           resolve();
+  //         }
+  //       );
+  //     });
+
+  //     await new Promise<void>((resolve, reject) => {
+  //       connection.query(
+  //         "delete from ledgers where purchaseId = ?",
+  //         [id],
+  //         (err) => {
+  //           if (err) reject(err);
+  //           resolve();
+  //         }
+  //       );
+  //     });
+
+  //     await new Promise<void>((resolve, reject) => {
+  //       connection.query("delete from purchases where id = ?", [id], (err) => {
+  //         if (err) reject(err);
+  //         resolve();
+  //       });
+  //     });
+
+  //     await new Promise<void>((resolve, reject) => {
+  //       connection.query(
+  //         "update suppliers set outstanding = ? where id = ?",
+  //         [purchase.outstanding, purchase.supplierId],
+  //         (err) => {
+  //           if (err) reject(err);
+  //           resolve();
+  //         }
+  //       );
+  //     });
+  //   });
+  // }
+
+  async remove(id: string): Promise<void> {
+    await MySql.transaction(async (connection) => {
+      throw new BadRequest();
+      const today = new Date();
+
+      const purchase = await new Promise<Purchase>((resolve, reject) => {
+        connection.query(
+          "select * from purchases where id = ?",
+          [id],
+          (err, res) => {
+            if (err) reject(err);
+            if (res.length == 0) reject(err);
+            resolve(res[0]);
+          }
+        );
+      });
+
+      const inventories = await new Promise<Inventory[]>((resolve, reject) => {
+        connection.query(
+          "select * from inventories where purchaseId = ?",
+          [id],
+          (err, res) => {
+            if (err) reject(err);
+            if (res.length == 0) reject(err);
+            resolve(res);
+          }
+        );
+      });
+
+      for await (let inventory of inventories) {
+        const stock = await new Promise<any>((resolve, reject) => {
+          connection.query(
+            "select * from stocks where supplierId = ? and productId = ? and price = ?",
+            [purchase.supplierId, inventory.productId, inventory.price],
+            (err, res) => {
+              if (err) reject(err);
+              resolve(res[0]);
+            }
+          );
+        });
+
+        const invoices = await new Promise<any>((resolve, reject) => {
+          connection.query(
+            "select * from items where stockId = ?",
+            [stock.id],
+            (err, res) => {
+              if (err) reject(err);
+              resolve(res);
+            }
+          );
+        });
+
+        const ledgers = await new Promise<any>((resolve, reject) => {
+          connection.query(
+            "select * from ledgers where purchaseId = ?",
+            [id],
+            (err, res) => {
+              if (err) reject(err);
+              resolve(res);
+            }
+          );
+        });
+
+        if (invoices.length > 0 || ledgers.length > 0) {
+          throw new BadRequest();
+        }
+
         await new Promise<void>((resolve, reject) => {
           connection.query(
-            "update suppliers set ? where id = ?",
-            [{ outstanding: total }, supplier.id],
+            "update stocks set qty = qty - ? where supplierId = ? and productId = ? and price = ?",
+            [
+              inventory.qty,
+              purchase.supplierId,
+              inventory.productId,
+              inventory.price,
+            ],
             (err) => {
               if (err) reject(err);
               resolve();
@@ -265,29 +499,28 @@ export class PurchaseMysql implements PurchaseApi {
           );
         });
       }
+
+      await new Promise<void>((resolve, reject) => {
+        connection.query(
+          "update suppliers set outstanding = ? where id = ?",
+          [purchase.outstanding, purchase.supplierId],
+          (err) => {
+            if (err) reject(err);
+            resolve();
+          }
+        );
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        connection.query(
+          "update purchases set deleted = ? where id = ?",
+          [today, id],
+          (err) => {
+            if (err) reject(err);
+            resolve();
+          }
+        );
+      });
     });
-  }
-
-  async read(id: string): Promise<Purchase | null | undefined> {
-    const purchase = await MySql.query(
-      "select * from purchases where id = ?",
-      id
-    );
-
-    const inventory = await MySql.query(
-      "select * from inventories where purchaseId = ?",
-      id
-    );
-
-    const payment = await MySql.query(
-      "select * from payments where purchaseId = ?",
-      id
-    );
-
-    if (purchase.length > 0) {
-      return { ...purchase[0], inventory: inventory, payment: payment };
-    }
-
-    return null;
   }
 }

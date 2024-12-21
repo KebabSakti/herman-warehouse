@@ -46,4 +46,14 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+router.delete("/:id", async (req, res) => {
+  try {
+    await purchaseController.remove(req.params.id);
+
+    return res.end();
+  } catch (error: any) {
+    return Failure(error, res);
+  }
+});
+
 export default router;

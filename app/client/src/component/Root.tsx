@@ -41,12 +41,12 @@ export function Root() {
     },
     {
       key: currentMenuKey("/app/inventory"),
-      label: "Inventory",
+      label: "Nota Masuk",
       icon: <DatabaseOutlined />,
     },
     {
       key: currentMenuKey("/app/order"),
-      label: "Order",
+      label: "Nota Keluar",
       icon: <AuditOutlined />,
     },
     {
