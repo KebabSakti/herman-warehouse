@@ -7,6 +7,15 @@ export class Unauthorized extends Error {
   }
 }
 
+export class Forbidden extends Error {
+  message: string;
+
+  constructor(message: string = "Forbidden") {
+    super();
+    this.message = message;
+  }
+}
+
 export class BadRequest extends Error {
   message: string;
 
@@ -39,6 +48,10 @@ export function Failure(code: number, message: string): Error {
 
   if (code == 401) {
     error = new Unauthorized(message);
+  }
+
+  if (code == 403) {
+    error = new Forbidden(message);
   }
 
   if (code == 400) {

@@ -8,7 +8,7 @@ import { PurchaseCreate, PurchaseList, PurchaseUpdate } from "./purchase_type";
 import { Inventory, Purchase } from "./purchase_model";
 import { Supplier } from "../../supplier/model/supplier_model";
 import { Invoice } from "../../../helper/invoice";
-import { BadRequest, InternalFailure } from "../../../common/error";
+import { BadRequest, Forbidden, InternalFailure } from "../../../common/error";
 
 export class PurchaseMysql implements PurchaseApi {
   async list(param: PurchaseList): Promise<Result<Purchase[]>> {
@@ -319,106 +319,8 @@ export class PurchaseMysql implements PurchaseApi {
     //
   }
 
-  // async remove(id: string): Promise<void> {
-  //   await MySql.transaction(async (connection) => {
-  //     const purchase = await new Promise<Purchase>((resolve, reject) => {
-  //       connection.query(
-  //         "select * from purchases where id = ?",
-  //         [id],
-  //         (err, res) => {
-  //           if (err) reject(err);
-  //           if (res.length == 0) reject(err);
-  //           resolve(res[0]);
-  //         }
-  //       );
-  //     });
-
-  //     const inventories = await new Promise<Inventory[]>((resolve, reject) => {
-  //       connection.query(
-  //         "select * from inventories where purchaseId = ?",
-  //         [id],
-  //         (err, res) => {
-  //           if (err) reject(err);
-  //           if (res.length == 0) reject(err);
-  //           resolve(res);
-  //         }
-  //       );
-  //     });
-
-  //     for await (let inventory of inventories) {
-  //       await new Promise<void>((resolve, reject) => {
-  //         connection.query(
-  //           "update stocks set qty = qty - ? where supplierId = ? and productId = ? and price = ?",
-  //           [
-  //             inventory.qty,
-  //             purchase.supplierId,
-  //             inventory.productId,
-  //             inventory.price,
-  //           ],
-  //           (err) => {
-  //             if (err) reject(err);
-  //             resolve();
-  //           }
-  //         );
-  //       });
-  //     }
-
-  //     await new Promise<void>((resolve, reject) => {
-  //       connection.query(
-  //         "delete from inventories where purchaseId = ?",
-  //         [id],
-  //         (err) => {
-  //           if (err) reject(err);
-  //           resolve();
-  //         }
-  //       );
-  //     });
-
-  //     await new Promise<void>((resolve, reject) => {
-  //       connection.query(
-  //         "delete from payments where purchaseId = ?",
-  //         [id],
-  //         (err) => {
-  //           if (err) reject(err);
-  //           resolve();
-  //         }
-  //       );
-  //     });
-
-  //     await new Promise<void>((resolve, reject) => {
-  //       connection.query(
-  //         "delete from ledgers where purchaseId = ?",
-  //         [id],
-  //         (err) => {
-  //           if (err) reject(err);
-  //           resolve();
-  //         }
-  //       );
-  //     });
-
-  //     await new Promise<void>((resolve, reject) => {
-  //       connection.query("delete from purchases where id = ?", [id], (err) => {
-  //         if (err) reject(err);
-  //         resolve();
-  //       });
-  //     });
-
-  //     await new Promise<void>((resolve, reject) => {
-  //       connection.query(
-  //         "update suppliers set outstanding = ? where id = ?",
-  //         [purchase.outstanding, purchase.supplierId],
-  //         (err) => {
-  //           if (err) reject(err);
-  //           resolve();
-  //         }
-  //       );
-  //     });
-  //   });
-  // }
-
   async remove(id: string): Promise<void> {
     await MySql.transaction(async (connection) => {
-      throw new BadRequest();
       const today = new Date();
 
       const purchase = await new Promise<Purchase>((resolve, reject) => {
@@ -480,7 +382,7 @@ export class PurchaseMysql implements PurchaseApi {
         });
 
         if (invoices.length > 0 || ledgers.length > 0) {
-          throw new BadRequest();
+          throw new BadRequest("Proses tidak boleh dilakukan");
         }
 
         await new Promise<void>((resolve, reject) => {

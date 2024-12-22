@@ -9,6 +9,15 @@ export class Unauthorized extends Error {
   }
 }
 
+export class Forbidden extends Error {
+  message: string;
+
+  constructor(message: string = "Proses ini tidak di izinkan") {
+    super();
+    this.message = message;
+  }
+}
+
 export class BadRequest extends Error {
   message: string;
 
@@ -45,6 +54,10 @@ export function Failure(error: Error, res: Response): void {
 
   if (error instanceof Unauthorized) {
     code = 401;
+  }
+
+  if (error instanceof Forbidden) {
+    code = 403;
   }
 
   if (error instanceof NotFound) {

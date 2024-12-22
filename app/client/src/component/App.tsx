@@ -32,6 +32,7 @@ import { SupplierController } from "../feature/supplier/controller/supplier_cont
 import { SupplierApi } from "../feature/supplier/model/supplier_api";
 import { SupplierAxios } from "../feature/supplier/model/supplier_axios";
 import { Root } from "./Root";
+import { Print } from "../feature/purchase/view/PurchasePrint";
 
 export type Dependency = {
   auth: AuthHookType;
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <LoginPage />,
+  },
+  {
+    path: "/print",
+    element: <Print />,
   },
   {
     path: "/app",
@@ -85,6 +90,10 @@ const router = createBrowserRouter([
             path: "/app/inventory/edit/:id",
             element: <PurchaseEdit />,
           },
+          // {
+          //   path: "/app/inventory/print/:id",
+          //   element: <PurchasePrint />,
+          // },
         ],
       },
       {

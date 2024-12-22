@@ -1,6 +1,6 @@
-import { DeleteFilled } from "@ant-design/icons";
+import { DeleteFilled, PrinterFilled } from "@ant-design/icons";
+import { pdf } from "@react-pdf/renderer";
 import {
-  Result as AntdResult,
   Button,
   Card,
   Col,
@@ -11,7 +11,7 @@ import {
   Pagination,
   Popconfirm,
   Row,
-  Skeleton,
+  Spin,
   Table,
 } from "antd";
 import Title from "antd/es/typography/Title";
@@ -30,9 +30,11 @@ import { debounce } from "../../../helper/debounce";
 import { Num } from "../../../helper/num";
 import { Purchase } from "../model/purchase_model";
 import { usePurchaseHook } from "./PurchaseHook";
+import { Doc } from "./PurchasePrint";
 
 export function PurchaseList() {
   const { auth, purchaseController } = useContext(Dependency)!;
+  // const [instance] = usePDF({ document: PurchasePrint });
   const purchase = usePurchaseHook(purchaseController);
   const result = purchase.state.data as Result<Purchase[]> | null;
   const location = useLocation();
@@ -97,178 +99,172 @@ export function PurchaseList() {
       <Outlet />
       <Flex vertical gap="small" style={{ padding: "16px" }}>
         <Title level={4}>Daftar Nota Masuk</Title>
-        <Card>
-          {(() => {
-            if (purchase.state.error != null) {
-              return (
-                <AntdResult
-                  status="error"
-                  title="Error"
-                  subTitle="Klik tombol di bawah untuk mengulang, atau coba beberapa saat lagi"
-                  extra={[
-                    <Button
-                      type="primary"
-                      key="0"
-                      onClick={() => {
-                        setSearch(initParam);
-                      }}
-                    >
-                      Coba lagi
-                    </Button>,
-                  ]}
-                />
-              );
-            }
-
-            if (result?.data != null) {
-              return (
-                <Flex vertical gap="small">
-                  <Row gutter={[0, 6]} justify={{ xl: "space-between" }}>
-                    <Col xs={24} md={6} xl={4}>
-                      <Button
-                        block
-                        color="primary"
-                        variant="solid"
+        <Spin spinning={purchase.state.status == "loading"}>
+          <Card>
+            <Flex vertical gap="small">
+              <Row gutter={[4, 4]} justify={{ xl: "space-between" }}>
+                <Col xs={{ flex: "100%" }} md={{ flex: "20%" }}>
+                  <Button
+                    block
+                    color="primary"
+                    variant="solid"
+                    size="large"
+                    onClick={() => {
+                      navigate("/app/inventory/create", {
+                        state: {
+                          from: location.pathname + location.search,
+                        },
+                      });
+                    }}
+                  >
+                    Buat Nota Baru
+                  </Button>
+                </Col>
+                <Col xs={{ flex: "100%" }} md={{ flex: "80%" }}>
+                  <Row gutter={[4, 4]} justify="end">
+                    <Col>
+                      <RangePicker
                         size="large"
-                        onClick={() => {
-                          navigate("/app/inventory/create", {
-                            state: {
-                              from: location.pathname + location.search,
-                            },
-                          });
+                        defaultValue={
+                          param.start == null && param.end == null
+                            ? undefined
+                            : [dayjs(param.start), dayjs(param.start)]
+                        }
+                        onChange={(date, dateString) => {
+                          const dateRangeValue = {
+                            ...param,
+                            ...initParam,
+                            start: dateString[0],
+                            end: dateString[1],
+                          };
+
+                          if (date == null) {
+                            delete dateRangeValue.start;
+                            delete dateRangeValue.end;
+                          }
+
+                          setSearch(dateRangeValue);
                         }}
-                      >
-                        Buat Nota Baru
-                      </Button>
+                      />
                     </Col>
-                    <Col xs={24} md={18} xl={20}>
-                      <Row gutter={[6, 6]} justify={{ xl: "end" }}>
-                        <Col>
-                          <RangePicker
-                            size="large"
-                            defaultValue={
-                              param.start == null && param.end == null
-                                ? undefined
-                                : [dayjs(param.start), dayjs(param.start)]
-                            }
-                            onChange={(date, dateString) => {
-                              const dateRangeValue = {
-                                ...param,
-                                ...initParam,
-                                start: dateString[0],
-                                end: dateString[1],
-                              };
-
-                              if (date == null) {
-                                delete dateRangeValue.start;
-                                delete dateRangeValue.end;
-                              }
-
-                              setSearch(dateRangeValue);
-                            }}
-                          />
-                        </Col>
-                        <Col>
-                          <Input.Search
-                            allowClear
-                            placeholder="Kode / nama supplier"
-                            size="large"
-                            defaultValue={param.search}
-                            onChange={(e) => {
-                              searchRecord(e.target.value);
-                            }}
-                          />
-                        </Col>
-                      </Row>
+                    <Col>
+                      <Input.Search
+                        allowClear
+                        placeholder="Kode / nama supplier"
+                        size="large"
+                        defaultValue={param.search}
+                        onChange={(e) => {
+                          searchRecord(e.target.value);
+                        }}
+                      />
                     </Col>
                   </Row>
-                  {(() => {
-                    const datas = result.data;
+                </Col>
+              </Row>
+              {(() => {
+                if (result?.data != null) {
+                  const datas = result.data;
 
-                    return (
-                      <Flex vertical gap="middle">
-                        <Table
-                          bordered
-                          loading={purchase.state.status == "loading"}
-                          style={{ overflowX: "scroll" }}
-                          pagination={false}
-                          dataSource={
-                            datas.length == 0
-                              ? []
-                              : datas.map((e, i) => {
-                                  return { ...e, key: i };
-                                })
-                          }
-                          columns={[
-                            {
-                              title: "Kode",
-                              dataIndex: "code",
-                              minWidth: 60,
-                              render: (_, record) => (
+                  return (
+                    <Flex vertical gap="middle">
+                      <Table
+                        bordered
+                        style={{ overflowX: "scroll" }}
+                        pagination={false}
+                        dataSource={
+                          datas.length == 0
+                            ? []
+                            : datas.map((e, i) => {
+                                return { ...e, key: i };
+                              })
+                        }
+                        columns={[
+                          {
+                            title: "Kode",
+                            dataIndex: "code",
+                            minWidth: 60,
+                            render: (_, record) => (
+                              <>
+                                <Link
+                                  to={`/app/inventory/read/${record.id}`}
+                                  state={{
+                                    from: location.pathname + location.search,
+                                  }}
+                                >
+                                  {record.code}
+                                </Link>
+                              </>
+                            ),
+                          },
+                          {
+                            title: "Supplier",
+                            dataIndex: "supplierName",
+                            minWidth: 60,
+                          },
+                          {
+                            title: "Total",
+                            dataIndex: "total",
+                            minWidth: 60,
+                            render: (value) => {
+                              return <>{Num.format(value)}</>;
+                            },
+                          },
+                          {
+                            title: "Fee %",
+                            dataIndex: "fee",
+                            minWidth: 60,
+                            render: (_, record) => {
+                              return (
                                 <>
-                                  <Link
-                                    to={`/app/inventory/read/${record.id}`}
-                                    state={{
-                                      from: location.pathname + location.search,
-                                    }}
-                                  >
-                                    {record.code}
-                                  </Link>
+                                  {Num.format(record.margin)} ({record.fee}%)
                                 </>
-                              ),
+                              );
                             },
-                            {
-                              title: "Supplier",
-                              dataIndex: "supplierName",
-                              minWidth: 60,
+                          },
+                          {
+                            title: "Biaya",
+                            dataIndex: "other",
+                            minWidth: 60,
+                            render: (value) => {
+                              return <>{Num.format(value)}</>;
                             },
-                            {
-                              title: "Total",
-                              dataIndex: "total",
-                              minWidth: 60,
-                              render: (value) => {
-                                return <>{Num.format(value)}</>;
-                              },
+                          },
+                          {
+                            title: "Hutang",
+                            dataIndex: "balance",
+                            minWidth: 60,
+                            render: (value) => {
+                              return <>{Num.format(value)}</>;
                             },
-                            {
-                              title: "Fee %",
-                              dataIndex: "fee",
-                              minWidth: 60,
-                              render: (_, record) => {
-                                return (
-                                  <>
-                                    {Num.format(record.margin)} ({record.fee}%)
-                                  </>
-                                );
-                              },
+                          },
+                          {
+                            title: "Tanggal",
+                            dataIndex: "printed",
+                            minWidth: 60,
+                            render: (value) => {
+                              return <>{dayjs(value).format("DD-MM-YYYY")}</>;
                             },
-                            {
-                              title: "Biaya",
-                              dataIndex: "other",
-                              minWidth: 60,
-                              render: (value) => {
-                                return <>{Num.format(value)}</>;
-                              },
-                            },
-                            {
-                              title: "Hutang",
-                              dataIndex: "balance",
-                              minWidth: 60,
-                              render: (value) => {
-                                return <>{Num.format(value)}</>;
-                              },
-                            },
-                            {
-                              title: "Tanggal",
-                              dataIndex: "printed",
-                              minWidth: 60,
-                              render: (value) => {
-                                return <>{dayjs(value).format("DD-MM-YYYY")}</>;
-                              },
-                            },
-                            {
-                              render: (_, e) => (
-                                <>
+                          },
+                          {
+                            render: (_, e) => (
+                              <>
+                                <Flex gap={4}>
+                                  <Button
+                                    icon={<PrinterFilled />}
+                                    color="primary"
+                                    size="small"
+                                    variant="solid"
+                                    onClick={async () => {
+                                      const blob = await pdf(<Doc />).toBlob();
+                                      const url = URL.createObjectURL(blob);
+                                      window.open(url, "_blank");
+
+                                      // const link = document.createElement("a");
+                                      // link.href = URL.createObjectURL(blob);
+                                      // link.download = "document.pdf";
+                                      // link.click();
+                                    }}
+                                  />
                                   <Popconfirm
                                     placement="topLeft"
                                     title="Data akan dihapus"
@@ -288,34 +284,34 @@ export function PurchaseList() {
                                       variant="solid"
                                     />
                                   </Popconfirm>
-                                </>
-                              ),
-                            },
-                          ]}
-                        />
-                        <Pagination
-                          simple
-                          align="center"
-                          showSizeChanger={false}
-                          current={result?.paging!.page}
-                          total={result?.paging!.total}
-                          onChange={(page) => {
-                            setSearch({
-                              ...param,
-                              page: page.toString(),
-                            });
-                          }}
-                        />
-                      </Flex>
-                    );
-                  })()}
-                </Flex>
-              );
-            }
+                                </Flex>
+                              </>
+                            ),
+                          },
+                        ]}
+                      />
+                      <Pagination
+                        simple
+                        align="center"
+                        showSizeChanger={false}
+                        current={result?.paging!.page}
+                        total={result?.paging!.total}
+                        onChange={(page) => {
+                          setSearch({
+                            ...param,
+                            page: page.toString(),
+                          });
+                        }}
+                      />
+                    </Flex>
+                  );
+                }
 
-            return <Skeleton />;
-          })()}
-        </Card>
+                return <Table bordered pagination={false} dataSource={[]} />;
+              })()}
+            </Flex>
+          </Card>
+        </Spin>
       </Flex>
     </>
   );

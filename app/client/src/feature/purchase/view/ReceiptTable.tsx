@@ -107,7 +107,7 @@ export function ReceiptTable(props: PurchaseCreateProps) {
     <>
       <Spin spinning={purchase.state.status == "loading"}>
         <Flex vertical gap="small">
-          <Row gutter={[0, 4]} justify={{ xl: "space-between" }}>
+          <Row gutter={[4, 4]} justify={{ xl: "space-between" }}>
             <Col xs={{ flex: "100%" }} md={{ flex: "20%" }}>
               <Dropdown
                 menu={{
@@ -141,7 +141,7 @@ export function ReceiptTable(props: PurchaseCreateProps) {
             </Col>
             <Col xs={{ flex: "100%" }} md={{ flex: "80%" }}>
               <Row gutter={[4, 4]} justify="end">
-                <Col xs={{ flex: "100%" }} md={{ flex: "35%" }}>
+                <Col xs={{ flex: "100%" }} md={{ flex: "30%" }}>
                   <Space.Compact block>
                     <Input
                       readOnly
@@ -159,7 +159,7 @@ export function ReceiptTable(props: PurchaseCreateProps) {
                     />
                   </Space.Compact>
                 </Col>
-                <Col xs={{ flex: "100%" }} md={{ flex: "25%" }}>
+                <Col xs={{ flex: "100%" }} md={{ flex: "30%" }}>
                   <DatePicker
                     size="large"
                     placeholder="Tanggal nota"

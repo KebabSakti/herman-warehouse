@@ -10,14 +10,13 @@ import {
   ShopOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Button, Typography, Layout, Menu, Space } from "antd";
+import { Button, Layout, Menu, Space, Typography } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
 import { useContext } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Dependency } from "./App";
 import logo from "../asset/logo.png";
-import { string } from "yup";
+import { Dependency } from "./App";
 
 export function Root() {
   const { auth } = useContext(Dependency)!;
@@ -41,12 +40,12 @@ export function Root() {
     },
     {
       key: currentMenuKey("/app/inventory"),
-      label: "Nota Masuk",
+      label: "Nota Supplier",
       icon: <DatabaseOutlined />,
     },
     {
       key: currentMenuKey("/app/order"),
-      label: "Nota Keluar",
+      label: "Nota Kustomer",
       icon: <AuditOutlined />,
     },
     {
