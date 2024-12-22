@@ -1,5 +1,4 @@
 import { DeleteFilled, PrinterFilled } from "@ant-design/icons";
-import { pdf } from "@react-pdf/renderer";
 import {
   Button,
   Card,
@@ -30,7 +29,6 @@ import { debounce } from "../../../helper/debounce";
 import { Num } from "../../../helper/num";
 import { Purchase } from "../model/purchase_model";
 import { usePurchaseHook } from "./PurchaseHook";
-import { Doc } from "./PurchasePrint";
 
 export function PurchaseList() {
   const { auth, purchaseController } = useContext(Dependency)!;
@@ -254,15 +252,11 @@ export function PurchaseList() {
                                     color="primary"
                                     size="small"
                                     variant="solid"
-                                    onClick={async () => {
-                                      const blob = await pdf(<Doc />).toBlob();
-                                      const url = URL.createObjectURL(blob);
-                                      window.open(url, "_blank");
-
-                                      // const link = document.createElement("a");
-                                      // link.href = URL.createObjectURL(blob);
-                                      // link.download = "document.pdf";
-                                      // link.click();
+                                    onClick={() => {
+                                      window.open(
+                                        `/print/inventory/${e.id}`,
+                                        "_blank"
+                                      );
                                     }}
                                   />
                                   <Popconfirm

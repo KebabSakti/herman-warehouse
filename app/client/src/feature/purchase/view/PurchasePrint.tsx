@@ -1,13 +1,12 @@
 import {
   Document,
   Page,
-  Text,
-  StyleSheet,
-  View,
   PDFViewer,
+  StyleSheet,
+  Text,
+  View,
 } from "@react-pdf/renderer";
 import { Num } from "../../../helper/num";
-import { useParams } from "react-router-dom";
 
 const styles = StyleSheet.create({
   page: {
@@ -144,11 +143,11 @@ const tableData = [
   },
 ];
 
-export const Doc = () => (
+export const Doc = (props: any) => (
   <Document>
     <Page size="A4" style={styles.page}>
       <Text style={styles.title}>INVOICE</Text>
-      <Text style={styles.subtitle}>#SPP276687502</Text>
+      <Text style={styles.subtitle}>#{props.id}</Text>
       <Text style={styles.subtitle}>22 Desember 2024</Text>
       <Text style={styles.subtitle}>Kebab Sakti - 081254982664</Text>
       <View style={styles.table}>
@@ -177,13 +176,13 @@ export const Doc = () => (
   </Document>
 );
 
-export function Print() {
+export function PurchasePrint() {
   return (
     <PDFViewer
       showToolbar={false}
       style={{ width: "100%", height: "100vh", border: "none" }}
     >
-      <Doc />
+      <Doc id="SPP276687502" />
     </PDFViewer>
   );
 }
