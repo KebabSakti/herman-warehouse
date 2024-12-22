@@ -1,4 +1,4 @@
-import { Button, Col, InputNumber, Modal, Result, Row, Table } from "antd";
+import { Button, Col, Modal, Result, Row, Table } from "antd";
 import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
