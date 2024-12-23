@@ -87,53 +87,58 @@ export function Root() {
   ];
 
   return (
-    <Layout style={{ height: "100vh" }}>
-      <Header
-        style={{
-          backgroundColor: "#fff",
-          borderBottom: "1px solid #ededed",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: 0,
-        }}
-      >
-        <Space>
-          <img src={logo} style={{ width: "34px", marginLeft: "20px" }} />
-          <Text strong>Pos System</Text>
-        </Space>
-        <Button type="link">Julian Aryo (Admin)</Button>
-      </Header>
-      <Layout>
-        <Sider
-          breakpoint="sm"
-          width="20%"
-          trigger={null}
-          style={{ backgroundColor: "#fff", borderRight: "1px solid #ededed" }}
-        >
-          <Menu
-            mode="inline"
-            defaultSelectedKeys={["/app/dashboard"]}
-            selectedKeys={[location.pathname]}
-            items={items}
-            style={{ width: "100%", border: "none" }}
-            onClick={({ key }) => {
-              if (key == "/app/logout") {
-                auth.logout();
-              } else {
-                navigate(key);
-              }
-            }}
-          />
-        </Sider>
-        <Content
+    <>
+      <Layout style={{ height: "100vh" }}>
+        <Header
           style={{
-            overflowY: "scroll",
+            backgroundColor: "#fff",
+            borderBottom: "1px solid #ededed",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: 0,
           }}
         >
-          <Outlet />
-        </Content>
+          <Space>
+            <img src={logo} style={{ width: "34px", marginLeft: "20px" }} />
+            <Text strong>Pos System</Text>
+          </Space>
+          <Button type="link">Julian Aryo (Admin)</Button>
+        </Header>
+        <Layout>
+          <Sider
+            breakpoint="sm"
+            width="20%"
+            trigger={null}
+            style={{
+              backgroundColor: "#fff",
+              borderRight: "1px solid #ededed",
+            }}
+          >
+            <Menu
+              mode="inline"
+              defaultSelectedKeys={["/app/dashboard"]}
+              selectedKeys={[location.pathname]}
+              items={items}
+              style={{ width: "100%", border: "none" }}
+              onClick={({ key }) => {
+                if (key == "/app/logout") {
+                  auth.logout();
+                } else {
+                  navigate(key);
+                }
+              }}
+            />
+          </Sider>
+          <Content
+            style={{
+              overflowY: "scroll",
+            }}
+          >
+            <Outlet />
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
+    </>
   );
 }
