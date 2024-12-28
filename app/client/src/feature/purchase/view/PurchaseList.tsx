@@ -32,7 +32,6 @@ import { usePurchaseHook } from "./PurchaseHook";
 
 export function PurchaseList() {
   const { auth, purchaseController } = useContext(Dependency)!;
-  // const [instance] = usePDF({ document: PurchasePrint });
   const purchase = usePurchaseHook(purchaseController);
   const result = purchase.state.data as Result<Purchase[]> | null;
   const location = useLocation();
@@ -96,7 +95,7 @@ export function PurchaseList() {
     <>
       <Outlet />
       <Flex vertical gap="small" style={{ padding: "16px" }}>
-        <Title level={4}>Daftar Nota Masuk</Title>
+        <Title level={4}>Daftar Nota Supplier</Title>
         <Spin spinning={purchase.state.status == "loading"}>
           <Card>
             <Flex vertical gap="small">

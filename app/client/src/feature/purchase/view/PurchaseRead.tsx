@@ -7,6 +7,7 @@ import { Num } from "../../../helper/num";
 import { Purchase } from "../model/purchase_model";
 import { usePurchaseHook } from "./PurchaseHook";
 import { ReceiptTableItem, ReceiptTableTag } from "./ReceiptTableHook";
+import { PrinterFilled } from "@ant-design/icons";
 
 export function PurchaseRead() {
   const { auth, purchaseController } = useContext(Dependency)!;
@@ -182,12 +183,16 @@ export function PurchaseRead() {
                       <Col>{Num.format(paymentTotal ?? 0)}</Col>
                     </Row>
                   </Col>
-                  <Col span={24}>
-                    <Row justify="space-between">
-                      <Col>Sisa Hutang ({data.supplierName})</Col>
-                      <Col>{Num.format(data.outstanding)}</Col>
-                    </Row>
-                  </Col>
+                  {data.outstanding == 0 ? (
+                    ""
+                  ) : (
+                    <Col span={24}>
+                      <Row justify="space-between">
+                        <Col>Sisa Hutang ({data.supplierName})</Col>
+                        <Col>{Num.format(data.outstanding)}</Col>
+                      </Row>
+                    </Col>
+                  )}
                   <Col span={24}>
                     <Row justify="space-between">
                       <Col style={{ fontWeight: "bold", fontSize: "16px" }}>
@@ -197,6 +202,24 @@ export function PurchaseRead() {
                         {Num.format(data.balance)}
                       </Col>
                     </Row>
+                  </Col>
+                  {data.note == null ? (
+                    ""
+                  ) : (
+                    <Col span={24}>Catatan : {data.note}</Col>
+                  )}
+                  <Col span={24} style={{ marginTop: 14 }}>
+                    <Button
+                      block
+                      icon={<PrinterFilled />}
+                      color="primary"
+                      size="large"
+                      variant="solid"
+                      target="_blank"
+                      href={`/print/inventory/${data.id}`}
+                    >
+                      Print
+                    </Button>
                   </Col>
                 </Row>
               </>

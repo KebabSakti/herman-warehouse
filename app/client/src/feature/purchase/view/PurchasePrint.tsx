@@ -79,7 +79,7 @@ export function PurchasePrint() {
     }
   }, [purchase.state, auth.state]);
 
-  if (purchase.state.data != null) {
+  if (purchase.state.status == "complete" && purchase.state.data != null) {
     const data = purchase.state.data as Purchase;
     const inventories: ReceiptTableItem[] = data.inventory!.map((e) => {
       return {
@@ -276,6 +276,22 @@ export function PurchasePrint() {
           </Page>
         </Document>
       </PDFViewer>
+    );
+  }
+
+  if (purchase.state.status == "complete" && purchase.state.data == null) {
+    return (
+      <div
+        style={{
+          width: "100%",
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        Data tidak ditemukan
+      </div>
     );
   }
 
