@@ -41,7 +41,7 @@ export class InvoiceMysql implements InvoiceApi {
     let query = `
     select invoices.*, items.*, installments.*
     from (${table}) as invoices
-    left join invoices on invoices.id = items.invoiceId
+    left join items on invoices.id = items.invoiceId
     left join installments on invoices.id = items.invoiceId
     `;
 

@@ -1,3 +1,6 @@
+import { InvoiceController } from "./invoice/controller/invoice_controller";
+import { InvoiceApi } from "./invoice/model/invoice_api";
+import { InvoiceMysql } from "./invoice/model/invoice_mysql";
 import { ProductController } from "./product/controller/product_controller";
 import { ProductApi } from "./product/model/product_api";
 import { ProductMysql } from "./product/model/product_mysql";
@@ -15,8 +18,10 @@ const userApi: UserApi = new UserMysql();
 const productApi: ProductApi = new ProductMysql();
 const supplierApi: SupplierApi = new SupplierMysql();
 const purchaseApi: PurchaseApi = new PurchaseMysql();
+const invoiceApi: InvoiceApi = new InvoiceMysql();
 
 export const userController = new UserController(userApi);
 export const productController = new ProductController(productApi);
 export const supplierController = new SupplierController(supplierApi);
 export const purchaseController = new PurchaseController(purchaseApi);
+export const invoiceController = new InvoiceController(invoiceApi);

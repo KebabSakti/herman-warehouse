@@ -15,6 +15,10 @@ import {
 } from "../feature/authentication/view/AuthHook";
 import { LoginPage } from "../feature/authentication/view/LoginPage";
 import { DashboardPage } from "../feature/dashboard/view/DashboardPage";
+import { InvoiceController } from "../feature/invoice/controller/invoice_controller";
+import { InvoiceApi } from "../feature/invoice/model/invoice_api";
+import { InvoiceAxios } from "../feature/invoice/model/invoice_axios";
+import { InvoiceList } from "../feature/invoice/view/InvoiceList";
 import { ProductController } from "../feature/product/controller/product_controller";
 import { ProductApi } from "../feature/product/model/product_api";
 import { ProductAxios } from "../feature/product/model/product_axios";
@@ -33,12 +37,14 @@ import { SupplierController } from "../feature/supplier/controller/supplier_cont
 import { SupplierApi } from "../feature/supplier/model/supplier_api";
 import { SupplierAxios } from "../feature/supplier/model/supplier_axios";
 import { Root } from "./Root";
+import { InvoiceCreate } from "../feature/invoice/view/InvoiceCreate";
 
 export type Dependency = {
   auth: AuthHookType;
   productController: ProductController;
   supplierController: SupplierController;
   purchaseController: PurchaseController;
+  invoiceController: InvoiceController;
 };
 
 export const Dependency = createContext<Dependency | null>(null);
@@ -99,7 +105,27 @@ const router = createBrowserRouter([
       },
       {
         path: "/app/order",
-        element: <></>,
+        element: <Outlet />,
+        children: [
+          {
+            path: "/app/order",
+            element: <InvoiceList />,
+            children: [
+              {
+                path: "/app/order/read/:id",
+                element: <PurchaseRead />,
+              },
+            ],
+          },
+          {
+            path: "/app/order/create",
+            element: <InvoiceCreate />,
+          },
+          {
+            path: "/app/order/edit/:id",
+            element: <PurchaseEdit />,
+          },
+        ],
       },
       {
         path: "/app/supplier",
@@ -144,12 +170,14 @@ export function App() {
   const productApi: ProductApi = new ProductAxios();
   const supplierApi: SupplierApi = new SupplierAxios();
   const purchaseApi: PurchaseApi = new PurchaseAxios();
+  const invoiceApi: InvoiceApi = new InvoiceAxios();
 
   const dependencies: Dependency = {
     auth: useAuthHook(new AuthController(authApi)),
     productController: new ProductController(productApi),
     supplierController: new SupplierController(supplierApi),
     purchaseController: new PurchaseController(purchaseApi),
+    invoiceController: new InvoiceController(invoiceApi),
   };
 
   return (

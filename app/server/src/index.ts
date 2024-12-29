@@ -1,20 +1,17 @@
 import cors from "cors";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import express from "express";
 import http from "http";
 import multer from "multer";
 import { Failure } from "./common/error";
 import { isLogin } from "./feature/middleware";
 import productRoute from "./feature/product/view/product_route";
-import supplierRoute from "./feature/supplier/view/supplier_route";
 import purchaseRoute from "./feature/purchase/view/purchase_route";
+import supplierRoute from "./feature/supplier/view/supplier_route";
 import userRoute from "./feature/user/view/user_route";
-import { MySql, pool } from "./helper/mysql";
-import utc from "dayjs/plugin/utc";
-import dayjs from "dayjs";
-import { Purchase } from "./feature/purchase/model/purchase_model";
-import { Invoice } from "./helper/invoice";
-import { Product } from "./feature/product/model/product_type";
-import { randomUUID } from "crypto";
+import invoiceRoute from "./feature/invoice/view/invoice_route";
+import { MySql } from "./helper/mysql";
 
 dayjs.extend(utc);
 
@@ -247,6 +244,7 @@ app.use("/app", isLogin);
 app.use("/app/product", productRoute);
 app.use("/app/supplier", supplierRoute);
 app.use("/app/purchase", purchaseRoute);
+app.use("/app/invoice", invoiceRoute);
 
 //route not found 404
 app.use("*", (_, res) => res.status(404).json("Route path not found"));
