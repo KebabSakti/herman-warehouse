@@ -24,14 +24,31 @@ export function useInvoiceTableHook(): InvoiceTableHookType {
   });
 
   function addItem(param: Item) {
-    const item = state.item;
-    item.push(param);
-    setState({ ...state, item, total: total(item) });
+    const items = state.item;
+    const index = items.findIndex((x) => x.stockId === param.stockId);
+
+    if (index == -1) {
+      items.push(param);
+    } else {
+      items[index] = param;
+    }
+
+    setState({ ...state, item: items, total: total(items) });
   }
 
   function removeItem(param: Item) {
-    const item = state.item.filter((x) => x.id !== param.id);
-    setState({ ...state, item, total: total(item) });
+    const items = state.item;
+    const index = items.findIndex((x) => x.stockId === param.stockId);
+
+    if (index >= 0) {
+      if (items[index].qty > 1) {
+        items[index] = param;
+      } else {
+        items.splice(index, 1);
+      }
+
+      setState({ ...state, item: items, total: total(items) });
+    }
   }
 
   function addInstallment(param: Installment) {

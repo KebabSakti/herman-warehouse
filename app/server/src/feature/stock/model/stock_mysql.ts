@@ -1,22 +1,16 @@
+import { randomUUID } from "crypto";
 import { Result } from "../../../common/type";
 import { MySql, pool } from "../../../helper/mysql";
 import { StockApi } from "./stock_api";
 import { Stock } from "./stock_model";
-import { StockList, StockCreate } from "./stock_type";
+import { StockCreate, StockList } from "./stock_type";
 
 export class StockMysql implements StockApi {
   async list(param: StockList): Promise<Result<Stock[]>> {
     let table = `select * from stocks where deleted is null`;
-
-    if (param.search != null) {
-      const search = pool.escape(param.search);
-      table += ` and (suppliers.name like "%"${search}"%" or suppliers.phone like "%"${search}"%" or products.name like "%"${search}"%")`;
-    }
-
     const total = (await MySql.query(table)).length;
     const offset = (param.page - 1) * param.limit;
     const limit = param.limit;
-    table += ` order by products.name asc limit ${limit} offset ${offset}`;
 
     let query = `
         select stocks.*, products.*, suppliers.*
@@ -25,36 +19,20 @@ export class StockMysql implements StockApi {
         left join suppliers on suppliers.id = stocks.supplierId
         `;
 
+    if (param.search != null) {
+      const search = pool.escape(param.search);
+      query += ` where (suppliers.name like "%"${search}"%" or suppliers.phone like "%"${search}"%" or products.name like "%"${search}"%" or products.code like "%"${search}"%")`;
+    }
+
+    query += ` order by products.name asc limit ${limit} offset ${offset}`;
+
     const datas = await MySql.query({ sql: query, nestTables: true });
+
     const result = datas.reduce((a: any, b: any) => {
-      const invoice = a.find((c: any) => c.id == b.invoices.id);
+      const index = a.findIndex((e: any) => e.id == b.stocks.id);
 
-      if (invoice == undefined) {
-        const item = { ...b.invoices, item: [], installment: [] };
-
-        if (b.items.invoiceId == item.id) {
-          item.item.push(b.items);
-        }
-
-        if (b.installments.invoiceId == item.id) {
-          item.installment.push(b.installments);
-        }
-
-        a.push(item);
-      } else {
-        const invItem = invoice.item.find((c: any) => c.id == b.items.id);
-
-        const installment = datas.installment.find(
-          (c: any) => c.id == b.installments.id
-        );
-
-        if (invItem == undefined) {
-          invoice.item.push(b.items);
-        }
-
-        if (installment == undefined) {
-          invoice.installment.push(b.installments);
-        }
+      if (index == -1) {
+        a.push({ ...b.stocks, product: b.products, supplier: b.suppliers });
       }
 
       return a;
@@ -72,15 +50,45 @@ export class StockMysql implements StockApi {
     return data;
   }
 
-  create(param: StockCreate): Promise<void> {
-    throw new Error("Method not implemented.");
+  async create(param: StockCreate): Promise<void> {
+    await MySql.query("insert into stocks set ?", {
+      ...param,
+      id: randomUUID(),
+      created: new Date(),
+      updated: new Date(),
+    });
   }
 
-  read(id: string): Promise<Stock | null | undefined> {
-    throw new Error("Method not implemented.");
+  async read(id: string): Promise<Stock | null | undefined> {
+    let query = `
+        select stocks.*, products.*, suppliers.*
+        from (select * from stocks where deleted is null and id = ${pool.escape(
+          id
+        )}) as stocks
+        left join products on products.id = stocks.productId
+        left join suppliers on suppliers.id = stocks.supplierId
+        `;
+
+    const datas = await MySql.query({
+      sql: query,
+      nestTables: true,
+    });
+
+    const result = datas.map((e: any) => [
+      { ...e.stocks, product: e.products, supplier: e.suppliers },
+    ]);
+
+    if (result.length > 0) {
+      return result[0];
+    }
+
+    return null;
   }
 
-  remove(id: string): Promise<void> {
-    throw new Error("Method not implemented.");
+  async remove(id: string): Promise<void> {
+    await MySql.query("update stocks set deleted = ? where id = ?", [
+      new Date(),
+      id,
+    ]);
   }
 }

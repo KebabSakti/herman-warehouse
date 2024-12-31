@@ -11,6 +11,7 @@ import purchaseRoute from "./feature/purchase/view/purchase_route";
 import supplierRoute from "./feature/supplier/view/supplier_route";
 import userRoute from "./feature/user/view/user_route";
 import invoiceRoute from "./feature/invoice/view/invoice_route";
+import stockRoute from "./feature/stock/view/stock_route";
 import { MySql } from "./helper/mysql";
 
 dayjs.extend(utc);
@@ -245,6 +246,7 @@ app.use("/app/product", productRoute);
 app.use("/app/supplier", supplierRoute);
 app.use("/app/purchase", purchaseRoute);
 app.use("/app/invoice", invoiceRoute);
+app.use("/app/stock", stockRoute);
 
 //route not found 404
 app.use("*", (_, res) => res.status(404).json("Route path not found"));

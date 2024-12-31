@@ -2,6 +2,7 @@ import { Card, Flex } from "antd";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HeadTitle } from "../../../component/HeadTitle";
+import { AddProductStockModal } from "./AddProductStockModal";
 import { InvoiceTable } from "./InvoiceTable";
 import { InvoiceTableHookType, useInvoiceTableHook } from "./InvoiceTableHook";
 
@@ -18,6 +19,11 @@ export function InvoiceCreate() {
 
   return (
     <>
+      <AddProductStockModal
+        hook={invoiceHook}
+        modal={modal}
+        setModal={setModal}
+      />
       <Flex vertical gap="small" style={{ padding: "16px" }}>
         <HeadTitle
           title="Nota Baru"

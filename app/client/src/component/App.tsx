@@ -18,6 +18,7 @@ import { DashboardPage } from "../feature/dashboard/view/DashboardPage";
 import { InvoiceController } from "../feature/invoice/controller/invoice_controller";
 import { InvoiceApi } from "../feature/invoice/model/invoice_api";
 import { InvoiceAxios } from "../feature/invoice/model/invoice_axios";
+import { InvoiceCreate } from "../feature/invoice/view/InvoiceCreate";
 import { InvoiceList } from "../feature/invoice/view/InvoiceList";
 import { ProductController } from "../feature/product/controller/product_controller";
 import { ProductApi } from "../feature/product/model/product_api";
@@ -33,11 +34,13 @@ import { PurchaseEdit } from "../feature/purchase/view/PurchaseEdit";
 import { PurchaseList } from "../feature/purchase/view/PurchaseList";
 import { PurchasePrint } from "../feature/purchase/view/PurchasePrint";
 import { PurchaseRead } from "../feature/purchase/view/PurchaseRead";
+import { StockController } from "../feature/stock/controller/stock_controller";
+import { StockApi } from "../feature/stock/model/stock_api";
+import { StockAxios } from "../feature/stock/model/stock_axios";
 import { SupplierController } from "../feature/supplier/controller/supplier_controller";
 import { SupplierApi } from "../feature/supplier/model/supplier_api";
 import { SupplierAxios } from "../feature/supplier/model/supplier_axios";
 import { Root } from "./Root";
-import { InvoiceCreate } from "../feature/invoice/view/InvoiceCreate";
 
 export type Dependency = {
   auth: AuthHookType;
@@ -45,6 +48,7 @@ export type Dependency = {
   supplierController: SupplierController;
   purchaseController: PurchaseController;
   invoiceController: InvoiceController;
+  stockController: StockController;
 };
 
 export const Dependency = createContext<Dependency | null>(null);
@@ -171,6 +175,7 @@ export function App() {
   const supplierApi: SupplierApi = new SupplierAxios();
   const purchaseApi: PurchaseApi = new PurchaseAxios();
   const invoiceApi: InvoiceApi = new InvoiceAxios();
+  const stockApi: StockApi = new StockAxios();
 
   const dependencies: Dependency = {
     auth: useAuthHook(new AuthController(authApi)),
@@ -178,6 +183,7 @@ export function App() {
     supplierController: new SupplierController(supplierApi),
     purchaseController: new PurchaseController(purchaseApi),
     invoiceController: new InvoiceController(invoiceApi),
+    stockController: new StockController(stockApi),
   };
 
   return (
