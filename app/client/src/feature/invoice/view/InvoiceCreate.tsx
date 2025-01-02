@@ -5,6 +5,8 @@ import { HeadTitle } from "../../../component/HeadTitle";
 import { AddProductStockModal } from "./AddProductStockModal";
 import { InvoiceTable } from "./InvoiceTable";
 import { InvoiceTableHookType, useInvoiceTableHook } from "./InvoiceTableHook";
+import { AddCustomerModal } from "./AddCustomerModal";
+import { AddPaymentModal } from "./AddPaymentModal";
 
 export type InvoiceCreateProps = {
   hook: InvoiceTableHookType;
@@ -24,6 +26,8 @@ export function InvoiceCreate() {
         modal={modal}
         setModal={setModal}
       />
+      <AddCustomerModal hook={invoiceHook} modal={modal} setModal={setModal} />
+      <AddPaymentModal hook={invoiceHook} modal={modal} setModal={setModal} />
       <Flex vertical gap="small" style={{ padding: "16px" }}>
         <HeadTitle
           title="Nota Baru"

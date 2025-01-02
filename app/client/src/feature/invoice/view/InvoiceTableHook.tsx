@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Invoice as InvoiceID } from "../../../helper/invoice";
 import { randomID } from "../../../helper/util";
 import { Installment, Invoice, Item } from "../model/invoice_model";
@@ -6,10 +6,8 @@ import { Installment, Invoice, Item } from "../model/invoice_model";
 export type InvoiceTableHookType = {
   state: Invoice;
   setState: (param: Invoice) => void;
-  addItem: (param: Item) => void;
-  removeItem: (param: Item) => void;
-  addInstallment: (param: Installment) => void;
-  removeInstallment: (param: Installment) => void;
+  changeItem: (param: Item) => void;
+  changeInstallment: (param?: Installment | null | undefined) => void;
 };
 
 export function useInvoiceTableHook(): InvoiceTableHookType {
@@ -23,43 +21,44 @@ export function useInvoiceTableHook(): InvoiceTableHookType {
     item: [],
   });
 
-  function addItem(param: Item) {
+  useEffect(() => {
+    console.log(state);
+  }, [state]);
+
+  function changeItem(param: Item) {
     const items = state.item;
     const index = items.findIndex((x) => x.stockId === param.stockId);
 
-    if (index == -1) {
-      items.push(param);
-    } else {
+    if (param.qty == 0 && index >= 0) {
+      items.splice(index, 1);
+    }
+
+    if (param.qty > 0 && index >= 0) {
       items[index] = param;
+    }
+
+    if (param.qty > 0 && index == -1) {
+      items.push(param);
     }
 
     setState({ ...state, item: items, total: total(items) });
   }
 
-  function removeItem(param: Item) {
-    const items = state.item;
-    const index = items.findIndex((x) => x.stockId === param.stockId);
+  function changeInstallment(param?: Installment | null | undefined) {
+    let installment: Installment[] | null | undefined;
 
-    if (index >= 0) {
-      if (items[index].qty > 1) {
-        items[index] = param;
-      } else {
-        items.splice(index, 1);
-      }
-
-      setState({ ...state, item: items, total: total(items) });
+    if (param != undefined) {
+      installment = [];
+      installment.push(param);
+    } else {
+      installment = null;
     }
-  }
 
-  function addInstallment(param: Installment) {
-    const installment = state.installment ?? [];
-    installment.push(param);
-    setState({ ...state, installment, total: total(state.item, installment) });
-  }
-
-  function removeInstallment(param: Installment) {
-    const installment = state.installment?.filter((x) => x.id !== param.id);
-    setState({ ...state, installment, total: total(state.item, installment) });
+    setState({
+      ...state,
+      installment: installment,
+      total: total(state.item, installment ?? []),
+    });
   }
 
   function total(
@@ -76,9 +75,7 @@ export function useInvoiceTableHook(): InvoiceTableHookType {
   return {
     state,
     setState,
-    addItem,
-    removeItem,
-    addInstallment,
-    removeInstallment,
+    changeItem,
+    changeInstallment,
   };
 }

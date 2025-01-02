@@ -2,7 +2,7 @@ export interface Invoice {
   id: string;
   customerId: string;
   customerName: string;
-  customerPhone: string;
+  customerPhone?: string | null | undefined;
   customerAddress?: string | null | undefined;
   code: string;
   note?: string | null | undefined;
@@ -39,7 +39,7 @@ export interface Installment {
   amount: number;
   outstanding: number;
   note?: string | null | undefined;
-  attachment?: string | null | undefined;
+  attachment?: string | File | null | undefined;
   created?: string | null | undefined;
   updated?: string | null | undefined;
   deleted?: string | null | undefined;

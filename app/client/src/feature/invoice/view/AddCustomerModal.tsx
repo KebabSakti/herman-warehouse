@@ -3,7 +3,6 @@ import {
   Button,
   Flex,
   Input,
-  InputNumber,
   Modal,
   Pagination,
   Skeleton,
@@ -13,24 +12,23 @@ import { useContext, useEffect, useState } from "react";
 import { Result } from "../../../common/type";
 import { Dependency } from "../../../component/App";
 import { debounce } from "../../../helper/debounce";
-import { Stock } from "../../stock/model/stock_model";
-import { useStockHook } from "../../stock/view/StockHook";
-import { InvoiceCreateProps } from "./InvoiceCreate";
 import { Num } from "../../../helper/num";
-import { randomID } from "../../../helper/util";
+import { Customer } from "../../customer/model/customer_model";
+import { useCustomerHook } from "../../customer/view/CustomerHook";
+import { InvoiceCreateProps } from "./InvoiceCreate";
 
-export function AddProductStockModal(props: InvoiceCreateProps) {
-  const active = props.modal == "product";
-  const { auth, stockController } = useContext(Dependency)!;
-  const stock = useStockHook(stockController);
-  const result = stock.state.data as Result<Stock[]> | null;
+export function AddCustomerModal(props: InvoiceCreateProps) {
+  const active = props.modal == "customer";
+  const { auth, customerController } = useContext(Dependency)!;
+  const customer = useCustomerHook(customerController);
+  const result = customer.state.data as Result<Customer[]> | null;
   const initParam = {
     page: "1",
     limit: "10",
   };
   const [param, setParam] = useState<any>(initParam);
 
-  const search = debounce((message: string) => {
+  const makeSearch = debounce((message: string) => {
     const searchValue: any = {
       ...initParam,
       search: message,
@@ -45,7 +43,7 @@ export function AddProductStockModal(props: InvoiceCreateProps) {
 
   useEffect(() => {
     if (active) {
-      stock.list(param, {
+      customer.list(param, {
         token: auth.state.data!,
       });
     }
@@ -57,7 +55,7 @@ export function AddProductStockModal(props: InvoiceCreateProps) {
         centered
         destroyOnClose
         width={800}
-        title="Tambah Produk"
+        title="Daftar Kustomer"
         maskClosable={false}
         open={active}
         footer={null}
@@ -66,7 +64,7 @@ export function AddProductStockModal(props: InvoiceCreateProps) {
         }}
       >
         {(() => {
-          if (stock.state.error != null) {
+          if (customer.state.error != null) {
             return (
               <AntdResult
                 status="error"
@@ -92,18 +90,17 @@ export function AddProductStockModal(props: InvoiceCreateProps) {
               <Flex vertical gap="small">
                 <Input.Search
                   allowClear
-                  placeholder="Kode/nama produk/nama supplier"
+                  placeholder="Nama / No. Hp"
                   size="large"
                   defaultValue={param.search}
                   onChange={(e) => {
-                    search(e.target.value);
+                    makeSearch(e.target.value);
                   }}
                 />
                 <Flex vertical gap="middle">
                   <Table
                     bordered
-                    size="small"
-                    loading={stock.state.status == "loading"}
+                    loading={customer.state.status == "loading"}
                     style={{ overflowX: "scroll" }}
                     pagination={false}
                     dataSource={
@@ -115,65 +112,45 @@ export function AddProductStockModal(props: InvoiceCreateProps) {
                     }
                     columns={[
                       {
-                        title: "Supplier",
-                        dataIndex: ["supplier", "name"],
+                        title: "Kustomer",
+                        dataIndex: "name",
                         minWidth: 60,
                       },
                       {
-                        title: "Kode",
-                        dataIndex: ["product", "code"],
+                        title: "No. Hp",
+                        dataIndex: "phone",
                         minWidth: 60,
                       },
                       {
-                        title: "Product",
-                        dataIndex: ["product", "name"],
+                        title: "Piutang",
+                        dataIndex: "outstanding",
                         minWidth: 60,
-                      },
-                      {
-                        title: "Stok",
-                        dataIndex: "qty",
-                        minWidth: 60,
-                      },
-                      {
-                        title: "Harga (Kg)",
-                        dataIndex: "price",
-                        minWidth: 60,
-                        render: (value) => {
-                          return Num.format(value);
-                        },
+                        render: (value) => <>{Num.format(value)}</>,
                       },
                       {
                         render: (_, record) => {
-                          const item = props.hook.state.item.find(
-                            (a) => a.stockId == record.id
-                          );
-
                           return (
-                            <InputNumber
-                              stringMode
-                              min={0}
-                              value={item?.qty ?? 0}
-                              onChange={(value) => {
-                                const qty = value ?? 0;
-                                const total = qty * record.price;
-
-                                props.hook.changeItem({
-                                  id: randomID(),
-                                  invoiceId: props.hook.state.id,
-                                  stockId: record.id,
-                                  productId: record.product.id,
-                                  productCode: record.product.code,
-                                  productName: record.product.name,
-                                  productNote: record.product.note,
-                                  supplierId: record.supplier.id,
-                                  supplierName: record.supplier.name,
-                                  supplierPhone: record.supplier.phone ?? "",
-                                  price: record.price,
-                                  qty: qty,
-                                  total: total,
+                            <Button
+                              type="primary"
+                              disabled={
+                                props.hook.state.customerId == record.id
+                              }
+                              onClick={() => {
+                                props.hook.setState({
+                                  ...props.hook.state,
+                                  customerId: record.id,
+                                  customerName: record.name,
+                                  customerPhone: record.phone,
+                                  customerAddress: record.address,
                                 });
+
+                                props.setModal("");
                               }}
-                            />
+                            >
+                              {props.hook.state.customerId == record.id
+                                ? "Terpilih"
+                                : "Pilih"}
+                            </Button>
                           );
                         },
                       },

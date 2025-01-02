@@ -8,9 +8,6 @@ import { StockCreate, StockList } from "./stock_type";
 export class StockMysql implements StockApi {
   async list(param: StockList): Promise<Result<Stock[]>> {
     let table = `select * from stocks where deleted is null`;
-    const total = (await MySql.query(table)).length;
-    const offset = (param.page - 1) * param.limit;
-    const limit = param.limit;
 
     let query = `
         select stocks.*, products.*, suppliers.*
@@ -24,6 +21,8 @@ export class StockMysql implements StockApi {
       query += ` where (suppliers.name like "%"${search}"%" or suppliers.phone like "%"${search}"%" or products.name like "%"${search}"%" or products.code like "%"${search}"%")`;
     }
 
+    const offset = (param.page - 1) * param.limit;
+    const limit = param.limit;
     query += ` order by products.name asc limit ${limit} offset ${offset}`;
 
     const datas = await MySql.query({ sql: query, nestTables: true });
@@ -37,6 +36,9 @@ export class StockMysql implements StockApi {
 
       return a;
     }, []);
+
+    const total =
+      param.search != null ? result.length : (await MySql.query(table)).length;
 
     const data = {
       data: result,

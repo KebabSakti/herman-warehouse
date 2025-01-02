@@ -37,9 +37,12 @@ export function InvoiceTable(props: InvoiceCreateProps) {
                       icon: <ProductOutlined />,
                     },
                     {
-                      key: "payment",
-                      label: "DP",
+                      key: "dp",
+                      label: "Setor",
                       icon: <DollarOutlined />,
+                      disabled:
+                        props.hook.state.item.length == 0 ||
+                        props.hook.state.installment != undefined,
                     },
                   ],
                   onClick: ({ key }) => {
@@ -65,14 +68,14 @@ export function InvoiceTable(props: InvoiceCreateProps) {
                       readOnly
                       placeholder="Kustomer"
                       size="large"
-                      value={""}
+                      value={props.hook.state.customerName}
                     />
                     <Button
                       type="primary"
                       size="large"
                       icon={<PlusOutlined />}
                       onClick={() => {
-                        // props.setModal("supplier");
+                        props.setModal("customer");
                       }}
                     />
                   </Space.Compact>
@@ -114,7 +117,7 @@ export function InvoiceTable(props: InvoiceCreateProps) {
                         size="small"
                         variant="solid"
                         onClick={() => {
-                          props.hook.removeItem(record);
+                          props.hook.changeItem({ ...record, qty: 0 });
                         }}
                       />
                     </Flex>
@@ -128,19 +131,30 @@ export function InvoiceTable(props: InvoiceCreateProps) {
               {
                 title: "Quantity",
                 dataIndex: "qty",
-                render: (value, record) => {
+                render: (_, record) => {
+                  const item = props.hook.state.item.find(
+                    (a) => a.stockId == record.stockId
+                  );
+
                   return (
                     <InputNumber
                       placeholder="Quantity"
                       min={0}
                       style={{ display: "block", width: "100%" }}
-                      defaultValue={value}
+                      value={item?.qty ?? 0}
                       formatter={(value) => {
                         const formatted = Num.format(value ?? 0);
                         return formatted;
                       }}
                       onChange={(value) => {
-                        // props.hook.modItem({ ...record, qty: value });
+                        const qty = value ?? 0;
+                        const total = qty * record.price;
+
+                        props.hook.changeItem({
+                          ...record,
+                          qty: qty,
+                          total: total,
+                        });
                       }}
                     />
                   );
@@ -149,31 +163,27 @@ export function InvoiceTable(props: InvoiceCreateProps) {
               {
                 title: "Harga",
                 dataIndex: "price",
-                // onCell: (record) => {
-                //   if (record.tag == ReceiptTableTag.Payment) {
-                //     return { colSpan: 0 };
-                //   }
-
-                //   return {};
-                // },
-                render: (value, record) => {
-                  return (
-                    <InputNumber
-                      placeholder="Harga"
-                      min={0}
-                      step={100}
-                      style={{ display: "block", width: "100%" }}
-                      defaultValue={value}
-                      formatter={(value) => {
-                        const formatted = Num.format(value ?? 0);
-                        return formatted;
-                      }}
-                      onChange={(value) => {
-                        // props.hook.modItem({ ...record, price: value });
-                      }}
-                    />
-                  );
+                render: (value) => {
+                  return Num.format(value);
                 },
+                // render: (value, record) => {
+                //   return (
+                //     <InputNumber
+                //       placeholder="Harga"
+                //       min={0}
+                //       step={100}
+                //       style={{ display: "block", width: "100%" }}
+                //       defaultValue={value}
+                //       formatter={(value) => {
+                //         const formatted = Num.format(value ?? 0);
+                //         return formatted;
+                //       }}
+                //       onChange={(value) => {
+                //         // props.hook.modItem({ ...record, price: value });
+                //       }}
+                //     />
+                //   );
+                // },
               },
               {
                 title: "Total",
@@ -189,19 +199,44 @@ export function InvoiceTable(props: InvoiceCreateProps) {
           />
           {(() => {
             if (props.hook.state.item.length > 0) {
+              const totalItem = props.hook.state.item.reduce(
+                (a, b) => a + b.total,
+                0
+              );
+              const totalInstallment = props.hook.state.installment?.reduce(
+                (a, b) => a + b.amount,
+                0
+              );
+
               return (
                 <>
                   <Row gutter={[0, 8]}>
                     <Col span={24}>
                       <Row justify="space-between">
                         <Col>Total Item</Col>
-                        <Col>{Num.format(0)}</Col>
+                        <Col>{Num.format(totalItem)}</Col>
                       </Row>
                     </Col>
                     <Col span={24}>
                       <Row justify="space-between">
-                        <Col>DP (Down Payment)</Col>
-                        <Col>{Num.format(0)}</Col>
+                        <Col>
+                          Setor{""}
+                          {props.hook.state.installment == undefined ? (
+                            ""
+                          ) : (
+                            <Button
+                              color="danger"
+                              variant="link"
+                              size="small"
+                              onClick={() => {
+                                props.hook.changeInstallment(null);
+                              }}
+                            >
+                              [Hapus]
+                            </Button>
+                          )}
+                        </Col>
+                        <Col>{Num.format(totalInstallment ?? 0)}</Col>
                       </Row>
                     </Col>
                     <Col span={24}>
@@ -217,9 +252,12 @@ export function InvoiceTable(props: InvoiceCreateProps) {
                   </Row>
                   <Input.TextArea
                     placeholder="Catatan"
-                    defaultValue={""}
+                    value={props.hook.state.note ?? ""}
                     onChange={(e) => {
-                      // props.hook.note(e.target.value);
+                      props.hook.setState({
+                        ...props.hook.state,
+                        note: e.target.value,
+                      });
                     }}
                   />
                   <Button type="primary" size="large" onClick={() => {}}>
