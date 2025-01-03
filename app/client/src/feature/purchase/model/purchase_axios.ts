@@ -1,5 +1,5 @@
 import axios from "axios";
-import { server } from "../../../common/common";
+import { SERVER } from "../../../common/common";
 import { Failure } from "../../../common/error";
 import { Result } from "../../../common/type";
 import { PurchaseApi } from "./purchase_api";
@@ -13,7 +13,7 @@ export class PurchaseAxios implements PurchaseApi {
   ): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/purchase`,
+        url: `${SERVER}/app/purchase`,
         method: "post",
         data: param,
         headers: {
@@ -32,7 +32,7 @@ export class PurchaseAxios implements PurchaseApi {
   ): Promise<Purchase | null | undefined> {
     try {
       const result = await axios({
-        url: `${server}/app/purchase/${id}`,
+        url: `${SERVER}/app/purchase/${id}`,
         method: "get",
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
@@ -53,7 +53,7 @@ export class PurchaseAxios implements PurchaseApi {
   ): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/purchase/${id}`,
+        url: `${SERVER}/app/purchase/${id}`,
         method: "put",
         data: param,
         headers: {
@@ -69,7 +69,7 @@ export class PurchaseAxios implements PurchaseApi {
   async delete(id: string, extra?: Record<string, any>): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/purchase/${id}`,
+        url: `${SERVER}/app/purchase/${id}`,
         method: "delete",
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
@@ -86,7 +86,7 @@ export class PurchaseAxios implements PurchaseApi {
     extra?: Record<string, any>
   ): Promise<Result<Purchase[]>> {
     try {
-      const result = await axios.get(`${server}/app/purchase`, {
+      const result = await axios.get(`${SERVER}/app/purchase`, {
         params: param,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,

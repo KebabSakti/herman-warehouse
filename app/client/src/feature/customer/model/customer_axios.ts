@@ -1,5 +1,5 @@
 import axios from "axios";
-import { server } from "../../../common/common";
+import { SERVER } from "../../../common/common";
 import { Failure } from "../../../common/error";
 import { Result } from "../../../common/type";
 import { CustomerApi } from "./customer_api";
@@ -13,7 +13,7 @@ export class CustomerAxios implements CustomerApi {
   ): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/customer`,
+        url: `${SERVER}/app/customer`,
         method: "post",
         data: param,
         headers: {
@@ -32,7 +32,7 @@ export class CustomerAxios implements CustomerApi {
   ): Promise<Customer | null | undefined> {
     try {
       const result = await axios({
-        url: `${server}/app/customer/${id}`,
+        url: `${SERVER}/app/customer/${id}`,
         method: "get",
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
@@ -53,7 +53,7 @@ export class CustomerAxios implements CustomerApi {
   ): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/customer/${id}`,
+        url: `${SERVER}/app/customer/${id}`,
         method: "put",
         data: param,
         headers: {
@@ -69,7 +69,7 @@ export class CustomerAxios implements CustomerApi {
   async remove(id: string, extra?: Record<string, any>): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/customer/${id}`,
+        url: `${SERVER}/app/customer/${id}`,
         method: "delete",
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
@@ -86,7 +86,7 @@ export class CustomerAxios implements CustomerApi {
     extra?: Record<string, any>
   ): Promise<Result<Customer[]>> {
     try {
-      const result = await axios.get(`${server}/app/customer`, {
+      const result = await axios.get(`${SERVER}/app/customer`, {
         params: param,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,

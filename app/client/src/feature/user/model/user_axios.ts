@@ -1,5 +1,5 @@
 import axios from "axios";
-import { server } from "../../../common/common";
+import { SERVER } from "../../../common/common";
 import { Failure } from "../../../common/error";
 import { Result } from "../../../common/type";
 import { UserApi } from "./user_api";
@@ -12,7 +12,7 @@ export class UserAxios implements UserApi {
   ): Promise<void> {
     try {
       await axios({
-        url: `${server}/user`,
+        url: `${SERVER}/user`,
         method: "post",
         data: param,
         headers: {
@@ -31,7 +31,7 @@ export class UserAxios implements UserApi {
   ): Promise<User | null | undefined> {
     try {
       const result = await axios({
-        url: `${server}/user/${id}`,
+        url: `${SERVER}/user/${id}`,
         method: "get",
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
@@ -52,7 +52,7 @@ export class UserAxios implements UserApi {
   ): Promise<void> {
     try {
       const result = await axios({
-        url: `${server}/user/${id}`,
+        url: `${SERVER}/user/${id}`,
         method: "put",
         data: param,
         headers: {
@@ -73,7 +73,7 @@ export class UserAxios implements UserApi {
   ): Promise<void> {
     try {
       const result = await axios({
-        url: `${server}/user/${id}`,
+        url: `${SERVER}/user/${id}`,
         method: "delete",
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
@@ -93,7 +93,7 @@ export class UserAxios implements UserApi {
   ): Promise<Result<User[]>> {
     try {
       const result = await axios({
-        url: `${server}/user`,
+        url: `${SERVER}/user`,
         method: "get",
         params: param,
         headers: {
@@ -111,7 +111,7 @@ export class UserAxios implements UserApi {
   async login(param: UserLogin): Promise<string | null | undefined> {
     try {
       const result = await axios({
-        url: `${server}/login`,
+        url: `${SERVER}/login`,
         method: "post",
         data: param,
         headers: {

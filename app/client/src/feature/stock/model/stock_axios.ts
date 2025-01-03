@@ -1,5 +1,5 @@
 import axios from "axios";
-import { server } from "../../../common/common";
+import { SERVER } from "../../../common/common";
 import { Failure } from "../../../common/error";
 import { Result } from "../../../common/type";
 import { StockApi } from "./stock_api";
@@ -10,7 +10,7 @@ export class StockAxios implements StockApi {
   async create(param: StockCreate, extra?: Record<string, any>): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/stock`,
+        url: `${SERVER}/app/stock`,
         method: "post",
         data: param,
         headers: {
@@ -29,7 +29,7 @@ export class StockAxios implements StockApi {
   ): Promise<Stock | null | undefined> {
     try {
       const result = await axios({
-        url: `${server}/app/stock/${id}`,
+        url: `${SERVER}/app/stock/${id}`,
         method: "get",
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
@@ -46,7 +46,7 @@ export class StockAxios implements StockApi {
   async remove(id: string, extra?: Record<string, any>): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/stock/${id}`,
+        url: `${SERVER}/app/stock/${id}`,
         method: "delete",
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
@@ -63,7 +63,7 @@ export class StockAxios implements StockApi {
     extra?: Record<string, any>
   ): Promise<Result<Stock[]>> {
     try {
-      const result = await axios.get(`${server}/app/stock`, {
+      const result = await axios.get(`${SERVER}/app/stock`, {
         params: param,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,

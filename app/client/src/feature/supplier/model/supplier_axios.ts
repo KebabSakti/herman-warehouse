@@ -1,5 +1,5 @@
 import axios from "axios";
-import { server } from "../../../common/common";
+import { SERVER } from "../../../common/common";
 import { Failure } from "../../../common/error";
 import { Result } from "../../../common/type";
 import { SupplierApi } from "./supplier_api";
@@ -13,7 +13,7 @@ export class SupplierAxios implements SupplierApi {
   ): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/supplier`,
+        url: `${SERVER}/app/supplier`,
         method: "post",
         data: param,
         headers: {
@@ -32,7 +32,7 @@ export class SupplierAxios implements SupplierApi {
   ): Promise<Supplier | null | undefined> {
     try {
       const result = await axios({
-        url: `${server}/app/supplier/${id}`,
+        url: `${SERVER}/app/supplier/${id}`,
         method: "get",
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
@@ -53,7 +53,7 @@ export class SupplierAxios implements SupplierApi {
   ): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/supplier/${id}`,
+        url: `${SERVER}/app/supplier/${id}`,
         method: "put",
         data: param,
         headers: {
@@ -69,7 +69,7 @@ export class SupplierAxios implements SupplierApi {
   async delete(id: string, extra?: Record<string, any>): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/supplier/${id}`,
+        url: `${SERVER}/app/supplier/${id}`,
         method: "delete",
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
@@ -87,7 +87,7 @@ export class SupplierAxios implements SupplierApi {
   ): Promise<Result<Supplier[]>> {
     try {
       const result = await axios({
-        url: `${server}/app/supplier`,
+        url: `${SERVER}/app/supplier`,
         method: "get",
         params: param,
         headers: {

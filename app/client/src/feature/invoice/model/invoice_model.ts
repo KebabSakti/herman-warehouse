@@ -9,6 +9,7 @@ export interface Invoice {
   total: number;
   item: Item[];
   installment?: Installment[] | null | undefined;
+  printed?: string | null | undefined;
   created?: string | null | undefined;
   updated?: string | null | undefined;
   deleted?: string | null | undefined;

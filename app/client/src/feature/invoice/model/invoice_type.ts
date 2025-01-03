@@ -1,16 +1,16 @@
-import { array, InferType, number, object, string } from "yup";
+import { array, InferType, mixed, number, object, string } from "yup";
+import { FILE_SIZE, IMAGE_FORMATS } from "../../../common/common";
 
 export const invoiceCreateSchema = object({
   id: string().required(),
-  customerId: string().required(),
-  customerName: string().required(),
-  customerPhone: string().required(),
+  customerId: string().required("Kustomer tidak boleh kosong"),
+  customerName: string().required("Kustomer tidak boleh kosong"),
+  customerPhone: string().nullable(),
   customerAddress: string().nullable(),
   code: string().required(),
   note: string().nullable(),
   total: number().required(),
-  created: string().required(),
-  updated: string().required(),
+  printed: string().required("Tanggal tidak boleh kosong"),
   item: array(
     object({
       id: string().required(),
@@ -26,22 +26,28 @@ export const invoiceCreateSchema = object({
       qty: number().required(),
       price: number().required(),
       total: number().required(),
-      created: string().required(),
-      updated: string().required(),
     })
   )
     .min(1)
-    .required(),
-  installment: object({
-    id: string().required(),
-    invoiceId: string().required(),
-    amount: number().required(),
-    outstanding: number().required(),
-    attachment: string().nullable(),
-    note: string().nullable(),
-    created: string().required(),
-    updated: string().required(),
-  }).nullable(),
+    .required("Tambahkan minimal 1 produk"),
+  installment: array(
+    object({
+      id: string().required(),
+      invoiceId: string().required(),
+      amount: number().required("Total tidak boleh kosong"),
+      outstanding: number().required(),
+      note: string().nullable(),
+      attachment: mixed()
+        .nullable()
+        .notRequired()
+        .test("fileSize", "Maksimal ukuran file < 2MB", (value: any) => {
+          return !value || value.size <= FILE_SIZE;
+        })
+        .test("fileFormat", "Format file tidak didukung", (value: any) => {
+          return !value || IMAGE_FORMATS.includes(value.type);
+        }),
+    })
+  ).nullable(),
 });
 
 export const invoiceListSchema = object({

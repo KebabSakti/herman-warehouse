@@ -1,3 +1,4 @@
+import { UploadOutlined } from "@ant-design/icons";
 import {
   Button,
   Flex,
@@ -10,10 +11,10 @@ import {
   Upload,
 } from "antd";
 import { mixed, number, object } from "yup";
+import { FILE_SIZE, IMAGE_FORMATS } from "../../../common/common";
 import { Num } from "../../../helper/num";
 import { randomID } from "../../../helper/util";
 import { InvoiceCreateProps } from "./InvoiceCreate";
-import { UploadOutlined } from "@ant-design/icons";
 
 export function AddPaymentModal(props: InvoiceCreateProps) {
   const active = props.modal == "dp";
@@ -26,7 +27,7 @@ export function AddPaymentModal(props: InvoiceCreateProps) {
       <Modal
         centered
         destroyOnClose
-        title="Tambahkan DP"
+        title="Setor Pembayaran"
         maskClosable={false}
         open={active}
         footer={null}
@@ -39,16 +40,6 @@ export function AddPaymentModal(props: InvoiceCreateProps) {
           form={form}
           style={{ paddingTop: "14px" }}
           onFinish={async (values) => {
-            console.log(values);
-
-            const FILE_SIZE = 2 * 1024 * 1024; // 2 MB
-            const SUPPORTED_FORMATS = [
-              "image/jpeg",
-              "image/jpg",
-              "image/png",
-              "application/pdf",
-            ];
-
             const schema = object({
               amount: number().required("Total tidak boleh kosong"),
               attachment: mixed()
@@ -56,7 +47,7 @@ export function AddPaymentModal(props: InvoiceCreateProps) {
                 .notRequired()
                 .test(
                   "fileSize",
-                  "Maksimal ukuran file < 2MB",
+                  "Maksimal ukuran file adalah 2MB",
                   (value: any) => {
                     return !value || value.size <= FILE_SIZE;
                   }
@@ -65,7 +56,7 @@ export function AddPaymentModal(props: InvoiceCreateProps) {
                   "fileFormat",
                   "Format file tidak didukung",
                   (value: any) => {
-                    return !value || SUPPORTED_FORMATS.includes(value.type);
+                    return !value || IMAGE_FORMATS.includes(value.type);
                   }
                 ),
             });
@@ -73,13 +64,14 @@ export function AddPaymentModal(props: InvoiceCreateProps) {
             await schema
               .validate(values, { strict: true, abortEarly: false })
               .then(() => {
-                const outstanding = itemTotal - values;
+                const outstanding = itemTotal - values.amount;
 
                 props.hook.changeInstallment({
                   id: randomID(),
                   invoiceId: props.hook.state.id,
                   amount: values.amount,
                   note: values.note,
+                  attachment: values.attachment,
                   outstanding: outstanding,
                 });
 
@@ -120,12 +112,13 @@ export function AddPaymentModal(props: InvoiceCreateProps) {
             <Form.Item
               noStyle
               name="attachment"
+              valuePropName="attachment"
               getValueFromEvent={(e) => {
                 return e.file;
               }}
             >
               <Upload name="file" maxCount={1} beforeUpload={() => false}>
-                <Button icon={<UploadOutlined />}>
+                <Button icon={<UploadOutlined />} size="large">
                   Lampirkan bukti setoran
                 </Button>
               </Upload>

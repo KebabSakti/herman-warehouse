@@ -93,37 +93,23 @@ export class InvoiceMysql implements InvoiceApi {
   }
 
   async create(param: InvoiceCreate): Promise<void> {
+    console.log(param);
+
     await MySql.transaction(async (connection) => {
-      const customer = await new Promise<Customer>((resolve, reject) => {
-        connection.query(
-          "select * from customers where id = ?",
-          param.customerId,
-          (err, res) => {
-            if (err) reject(err);
-            if (res.length == 0) reject(err);
-            resolve(res[0]);
-          }
-        );
-      });
-      const invoiceId = param.id;
       const today = new Date();
-      const itemTotal = param.item.reduce((a, b) => a + b.qty * b.price, 0);
-      const installmentTotal =
-        param.installment == null ? 0 : param.installment.amount;
-      const total = itemTotal - installmentTotal;
 
       await new Promise<void>((resolve, reject) => {
         connection.query(
           "insert into invoices set ?",
           {
-            id: invoiceId,
-            customerId: customer.id,
-            customerName: customer.name,
-            customerPhone: customer.phone,
-            customerAddress: customer.address,
-            code: InvoiceHelper.customer(),
+            id: param.id,
+            customerId: param.customerId,
+            customerName: param.customerName,
+            customerPhone: param.customerPhone,
+            customerAddress: param.customerAddress,
+            code: param.code,
             note: param.note,
-            total: total,
+            total: param.total,
             created: today,
             updated: today,
           },
@@ -135,47 +121,23 @@ export class InvoiceMysql implements InvoiceApi {
       });
 
       for await (let item of param.item) {
-        const supplier = await new Promise<Supplier>((resolve, reject) => {
-          connection.query(
-            "select * from suppliers where id = ?",
-            [item.supplierId],
-            (err, res) => {
-              if (err) reject(err);
-              if (res.length == 0) reject(err);
-              resolve(res[0]);
-            }
-          );
-        });
-        const product = await new Promise<Product>((resolve, reject) => {
-          connection.query(
-            "select * from products where id = ?",
-            [item.productId],
-            (err, res) => {
-              if (err) reject(err);
-              if (res.length == 0) reject(err);
-              resolve(res[0]);
-            }
-          );
-        });
-        const itemTotal = item.qty * item.price;
-
         await new Promise<void>((resolve, reject) => {
           connection.query(
             "insert into items set ?",
             {
-              id: randomUUID(),
-              invoiceId: invoiceId,
+              id: item.id,
+              invoiceId: param.id,
               stockId: item.stockId,
-              productId: product.id,
-              productCode: product.code,
-              productName: product.name,
-              productNote: product.note,
-              supplierId: supplier.id,
-              supplierName: supplier.name,
-              supplierPhone: supplier.phone,
+              productId: item.productCode,
+              productCode: item.productCode,
+              productName: item.productName,
+              productNote: item.productNote,
+              supplierId: item.supplierId,
+              supplierName: item.supplierName,
+              supplierPhone: item.supplierPhone,
               qty: item.qty,
               price: item.price,
-              total: itemTotal,
+              total: item.total,
               created: today,
               updated: today,
             },
@@ -189,7 +151,7 @@ export class InvoiceMysql implements InvoiceApi {
         await new Promise<void>((resolve, reject) => {
           connection.query(
             "update stocks set qty = qty - ? where supplierId = ? and productId = ? and price = ?",
-            [item.qty, supplier.id, product.id, item.price],
+            [item.qty, item.supplierId, item.productId, item.price],
             (err) => {
               if (err) reject(err);
               resolve();
@@ -201,7 +163,7 @@ export class InvoiceMysql implements InvoiceApi {
       await new Promise<void>((resolve, reject) => {
         connection.query(
           "update customers set outstanding = outstanding + ? where id = ?",
-          [total, customer.id],
+          [param.total, param.customerId],
           (err) => {
             if (err) reject(err);
             resolve();
@@ -210,25 +172,27 @@ export class InvoiceMysql implements InvoiceApi {
       });
 
       if (param.installment != null) {
-        await new Promise<void>((resolve, reject) => {
-          connection.query(
-            "insert into installments set ?",
-            {
-              id: randomUUID(),
-              invoiceId: invoiceId,
-              amount: param.installment!.amount,
-              attachment: param.installment!.attachment,
-              note: param.installment!.note,
-              outstanding: total,
-              created: today,
-              updated: today,
-            },
-            (err) => {
-              if (err) reject(err);
-              resolve();
-            }
-          );
-        });
+        for await (const installment of param.installment) {
+          await new Promise<void>((resolve, reject) => {
+            connection.query(
+              "insert into installments set ?",
+              {
+                id: installment.id,
+                invoiceId: param.id,
+                amount: installment.amount,
+                attachment: installment.attachment,
+                note: installment.note,
+                outstanding: param.total,
+                created: today,
+                updated: today,
+              },
+              (err) => {
+                if (err) reject(err);
+                resolve();
+              }
+            );
+          });
+        }
       }
     });
   }

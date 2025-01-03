@@ -1,27 +1,100 @@
 import {
-  ProductOutlined,
+  DeleteFilled,
   DollarOutlined,
   PlusOutlined,
-  DeleteFilled,
+  ProductOutlined,
 } from "@ant-design/icons";
 import {
-  Spin,
-  Flex,
-  Row,
-  Col,
-  Dropdown,
   Button,
-  Space,
-  Input,
+  Col,
   DatePicker,
-  Table,
+  Dropdown,
+  Flex,
+  Input,
   InputNumber,
+  notification,
+  Row,
+  Space,
+  Spin,
+  Table,
+  Typography,
 } from "antd";
+import { useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Dependency } from "../../../component/App";
 import { Num } from "../../../helper/num";
-import { randomID } from "../../../helper/util";
+import { invoiceCreateSchema } from "../model/invoice_type";
 import { InvoiceCreateProps } from "./InvoiceCreate";
+import { useInvoiceHook } from "./InvoiceHook";
 
 export function InvoiceTable(props: InvoiceCreateProps) {
+  const { auth, invoiceController } = useContext(Dependency)!;
+  const invoice = useInvoiceHook(invoiceController);
+  const navigate = useNavigate();
+  const { Text } = Typography;
+
+  async function submitForm(): Promise<void> {
+    const param = props.hook.state;
+
+    await invoiceCreateSchema
+      .validate(param)
+      .then(async () => {
+        invoice.create(
+          {
+            id: param.id,
+            customerId: param.customerId,
+            customerName: param.customerName,
+            customerPhone: param.customerPhone,
+            customerAddress: param.customerAddress,
+            code: param.code,
+            note: param.note,
+            total: param.total,
+            printed: param.printed!,
+            item: param.item,
+            installment: param.installment,
+          },
+          { token: auth.state.data! }
+        );
+      })
+      .catch((e) => {
+        notification.error({
+          message: "Error",
+          description: (
+            <Flex vertical gap={1}>
+              {e.errors.map((e: any, i: any) => {
+                return (
+                  <Text key={i} type="danger">
+                    {e}
+                  </Text>
+                );
+              })}
+            </Flex>
+          ),
+        });
+      });
+  }
+
+  useEffect(() => {
+    if (
+      invoice.state.action == "create" &&
+      invoice.state.status == "complete"
+    ) {
+      if (invoice.state.error == null) {
+        notification.success({
+          message: "Sukses",
+          description: "Proses berhasil",
+        });
+
+        navigate(-1);
+      } else {
+        notification.error({
+          message: "Error",
+          description: invoice.state.error.message,
+        });
+      }
+    }
+  }, [invoice.state]);
+
   return (
     <>
       <Spin spinning={false}>
@@ -88,7 +161,7 @@ export function InvoiceTable(props: InvoiceCreateProps) {
                     onChange={(_, dateString) => {
                       props.hook.setState({
                         ...props.hook.state,
-                        created: dateString.toString(),
+                        printed: dateString.toString(),
                       });
                     }}
                   />
@@ -166,24 +239,6 @@ export function InvoiceTable(props: InvoiceCreateProps) {
                 render: (value) => {
                   return Num.format(value);
                 },
-                // render: (value, record) => {
-                //   return (
-                //     <InputNumber
-                //       placeholder="Harga"
-                //       min={0}
-                //       step={100}
-                //       style={{ display: "block", width: "100%" }}
-                //       defaultValue={value}
-                //       formatter={(value) => {
-                //         const formatted = Num.format(value ?? 0);
-                //         return formatted;
-                //       }}
-                //       onChange={(value) => {
-                //         // props.hook.modItem({ ...record, price: value });
-                //       }}
-                //     />
-                //   );
-                // },
               },
               {
                 title: "Total",
@@ -220,7 +275,7 @@ export function InvoiceTable(props: InvoiceCreateProps) {
                     <Col span={24}>
                       <Row justify="space-between">
                         <Col>
-                          Setor{""}
+                          Setor
                           {props.hook.state.installment == undefined ? (
                             ""
                           ) : (
@@ -260,7 +315,7 @@ export function InvoiceTable(props: InvoiceCreateProps) {
                       });
                     }}
                   />
-                  <Button type="primary" size="large" onClick={() => {}}>
+                  <Button type="primary" size="large" onClick={submitForm}>
                     Submit
                   </Button>
                 </>

@@ -1,7 +1,9 @@
 import express from "express";
 import { BadRequest, Failure } from "../../../common/error";
+import { fileSchema } from "../../../common/type";
+import { hmac, uploadFile } from "../../../helper/util";
 import { invoiceController } from "../../service";
-import { invoiceListSchema, invoiceCreateSchema } from "../model/invoice_type";
+import { invoiceCreateSchema, invoiceListSchema } from "../model/invoice_type";
 
 const router = express.Router();
 
@@ -21,9 +23,35 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const param = await invoiceCreateSchema.validate(req.body).catch((e) => {
+    const { signature, param } = JSON.parse(req.body.data);
+    const serverSignature = hmac(param, res.locals.token);
+
+    if (serverSignature != signature) {
+      throw new BadRequest();
+    }
+
+    await invoiceCreateSchema.validate(param, { strict: false }).catch((e) => {
       throw new BadRequest(e.message);
     });
+
+    if (param.installment) {
+      const files = req.files as Express.Multer.File[] | undefined;
+
+      for (let i = 0; i < param.installment.length; i++) {
+        if (files) {
+          if (files[i]) {
+            await fileSchema
+              .validate(files[i], { strict: false })
+              .then(async () => {
+                await uploadFile(files[i], param.installment[i].attachment);
+              })
+              .catch((e) => {
+                throw new BadRequest(e.message);
+              });
+          }
+        }
+      }
+    }
 
     await invoiceController.create(param);
 

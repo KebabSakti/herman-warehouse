@@ -15,6 +15,7 @@ export async function isLogin(req: Request, res: Response, next: NextFunction) {
 
         if (user != null) {
           res.locals.user = user;
+          res.locals.token = token;
 
           return next();
         }

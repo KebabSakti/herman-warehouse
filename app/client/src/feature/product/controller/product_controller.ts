@@ -1,5 +1,5 @@
 import axios from "axios";
-import { server } from "../../../common/common";
+import { SERVER } from "../../../common/common";
 import { ProductApi } from "../model/product_api";
 import {
   Product,
@@ -40,7 +40,7 @@ export class ProductController {
   ): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/product/${id}`,
+        url: `${SERVER}/app/product/${id}`,
         method: "put",
         data: param,
         headers: {
@@ -56,7 +56,7 @@ export class ProductController {
   async delete(id: string, extra?: Record<string, any>): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/product/${id}`,
+        url: `${SERVER}/app/product/${id}`,
         method: "delete",
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
@@ -74,7 +74,7 @@ export class ProductController {
   ): Promise<Result<Product[]>> {
     try {
       const result = await axios({
-        url: `${server}/app/product`,
+        url: `${SERVER}/app/product`,
         method: "get",
         params: param,
         headers: {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Invoice as InvoiceID } from "../../../helper/invoice";
 import { randomID } from "../../../helper/util";
 import { Installment, Invoice, Item } from "../model/invoice_model";
@@ -21,10 +21,6 @@ export function useInvoiceTableHook(): InvoiceTableHookType {
     item: [],
   });
 
-  useEffect(() => {
-    console.log(state);
-  }, [state]);
-
   function changeItem(param: Item) {
     const items = state.item;
     const index = items.findIndex((x) => x.stockId === param.stockId);
@@ -41,7 +37,14 @@ export function useInvoiceTableHook(): InvoiceTableHookType {
       items.push(param);
     }
 
-    setState({ ...state, item: items, total: total(items) });
+    const installment = items.length == 0 ? null : state.installment;
+
+    setState({
+      ...state,
+      item: items,
+      installment: installment,
+      total: total(items),
+    });
   }
 
   function changeInstallment(param?: Installment | null | undefined) {

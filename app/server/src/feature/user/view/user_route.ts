@@ -1,7 +1,7 @@
 import express from "express";
 import { Failure, Unauthorized } from "../../../common/error";
-import { userLoginSchema } from "../model/user_type";
 import { userController } from "../../service";
+import { userLoginSchema } from "../model/user_type";
 
 const router = express.Router();
 

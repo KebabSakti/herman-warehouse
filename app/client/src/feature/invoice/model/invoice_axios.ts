@@ -1,7 +1,8 @@
 import axios from "axios";
-import { server } from "../../../common/common";
+import { SERVER } from "../../../common/common";
 import { Failure } from "../../../common/error";
 import { Result } from "../../../common/type";
+import { hmac, randomID } from "../../../helper/util";
 import { InvoiceApi } from "./invoice_api";
 import { Invoice } from "./invoice_model";
 import { InvoiceCreate, InvoiceList } from "./invoice_type";
@@ -11,14 +12,30 @@ export class InvoiceAxios implements InvoiceApi {
     param: InvoiceCreate,
     extra?: Record<string, any>
   ): Promise<void> {
+    const formData = new FormData();
+
+    if (param.installment) {
+      for (let i = 0; i < param.installment.length; i++) {
+        if (param.installment[i].attachment) {
+          formData.append("file", param.installment[i].attachment as File);
+          param.installment[i].attachment = randomID() + ".jpg";
+        }
+      }
+    }
+
+    const signature = await hmac(param, extra!.token);
+    const data = { signature, param };
+
+    formData.append("data", JSON.stringify(data));
+
     try {
       await axios({
-        url: `${server}/app/invoice`,
+        url: `${SERVER}/app/invoice`,
         method: "post",
-        data: param,
+        data: formData,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       });
     } catch (error: any) {
@@ -32,7 +49,7 @@ export class InvoiceAxios implements InvoiceApi {
   ): Promise<Invoice | null | undefined> {
     try {
       const result = await axios({
-        url: `${server}/app/invoice/${id}`,
+        url: `${SERVER}/app/invoice/${id}`,
         method: "get",
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
@@ -49,7 +66,7 @@ export class InvoiceAxios implements InvoiceApi {
   async remove(id: string, extra?: Record<string, any>): Promise<void> {
     try {
       await axios({
-        url: `${server}/app/invoice/${id}`,
+        url: `${SERVER}/app/invoice/${id}`,
         method: "delete",
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
@@ -66,7 +83,7 @@ export class InvoiceAxios implements InvoiceApi {
     extra?: Record<string, any>
   ): Promise<Result<Invoice[]>> {
     try {
-      const result = await axios.get(`${server}/app/invoice`, {
+      const result = await axios.get(`${SERVER}/app/invoice`, {
         params: param,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
