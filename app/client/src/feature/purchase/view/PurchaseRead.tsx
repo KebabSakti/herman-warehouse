@@ -27,6 +27,7 @@ export function PurchaseRead() {
       <Modal
         centered
         destroyOnClose
+        width={600}
         loading={purchase.state.status == "loading"}
         title="Detail Nota"
         maskClosable={false}

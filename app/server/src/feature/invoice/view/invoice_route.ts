@@ -38,17 +38,15 @@ router.post("/", async (req, res) => {
       const files = req.files as Express.Multer.File[] | undefined;
 
       for (let i = 0; i < param.installment.length; i++) {
-        if (files) {
-          if (files[i]) {
-            await fileSchema
-              .validate(files[i], { strict: false })
-              .then(async () => {
-                await uploadFile(files[i], param.installment[i].attachment);
-              })
-              .catch((e) => {
-                throw new BadRequest(e.message);
-              });
-          }
+        if (files && files[i]) {
+          await fileSchema
+            .validate(files[i], { strict: false })
+            .then(async () => {
+              await uploadFile(files[i], param.installment[i].attachment);
+            })
+            .catch((e) => {
+              throw new BadRequest(e.message);
+            });
         }
       }
     }

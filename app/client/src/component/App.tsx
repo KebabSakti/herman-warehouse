@@ -23,6 +23,8 @@ import { InvoiceApi } from "../feature/invoice/model/invoice_api";
 import { InvoiceAxios } from "../feature/invoice/model/invoice_axios";
 import { InvoiceCreate } from "../feature/invoice/view/InvoiceCreate";
 import { InvoiceList } from "../feature/invoice/view/InvoiceList";
+import { InvoicePrint } from "../feature/invoice/view/InvoicePrint";
+import { InvoiceRead } from "../feature/invoice/view/InvoiceRead";
 import { ProductController } from "../feature/product/controller/product_controller";
 import { ProductApi } from "../feature/product/model/product_api";
 import { ProductAxios } from "../feature/product/model/product_axios";
@@ -44,6 +46,7 @@ import { SupplierController } from "../feature/supplier/controller/supplier_cont
 import { SupplierApi } from "../feature/supplier/model/supplier_api";
 import { SupplierAxios } from "../feature/supplier/model/supplier_axios";
 import { Root } from "./Root";
+import { InstallmentPrint } from "../feature/invoice/view/InstallmentPrint";
 
 export type Dependency = {
   auth: AuthHookType;
@@ -68,6 +71,14 @@ const router = createBrowserRouter([
       {
         path: "/print/inventory/:id",
         element: <PurchasePrint />,
+      },
+      {
+        path: "/print/order/:id",
+        element: <InvoicePrint />,
+      },
+      {
+        path: "/print/installment/:id",
+        element: <InstallmentPrint />,
       },
     ],
   },
@@ -105,10 +116,6 @@ const router = createBrowserRouter([
             path: "/app/inventory/create",
             element: <PurchaseCreate />,
           },
-          {
-            path: "/app/inventory/edit/:id",
-            element: <PurchaseEdit />,
-          },
         ],
       },
       {
@@ -121,7 +128,7 @@ const router = createBrowserRouter([
             children: [
               {
                 path: "/app/order/read/:id",
-                element: <PurchaseRead />,
+                element: <InvoiceRead />,
               },
             ],
           },

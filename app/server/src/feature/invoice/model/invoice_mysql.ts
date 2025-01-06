@@ -1,25 +1,31 @@
-import { randomUUID } from "crypto";
 import dayjs from "dayjs";
 import { Result } from "../../../common/type";
-import { Invoice as InvoiceHelper } from "../../../helper/invoice";
 import { MySql, pool } from "../../../helper/mysql";
-import { Customer } from "../../customer/model/customer_model";
-import { Product } from "../../product/model/product_type";
-import { Supplier } from "../../supplier/model/supplier_model";
 import { InvoiceApi } from "./invoice_api";
 import { Invoice, Item } from "./invoice_model";
 import { InvoiceCreate, InvoiceList } from "./invoice_type";
+import { BadRequest } from "../../../common/error";
 
 export class InvoiceMysql implements InvoiceApi {
   async list(param: InvoiceList): Promise<Result<Invoice[]>> {
-    let table = `select * from invoices where deleted is null`;
+    const offset = (param.page - 1) * param.limit;
+    const limit = param.limit;
+
+    let query = `
+    select invoices.*, items.*, installments.*
+    from (select * from invoices where deleted is null limit ${limit} offset ${offset}) as invoices
+    left join items on invoices.id = items.invoiceId
+    left join installments on invoices.id = items.invoiceId
+    `;
 
     if (param.search != null) {
       const search = pool.escape(param.search);
-      table += ` and (customerName like "%"${search}"%" or customerPhone like "%"${search}"%" or code like "%"${search}"%")`;
+      query += ` where (invoices.customerName like "%"${search}"%" or invoices.customerPhone like "%"${search}"%" or invoices.code like "%"${search}"%")`;
     }
 
     if (param.start != null && param.end != null) {
+      const whereAnd = param.search ? "and" : "where";
+
       const startDate = dayjs
         .utc(`${param.start}T00:00:00`)
         .format("YYYY-MM-DD HH:mm:ss");
@@ -30,55 +36,60 @@ export class InvoiceMysql implements InvoiceApi {
 
       const start = pool.escape(startDate);
       const end = pool.escape(endDate);
-      table += ` and created between ${start} and ${end}`;
+      query += ` ${whereAnd} invoices.created between ${start} and ${end}`;
     }
 
-    const total = (await MySql.query(table)).length;
-    const offset = (param.page - 1) * param.limit;
-    const limit = param.limit;
-    table += ` order by created desc limit ${limit} offset ${offset}`;
-
-    let query = `
-    select invoices.*, items.*, installments.*
-    from (${table}) as invoices
-    left join items on invoices.id = items.invoiceId
-    left join installments on invoices.id = items.invoiceId
-    `;
-
+    query += ` order by invoices.created desc`;
     const invoices = await MySql.query({ sql: query, nestTables: true });
+
     const result = invoices.reduce((a: any, b: any) => {
-      const invoice = a.find((c: any) => c.id == b.invoices.id);
+      const index = a.findIndex((c: any) => c.id == b.invoices.id);
 
-      if (invoice == undefined) {
-        const item = { ...b.invoices, item: [], installment: [] };
+      if (index == -1) {
+        const invoice = { ...b.invoices, item: [], installment: [] };
 
-        if (b.items.invoiceId == item.id) {
-          item.item.push(b.items);
-        }
-
-        if (b.installments.invoiceId == item.id) {
-          item.installment.push(b.installments);
-        }
-
-        a.push(item);
-      } else {
-        const invItem = invoice.item.find((c: any) => c.id == b.items.id);
-
-        const installment = invoices.installment.find(
-          (c: any) => c.id == b.installments.id
-        );
-
-        if (invItem == undefined) {
+        if (b.items.invoiceId == b.invoices.id) {
           invoice.item.push(b.items);
         }
 
-        if (installment == undefined) {
+        if (b.installments.invoiceId == b.invoices.id) {
           invoice.installment.push(b.installments);
+        }
+
+        a.push(invoice);
+      } else {
+        const invoice = a[index];
+
+        if (b.items.invoiceId == invoice.id) {
+          const item = invoice.item.find((c: any) => c.id == b.items.id);
+
+          if (!item) {
+            invoice.item.push(b.items);
+          }
+        }
+
+        if (b.installments.invoiceId == invoice.id) {
+          const installment = invoice.installment.find(
+            (c: any) => c.id == b.installments.id
+          );
+
+          if (!installment) {
+            invoice.installment.push(b.installments);
+          }
         }
       }
 
       return a;
     }, []);
+
+    const total =
+      param.search || (param.start && param.end)
+        ? result.length
+        : (
+            await MySql.query(
+              "select count(*) as total from invoices where deleted is null"
+            )
+          )[0].total;
 
     const data = {
       data: result,
@@ -93,8 +104,6 @@ export class InvoiceMysql implements InvoiceApi {
   }
 
   async create(param: InvoiceCreate): Promise<void> {
-    console.log(param);
-
     await MySql.transaction(async (connection) => {
       const today = new Date();
 
@@ -110,6 +119,7 @@ export class InvoiceMysql implements InvoiceApi {
             code: param.code,
             note: param.note,
             total: param.total,
+            printed: param.printed,
             created: today,
             updated: today,
           },
@@ -199,44 +209,49 @@ export class InvoiceMysql implements InvoiceApi {
 
   async read(id: string): Promise<Invoice | null | undefined> {
     const query = `
-        select purchases.*, inventories.*, payments.*
-        from purchases
-        left join inventories on purchases.id = inventories.purchaseId
-        left join payments on purchases.id = payments.purchaseId
-        where purchases.deleted is null
-        and purchases.id = ${pool.escape(id)}`;
+        select invoices.*, items.*, installments.*
+        from invoices
+        left join items on invoices.id = items.invoiceId
+        left join installments on invoices.id = items.invoiceId
+        where invoices.deleted is null
+        and invoices.id = ${pool.escape(id)}`;
 
-    const purchases = await MySql.query({ sql: query, nestTables: true });
-    const result = purchases.reduce((a: any, b: any) => {
-      const purchase = a.find((c: any) => c.id == b.purchases.id);
+    const invoices = await MySql.query({ sql: query, nestTables: true });
 
-      if (purchase == undefined) {
-        const item = { ...b.purchases, inventory: [], payment: [] };
+    const result = invoices.reduce((a: any, b: any) => {
+      const index = a.findIndex((c: any) => c.id == b.invoices.id);
 
-        if (b.inventories.purchaseId == item.id) {
-          item.inventory.push(b.inventories);
+      if (index == -1) {
+        const invoice = { ...b.invoices, item: [], installment: [] };
+
+        if (b.items.invoiceId == b.invoices.id) {
+          invoice.item.push(b.items);
         }
 
-        if (b.payments.purchaseId == item.id) {
-          item.payment.push(b.payments);
+        if (b.installments.invoiceId == b.invoices.id) {
+          invoice.installment.push(b.installments);
         }
 
-        a.push(item);
+        a.push(invoice);
       } else {
-        const inventory = purchase.inventory.find(
-          (c: any) => c.id == b.inventories.id
-        );
+        const invoice = a[index];
 
-        const payment = purchase.payment.find(
-          (c: any) => c.id == b.payments.id
-        );
+        if (b.items.invoiceId == invoice.id) {
+          const item = invoice.item.find((c: any) => c.id == b.items.id);
 
-        if (inventory == undefined) {
-          purchase.inventory.push(b.inventories);
+          if (!item) {
+            invoice.item.push(b.items);
+          }
         }
 
-        if (payment == undefined) {
-          purchase.payment.push(b.payments);
+        if (b.installments.invoiceId == invoice.id) {
+          const installment = invoice.installment.find(
+            (c: any) => c.id == b.installments.id
+          );
+
+          if (!installment) {
+            invoice.installment.push(b.installments);
+          }
         }
       }
 
@@ -253,6 +268,7 @@ export class InvoiceMysql implements InvoiceApi {
   async remove(id: string): Promise<void> {
     await MySql.transaction(async (connection) => {
       const today = new Date();
+
       const invoice = await new Promise<Invoice>((resolve, reject) => {
         connection.query(
           "select * from invoices where id = ?",
@@ -264,6 +280,12 @@ export class InvoiceMysql implements InvoiceApi {
           }
         );
       });
+
+      console.log(invoice);
+
+      if (!invoice) {
+        throw new BadRequest();
+      }
 
       const items = await new Promise<Item[]>((resolve, reject) => {
         connection.query(
@@ -279,7 +301,7 @@ export class InvoiceMysql implements InvoiceApi {
 
       await new Promise<void>((resolve, reject) => {
         connection.query(
-          "update customer set outstanding = outstanding - ?, updated = ? where id = ?",
+          "update customers set outstanding = outstanding - ?, updated = ? where id = ?",
           [invoice!.total, today, invoice!.customerId],
           (err) => {
             if (err) reject(err);
@@ -291,8 +313,8 @@ export class InvoiceMysql implements InvoiceApi {
       for await (let item of items) {
         await new Promise<void>((resolve, reject) => {
           connection.query(
-            "update stocks set qty = qty - ? where supplierId = ? and productId = ? and price = ?",
-            [item.qty, item.supplierId, item.productId, item.price],
+            "update stocks set qty = qty - ? where id = ?",
+            [item.qty, item.stockId],
             (err) => {
               if (err) reject(err);
               resolve();

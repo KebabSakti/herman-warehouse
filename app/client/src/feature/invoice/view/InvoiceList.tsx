@@ -182,7 +182,7 @@ export function InvoiceList() {
                             render: (_, record) => (
                               <>
                                 <Link
-                                  to={`/app/invoice/read/${record.id}`}
+                                  to={`/app/order/read/${record.id}`}
                                   state={{
                                     from: location.pathname + location.search,
                                   }}
@@ -224,7 +224,7 @@ export function InvoiceList() {
                                     variant="solid"
                                     onClick={() => {
                                       window.open(
-                                        `/print/invoice/${e.id}`,
+                                        `/print/order/${e.id}`,
                                         "_blank"
                                       );
                                     }}
@@ -236,9 +236,9 @@ export function InvoiceList() {
                                     okText="Ya"
                                     cancelText="Batal"
                                     onConfirm={() => {
-                                      // purchase.remove(e.id, {
-                                      //   token: auth.state.data!,
-                                      // });
+                                      invoice.remove(e.id, {
+                                        token: auth.state.data!,
+                                      });
                                     }}
                                   >
                                     <Button
