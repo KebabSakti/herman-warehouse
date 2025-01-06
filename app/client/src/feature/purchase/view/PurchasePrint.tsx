@@ -72,10 +72,12 @@ export function PurchasePrint() {
   const param = useParams();
 
   useEffect(() => {
-    if (auth.state.data != null) {
-      if (purchase.state.action == "idle" && purchase.state.status == "idle") {
-        purchase.read(param.id!, { token: auth.state.data! });
-      }
+    if (
+      auth.state.data &&
+      purchase.state.action == "idle" &&
+      purchase.state.status == "idle"
+    ) {
+      purchase.read(param.id!, { token: auth.state.data! });
     }
   }, [purchase.state, auth.state]);
 

@@ -65,6 +65,7 @@ export function InvoiceRead() {
 
           if (invoice.state.data != null) {
             const data = invoice.state.data as Invoice;
+            const totalItem = data.item.reduce((a, b) => a + b.total, 0);
 
             return (
               <Tabs
@@ -143,7 +144,7 @@ export function InvoiceRead() {
                           <Col span={24}>
                             <Row justify="space-between">
                               <Col>Total Item</Col>
-                              <Col>{Num.format(0)}</Col>
+                              <Col>{Num.format(totalItem)}</Col>
                             </Row>
                           </Col>
                           <Col span={24}>

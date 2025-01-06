@@ -77,17 +77,19 @@ export function PurchaseRead() {
                 total: e.total,
               };
             });
-            const payments: ReceiptTableItem[] | undefined = data.payment?.map(
-              (e) => {
-                return {
-                  key: e.id,
-                  id: e.id,
-                  name: e.note,
-                  tag: ReceiptTableTag.Payment,
-                  total: e.amount,
-                };
-              }
-            );
+            const payments: ReceiptTableItem[] | undefined =
+              data.payment?.[0]?.id == null
+                ? undefined
+                : data.payment?.map((e) => {
+                    return {
+                      key: e.id,
+                      id: e.id,
+                      name: e.note,
+                      tag: ReceiptTableTag.Payment,
+                      total: e.amount,
+                    };
+                  });
+
             const inventoryTotal = inventories.reduce((a, b) => a + b.total, 0);
             const paymentTotal = payments?.reduce((a, b) => a + b.total, 0);
             const tableData = inventories.concat(payments ?? []);
