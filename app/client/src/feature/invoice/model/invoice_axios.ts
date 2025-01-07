@@ -23,10 +23,9 @@ export class InvoiceAxios implements InvoiceApi {
       }
     }
 
-    const signature = await hmac(param, extra!.token);
-    const data = { signature, param };
-
-    formData.append("data", JSON.stringify(data));
+    const payload = JSON.stringify(param);
+    const signature = await hmac(payload, extra!.token);
+    formData.append("payload", payload);
 
     try {
       await axios({
@@ -36,6 +35,7 @@ export class InvoiceAxios implements InvoiceApi {
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
           "Content-Type": "multipart/form-data",
+          "X-Signature": signature,
         },
       });
     } catch (error: any) {

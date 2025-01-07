@@ -9,6 +9,7 @@ import {
   ProductList,
   ProductUpdate,
 } from "./product_type";
+import { hmac } from "../../../helper/util";
 
 export class ProductAxios implements ProductApi {
   async create(
@@ -16,13 +17,17 @@ export class ProductAxios implements ProductApi {
     extra?: Record<string, any>
   ): Promise<void> {
     try {
+      const payload = JSON.stringify(param);
+      const signature = await hmac(payload, extra!.token);
+
       await axios({
         url: `${SERVER}/app/product`,
         method: "post",
-        data: param,
+        data: payload,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
           "Content-Type": "application/json",
+          "X-Signature": signature,
         },
       });
     } catch (error: any) {
@@ -56,13 +61,17 @@ export class ProductAxios implements ProductApi {
     extra?: Record<string, any>
   ): Promise<void> {
     try {
+      const payload = JSON.stringify(param);
+      const signature = await hmac(payload, extra!.token);
+
       await axios({
         url: `${SERVER}/app/product/${id}`,
         method: "put",
-        data: param,
+        data: payload,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
           "Content-Type": "application/json",
+          "X-Signature": signature,
         },
       });
     } catch (error: any) {

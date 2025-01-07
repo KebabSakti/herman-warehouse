@@ -1,5 +1,5 @@
-import axios from "axios";
-import { SERVER } from "../../../common/common";
+import { Failure } from "../../../common/error";
+import { Result } from "../../../common/type";
 import { ProductApi } from "../model/product_api";
 import {
   Product,
@@ -7,8 +7,6 @@ import {
   ProductList,
   ProductUpdate,
 } from "../model/product_type";
-import { Failure } from "../../../common/error";
-import { Result } from "../../../common/type";
 
 export class ProductController {
   productApi: ProductApi;
@@ -39,15 +37,7 @@ export class ProductController {
     extra?: Record<string, any>
   ): Promise<void> {
     try {
-      await axios({
-        url: `${SERVER}/app/product/${id}`,
-        method: "put",
-        data: param,
-        headers: {
-          Authorization: `Bearer ${extra?.token ?? ""}`,
-          "Content-Type": "application/json",
-        },
-      });
+      await this.productApi.update(id, param, extra);
     } catch (error: any) {
       throw Failure(error.response.status, error.response.data);
     }
@@ -55,14 +45,7 @@ export class ProductController {
 
   async delete(id: string, extra?: Record<string, any>): Promise<void> {
     try {
-      await axios({
-        url: `${SERVER}/app/product/${id}`,
-        method: "delete",
-        headers: {
-          Authorization: `Bearer ${extra?.token ?? ""}`,
-          "Content-Type": "application/json",
-        },
-      });
+      await this.productApi.delete(id, extra);
     } catch (error: any) {
       throw Failure(error.response.status, error.response.data);
     }
@@ -73,17 +56,9 @@ export class ProductController {
     extra?: Record<string, any>
   ): Promise<Result<Product[]>> {
     try {
-      const result = await axios({
-        url: `${SERVER}/app/product`,
-        method: "get",
-        params: param,
-        headers: {
-          Authorization: `Bearer ${extra?.token ?? ""}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const result = await this.productApi.list(param, extra);
 
-      return result.data;
+      return result;
     } catch (error: any) {
       throw Failure(error.response.status, error.response.data);
     }

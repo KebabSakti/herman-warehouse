@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Invoice as InvoiceID } from "../../../helper/invoice";
 import { randomID } from "../../../helper/util";
-import { Installment, Invoice, Item } from "../model/invoice_model";
+import { Invoice } from "../model/invoice_model";
+import { Installment } from "../model/installment_model";
+import { Item } from "../model/item_model";
 
 export type InvoiceTableHookType = {
   state: Invoice;

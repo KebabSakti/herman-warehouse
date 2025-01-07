@@ -10,7 +10,7 @@ export function delay(ms: number): Promise<void> {
   });
 }
 
-export async function hmac(data: object, secret: string): Promise<string> {
+export async function hmac(data: string, secret: string): Promise<string> {
   const encoder = new TextEncoder();
 
   const key = await crypto.subtle.importKey(
@@ -24,7 +24,7 @@ export async function hmac(data: object, secret: string): Promise<string> {
   const signatureBuffer = await crypto.subtle.sign(
     "HMAC",
     key,
-    encoder.encode(JSON.stringify(data))
+    encoder.encode(data)
   );
 
   return Array.from(new Uint8Array(signatureBuffer))

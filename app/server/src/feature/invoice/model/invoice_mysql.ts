@@ -2,30 +2,21 @@ import dayjs from "dayjs";
 import { Result } from "../../../common/type";
 import { MySql, pool } from "../../../helper/mysql";
 import { InvoiceApi } from "./invoice_api";
-import { Invoice, Item } from "./invoice_model";
+import { Invoice } from "./invoice_model";
 import { InvoiceCreate, InvoiceList } from "./invoice_type";
 import { BadRequest } from "../../../common/error";
+import { Item } from "./item_model";
 
 export class InvoiceMysql implements InvoiceApi {
   async list(param: InvoiceList): Promise<Result<Invoice[]>> {
-    const offset = (param.page - 1) * param.limit;
-    const limit = param.limit;
-
-    let query = `
-    select invoices.*, items.*, installments.*
-    from (select * from invoices where deleted is null limit ${limit} offset ${offset}) as invoices
-    left join items on invoices.id = items.invoiceId
-    left join installments on invoices.id = items.invoiceId
-    `;
+    let table = `select * from invoices where deleted is null`;
 
     if (param.search != null) {
       const search = pool.escape(param.search);
-      query += ` where (invoices.customerName like "%"${search}"%" or invoices.customerPhone like "%"${search}"%" or invoices.code like "%"${search}"%")`;
+      table += ` and (customerName like "%"${search}"%" or customerPhone like "%"${search}"%" or code like "%"${search}"%")`;
     }
 
     if (param.start != null && param.end != null) {
-      const whereAnd = param.search ? "and" : "where";
-
       const startDate = dayjs
         .utc(`${param.start}T00:00:00`)
         .format("YYYY-MM-DD HH:mm:ss");
@@ -36,8 +27,19 @@ export class InvoiceMysql implements InvoiceApi {
 
       const start = pool.escape(startDate);
       const end = pool.escape(endDate);
-      query += ` ${whereAnd} invoices.created between ${start} and ${end}`;
+      table += ` and created between ${start} and ${end}`;
     }
+
+    const offset = (param.page - 1) * param.limit;
+    const limit = param.limit;
+    table += ` limit ${limit} offset ${offset}`;
+
+    let query = `
+    select invoices.*, items.*, installments.*
+    from (${table}) as invoices
+    left join items on invoices.id = items.invoiceId
+    left join installments on invoices.id = items.invoiceId
+    `;
 
     query += ` order by invoices.created desc`;
     const invoices = await MySql.query({ sql: query, nestTables: true });
@@ -193,6 +195,7 @@ export class InvoiceMysql implements InvoiceApi {
                 attachment: installment.attachment,
                 note: installment.note,
                 outstanding: param.total,
+                printed: param.printed,
                 created: today,
                 updated: today,
               },
@@ -280,8 +283,6 @@ export class InvoiceMysql implements InvoiceApi {
           }
         );
       });
-
-      console.log(invoice);
 
       if (!invoice) {
         throw new BadRequest();

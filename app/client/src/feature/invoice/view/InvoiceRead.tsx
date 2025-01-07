@@ -247,7 +247,7 @@ export function InvoiceRead() {
                               },
                               {
                                 title: "Tanggal",
-                                dataIndex: "created",
+                                dataIndex: "printed",
                                 render: (value) => (
                                   <>{dayjs(value).format("DD-MM-YYYY")}</>
                                 ),

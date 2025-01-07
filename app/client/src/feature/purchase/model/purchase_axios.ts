@@ -5,6 +5,7 @@ import { Result } from "../../../common/type";
 import { PurchaseApi } from "./purchase_api";
 import { Purchase } from "./purchase_model";
 import { PurchaseCreate, PurchaseList, PurchaseUpdate } from "./purchase_type";
+import { hmac } from "../../../helper/util";
 
 export class PurchaseAxios implements PurchaseApi {
   async create(
@@ -12,13 +13,17 @@ export class PurchaseAxios implements PurchaseApi {
     extra?: Record<string, any>
   ): Promise<void> {
     try {
+      const payload = JSON.stringify(param);
+      const signature = await hmac(payload, extra!.token);
+
       await axios({
         url: `${SERVER}/app/purchase`,
         method: "post",
-        data: param,
+        data: payload,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
           "Content-Type": "application/json",
+          "X-Signature": signature,
         },
       });
     } catch (error: any) {
@@ -52,13 +57,17 @@ export class PurchaseAxios implements PurchaseApi {
     extra?: Record<string, any>
   ): Promise<void> {
     try {
+      const payload = JSON.stringify(param);
+      const signature = await hmac(payload, extra!.token);
+
       await axios({
         url: `${SERVER}/app/purchase/${id}`,
         method: "put",
-        data: param,
+        data: payload,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
           "Content-Type": "application/json",
+          "X-Signature": signature,
         },
       });
     } catch (error: any) {

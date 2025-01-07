@@ -1,14 +1,14 @@
 import { randomUUID } from "crypto";
 import dayjs from "dayjs";
+import { BadRequest, InternalFailure } from "../../../common/error";
 import { Result } from "../../../common/type";
+import { Invoice } from "../../../helper/invoice";
 import { MySql, pool } from "../../../helper/mysql";
 import { Product } from "../../product/model/product_type";
-import { PurchaseApi } from "./purchase_api";
-import { PurchaseCreate, PurchaseList, PurchaseUpdate } from "./purchase_type";
-import { Inventory, Purchase } from "./purchase_model";
 import { Supplier } from "../../supplier/model/supplier_model";
-import { Invoice } from "../../../helper/invoice";
-import { BadRequest, Forbidden, InternalFailure } from "../../../common/error";
+import { PurchaseApi } from "./purchase_api";
+import { Inventory, Purchase } from "./purchase_model";
+import { PurchaseCreate, PurchaseList, PurchaseUpdate } from "./purchase_type";
 
 export class PurchaseMysql implements PurchaseApi {
   async list(param: PurchaseList): Promise<Result<Purchase[]>> {
@@ -33,10 +33,9 @@ export class PurchaseMysql implements PurchaseApi {
       table += ` and created between ${start} and ${end}`;
     }
 
-    const total = (await MySql.query(table)).length;
     const offset = (param.page - 1) * param.limit;
     const limit = param.limit;
-    table += ` order by created desc limit ${limit} offset ${offset}`;
+    table += ` limit ${limit} offset ${offset}`;
 
     let query = `
     select purchases.*, inventories.*, payments.*
@@ -45,7 +44,9 @@ export class PurchaseMysql implements PurchaseApi {
     left join payments on purchases.id = payments.purchaseId
     `;
 
+    query += ` order by purchases.created desc`;
     const purchases = await MySql.query({ sql: query, nestTables: true });
+
     const result = purchases.reduce((a: any, b: any) => {
       const purchase = a.find((c: any) => c.id == b.purchases.id);
 
@@ -81,6 +82,15 @@ export class PurchaseMysql implements PurchaseApi {
 
       return a;
     }, []);
+
+    const total =
+      param.search || (param.start && param.end)
+        ? result.length
+        : (
+            await MySql.query(
+              "select count(*) as total from purchases where deleted is null"
+            )
+          )[0].total;
 
     const data = {
       data: result,

@@ -16,15 +16,15 @@ export function DashboardPage() {
     const signature = await hmac(data, token);
     const jsonString = JSON.stringify({ signature, data });
 
-    await axios({
-      url: `${SERVER}/app/test`,
-      method: "post",
-      data: jsonString,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    // await axios({
+    //   url: `${SERVER}/app/test`,
+    //   method: "post",
+    //   data: jsonString,
+    //   headers: {
+    //     Authorization: `Bearer ${token}`,
+    //     "Content-Type": "application/json",
+    //   },
+    // });
   }
 
   useEffect(() => {

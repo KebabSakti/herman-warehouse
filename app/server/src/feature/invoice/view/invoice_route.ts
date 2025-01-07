@@ -23,12 +23,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { signature, param } = JSON.parse(req.body.data);
-    const serverSignature = hmac(param, res.locals.token);
-
-    if (serverSignature != signature) {
-      throw new BadRequest();
-    }
+    const param = req.body;
 
     await invoiceCreateSchema.validate(param, { strict: false }).catch((e) => {
       throw new BadRequest(e.message);

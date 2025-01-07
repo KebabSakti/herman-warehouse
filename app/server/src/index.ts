@@ -10,7 +10,7 @@ import sharp from "sharp";
 import { Failure } from "./common/error";
 import customerRoute from "./feature/customer/view/customer_route";
 import invoiceRoute from "./feature/invoice/view/invoice_route";
-import { isLogin } from "./feature/middleware";
+import { isLogin, isSigned } from "./feature/middleware";
 import productRoute from "./feature/product/view/product_route";
 import purchaseRoute from "./feature/purchase/view/purchase_route";
 import stockRoute from "./feature/stock/view/stock_route";
@@ -32,8 +32,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("./static"));
 app.use(multerInstance.any());
 
+app.get("/", (req, res) => {
+  console.log(req.body);
+  return res.end();
+});
+
 app.use("/", userRoute);
-app.use("/app", isLogin);
+app.use("/app", isLogin, isSigned);
 app.use("/app/product", productRoute);
 app.use("/app/supplier", supplierRoute);
 app.use("/app/purchase", purchaseRoute);
