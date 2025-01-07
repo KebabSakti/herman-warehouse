@@ -33,6 +33,7 @@ export const purchaseListSchema = object({
   search: string().nullable(),
   start: string().nullable(),
   end: string().nullable(),
+  supplierId: string().nullable(),
 });
 
 export type PurchaseList = InferType<typeof purchaseListSchema>;

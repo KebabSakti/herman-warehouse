@@ -15,10 +15,11 @@ import {
 import Title from "antd/es/typography/Title";
 import { useContext, useEffect } from "react";
 import {
+  Link,
   Outlet,
   useLocation,
   useNavigate,
-  useSearchParams
+  useSearchParams,
 } from "react-router-dom";
 import { Result } from "../../../common/type";
 import { Dependency } from "../../../component/App";
@@ -149,6 +150,18 @@ export function SupplierList() {
                             title: "Supplier",
                             dataIndex: "name",
                             minWidth: 60,
+                            render: (_, record) => (
+                              <>
+                                <Link
+                                  to={`/app/supplier/read/${record.id}`}
+                                  state={{
+                                    from: location.pathname + location.search,
+                                  }}
+                                >
+                                  {record.name}
+                                </Link>
+                              </>
+                            ),
                           },
                           {
                             title: "No Hp",

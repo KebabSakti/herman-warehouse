@@ -33,6 +33,10 @@ export class PurchaseMysql implements PurchaseApi {
       table += ` and created between ${start} and ${end}`;
     }
 
+    if (param.supplierId != null) {
+      table += ` and supplierId = ${pool.escape(param.supplierId)}`;
+    }
+
     const offset = (param.page - 1) * param.limit;
     const limit = param.limit;
     table += ` limit ${limit} offset ${offset}`;
@@ -84,7 +88,7 @@ export class PurchaseMysql implements PurchaseApi {
     }, []);
 
     const total =
-      param.search || (param.start && param.end)
+      param.search || param.supplierId || (param.start && param.end)
         ? result.length
         : (
             await MySql.query(

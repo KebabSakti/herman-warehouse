@@ -3,12 +3,14 @@ import {
   BarChartOutlined,
   DashboardOutlined,
   DatabaseOutlined,
+  DiffOutlined,
   FileSearchOutlined,
   IdcardOutlined,
   LogoutOutlined,
   ProductOutlined,
-  ShopOutlined,
-  UserOutlined,
+  SnippetsOutlined,
+  TeamOutlined,
+  UserOutlined
 } from "@ant-design/icons";
 import { Button, Layout, Menu, Space, Typography } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
@@ -49,9 +51,19 @@ export function Root() {
       icon: <AuditOutlined />,
     },
     {
+      key: currentMenuKey("/app/hutang"),
+      label: "Hutang",
+      icon: <SnippetsOutlined />,
+    },
+    {
+      key: currentMenuKey("/app/piutang"),
+      label: "Piutang",
+      icon: <DiffOutlined />,
+    },
+    {
       key: currentMenuKey("/app/supplier"),
       label: "Supplier",
-      icon: <ShopOutlined />,
+      icon: <TeamOutlined />,
     },
     {
       key: currentMenuKey("/app/customer"),

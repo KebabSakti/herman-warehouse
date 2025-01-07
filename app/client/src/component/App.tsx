@@ -52,6 +52,7 @@ import { SupplierAxios } from "../feature/supplier/model/supplier_axios";
 import { SupplierCreate } from "../feature/supplier/view/SupplierCreate";
 import { SupplierEdit } from "../feature/supplier/view/SupplierEdit";
 import { SupplierList } from "../feature/supplier/view/SupplierList";
+import { SupplierRead } from "../feature/supplier/view/SupplierRead";
 import { Root } from "./Root";
 
 export type Dependency = {
@@ -149,6 +150,14 @@ const router = createBrowserRouter([
         ],
       },
       {
+        path: "/app/hutang",
+        element: <Outlet />,
+      },
+      {
+        path: "/app/piutang",
+        element: <Outlet />,
+      },
+      {
         path: "/app/supplier",
         element: <Outlet />,
         children: [
@@ -165,6 +174,10 @@ const router = createBrowserRouter([
                 element: <SupplierEdit />,
               },
             ],
+          },
+          {
+            path: "/app/supplier/read/:id",
+            element: <SupplierRead />,
           },
         ],
       },
