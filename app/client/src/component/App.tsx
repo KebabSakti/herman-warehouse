@@ -17,10 +17,14 @@ import { LoginPage } from "../feature/authentication/view/LoginPage";
 import { CustomerController } from "../feature/customer/controller/customer_controller";
 import { CustomerApi } from "../feature/customer/model/customer_api";
 import { CustomerAxios } from "../feature/customer/model/customer_axios";
+import { CustomerCreate } from "../feature/customer/view/CustomerCreate";
+import { CustomerEdit } from "../feature/customer/view/CustomerEdit";
+import { CustomerList } from "../feature/customer/view/CustomerList";
 import { DashboardPage } from "../feature/dashboard/view/DashboardPage";
 import { InvoiceController } from "../feature/invoice/controller/invoice_controller";
 import { InvoiceApi } from "../feature/invoice/model/invoice_api";
 import { InvoiceAxios } from "../feature/invoice/model/invoice_axios";
+import { InstallmentPrint } from "../feature/invoice/view/InstallmentPrint";
 import { InvoiceCreate } from "../feature/invoice/view/InvoiceCreate";
 import { InvoiceList } from "../feature/invoice/view/InvoiceList";
 import { InvoicePrint } from "../feature/invoice/view/InvoicePrint";
@@ -45,8 +49,10 @@ import { StockAxios } from "../feature/stock/model/stock_axios";
 import { SupplierController } from "../feature/supplier/controller/supplier_controller";
 import { SupplierApi } from "../feature/supplier/model/supplier_api";
 import { SupplierAxios } from "../feature/supplier/model/supplier_axios";
+import { SupplierCreate } from "../feature/supplier/view/SupplierCreate";
+import { SupplierEdit } from "../feature/supplier/view/SupplierEdit";
+import { SupplierList } from "../feature/supplier/view/SupplierList";
 import { Root } from "./Root";
-import { InstallmentPrint } from "../feature/invoice/view/InstallmentPrint";
 
 export type Dependency = {
   auth: AuthHookType;
@@ -144,11 +150,43 @@ const router = createBrowserRouter([
       },
       {
         path: "/app/supplier",
-        element: <></>,
+        element: <Outlet />,
+        children: [
+          {
+            path: "/app/supplier",
+            element: <SupplierList />,
+            children: [
+              {
+                path: "/app/supplier/create",
+                element: <SupplierCreate />,
+              },
+              {
+                path: "/app/supplier/edit/:id",
+                element: <SupplierEdit />,
+              },
+            ],
+          },
+        ],
       },
       {
         path: "/app/customer",
-        element: <></>,
+        element: <Outlet />,
+        children: [
+          {
+            path: "/app/customer",
+            element: <CustomerList />,
+            children: [
+              {
+                path: "/app/customer/create",
+                element: <CustomerCreate />,
+              },
+              {
+                path: "/app/customer/edit/:id",
+                element: <CustomerEdit />,
+              },
+            ],
+          },
+        ],
       },
       {
         path: "/app/report",

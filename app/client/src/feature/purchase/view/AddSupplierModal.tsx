@@ -13,7 +13,7 @@ import { Result } from "../../../common/type";
 import { Dependency } from "../../../component/App";
 import { debounce } from "../../../helper/debounce";
 import { Supplier } from "../../supplier/model/supplier_model";
-import { useSupplierHook } from "../../supplier/view/supplier_hook";
+import { useSupplierHook } from "../../supplier/view/SupplierHook";
 import { PurchaseCreateProps } from "./PurchaseCreate";
 import { Num } from "../../../helper/num";
 

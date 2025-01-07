@@ -1,7 +1,8 @@
 import { InferType, number, object, string } from "yup";
 
 export const supplierCreateSchema = object({
-  name: string().required(),
+  id: string().required(),
+  name: string().required("Nama tidak boleh kosong"),
   phone: string().nullable(),
   address: string().nullable(),
   note: string().nullable(),

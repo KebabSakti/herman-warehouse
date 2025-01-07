@@ -36,8 +36,8 @@ export class CustomerMysql implements CustomerApi {
     const today = dayjs().format("YYYY-MM-DD HH:mm:ss");
 
     await MySql.query(
-      "insert into customers (name, phone, address, created, updated) values (?, ?, ?, ?, ?)",
-      [param.name, param.phone, param.address, today, today]
+      "insert into customers (id, name, phone, address, created, updated) values (?, ?, ?, ?, ?, ?)",
+      [param.id, param.name, param.phone, param.address, today, today]
     );
   }
 

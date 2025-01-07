@@ -7,7 +7,11 @@ import { SupplierCreate, SupplierList, SupplierUpdate } from "./supplier_type";
 export class SupplierMysql implements SupplierApi {
   async create(param: SupplierCreate): Promise<void> {
     await MySql.query("insert into suppliers set ?", {
-      ...param,
+      id: param.id,
+      name: param.name,
+      phone: param.phone,
+      address: param.address,
+      note: param.note,
       created: new Date(),
       updated: new Date(),
     });
@@ -49,7 +53,7 @@ export class SupplierMysql implements SupplierApi {
     }
 
     const total = (await MySql.query(query)).length;
-    query += ` order by created desc`;
+    query += ` order by name asc`;
 
     const offset = (param.page - 1) * param.limit;
     const limit = param.limit;

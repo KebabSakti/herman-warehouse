@@ -5,6 +5,7 @@ import { Result } from "../../../common/type";
 import { SupplierApi } from "./supplier_api";
 import { Supplier } from "./supplier_model";
 import { SupplierCreate, SupplierList, SupplierUpdate } from "./supplier_type";
+import { hmac } from "../../../helper/util";
 
 export class SupplierAxios implements SupplierApi {
   async create(
@@ -12,13 +13,17 @@ export class SupplierAxios implements SupplierApi {
     extra?: Record<string, any>
   ): Promise<void> {
     try {
+      const payload = JSON.stringify(param);
+      const signature = await hmac(payload, extra!.token);
+
       await axios({
         url: `${SERVER}/app/supplier`,
         method: "post",
-        data: param,
+        data: payload,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
           "Content-Type": "application/json",
+          "X-Signature": signature,
         },
       });
     } catch (error: any) {
@@ -52,13 +57,17 @@ export class SupplierAxios implements SupplierApi {
     extra?: Record<string, any>
   ): Promise<void> {
     try {
+      const payload = JSON.stringify(param);
+      const signature = await hmac(payload, extra!.token);
+
       await axios({
         url: `${SERVER}/app/supplier/${id}`,
         method: "put",
-        data: param,
+        data: payload,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
           "Content-Type": "application/json",
+          "X-Signature": signature,
         },
       });
     } catch (error: any) {

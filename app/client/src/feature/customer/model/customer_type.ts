@@ -1,11 +1,13 @@
 import { InferType, number, object, string } from "yup";
 
 export const customerCreateSchema = object({
-  name: string().required(),
+  id: string().required(),
+  name: string().required("Nama tidak boleh kosong"),
   phone: string().nullable(),
   address: string().nullable(),
-  outstanding: number().required(),
 });
+
+export const customerUpdateSchema = customerCreateSchema;
 
 export const customerListSchema = object({
   page: number().required(),
@@ -15,4 +17,4 @@ export const customerListSchema = object({
 
 export type CustomerList = InferType<typeof customerListSchema>;
 export type CustomerCreate = InferType<typeof customerCreateSchema>;
-export type CustomerUpdate = InferType<typeof customerCreateSchema>;
+export type CustomerUpdate = InferType<typeof customerUpdateSchema>;

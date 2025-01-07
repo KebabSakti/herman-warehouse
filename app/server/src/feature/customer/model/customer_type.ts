@@ -1,10 +1,10 @@
 import { InferType, number, object, string } from "yup";
 
 export const customerCreateSchema = object({
+  id: string().required(),
   name: string().required(),
   phone: string().nullable(),
   address: string().nullable(),
-  outstanding: number().required(),
 });
 
 export const customerListSchema = object({

@@ -5,6 +5,7 @@ import { Result } from "../../../common/type";
 import { CustomerApi } from "./customer_api";
 import { Customer } from "./customer_model";
 import { CustomerCreate, CustomerList, CustomerUpdate } from "./customer_type";
+import { hmac } from "../../../helper/util";
 
 export class CustomerAxios implements CustomerApi {
   async create(
@@ -12,13 +13,17 @@ export class CustomerAxios implements CustomerApi {
     extra?: Record<string, any>
   ): Promise<void> {
     try {
+      const payload = JSON.stringify(param);
+      const signature = await hmac(payload, extra!.token);
+
       await axios({
         url: `${SERVER}/app/customer`,
         method: "post",
-        data: param,
+        data: payload,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
           "Content-Type": "application/json",
+          "X-Signature": signature,
         },
       });
     } catch (error: any) {
@@ -52,6 +57,9 @@ export class CustomerAxios implements CustomerApi {
     extra?: Record<string, any>
   ): Promise<void> {
     try {
+      const payload = JSON.stringify(param);
+      const signature = await hmac(payload, extra!.token);
+
       await axios({
         url: `${SERVER}/app/customer/${id}`,
         method: "put",
@@ -59,6 +67,7 @@ export class CustomerAxios implements CustomerApi {
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
           "Content-Type": "application/json",
+          "X-Signature": signature,
         },
       });
     } catch (error: any) {
