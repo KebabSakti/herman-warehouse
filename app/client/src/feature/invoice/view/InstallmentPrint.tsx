@@ -102,8 +102,6 @@ export function InstallmentPrint() {
   ) {
     const invoiceData = invoice.state.data as Invoice;
     const installmentData = installment.state.data as Result<Installment[]>;
-    const totalPaid =
-      installmentData.data?.reduce((a, b) => a + b.amount, 0) ?? 0;
 
     return (
       <PDFViewer
@@ -113,7 +111,7 @@ export function InstallmentPrint() {
         <Document>
           <Page size="A4" style={styles.page}>
             <View style={styles.container}>
-              <Text style={styles.heading}>NOTA</Text>
+              <Text style={styles.heading}>LAPORAN</Text>
               <View style={styles.subHeadingContainer}>
                 <Text style={styles.subHeading}>#{invoiceData.code}</Text>
                 <Text style={styles.subHeading}>
@@ -174,7 +172,7 @@ export function InstallmentPrint() {
                         { textAlign: "left" },
                       ]}
                     >
-                      OUTSTANDING
+                      PIUTANG
                     </Text>
                     <Text
                       style={[

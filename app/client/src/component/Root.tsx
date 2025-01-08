@@ -3,12 +3,10 @@ import {
   BarChartOutlined,
   DashboardOutlined,
   DatabaseOutlined,
-  DiffOutlined,
   FileSearchOutlined,
   IdcardOutlined,
   LogoutOutlined,
   ProductOutlined,
-  SnippetsOutlined,
   TeamOutlined,
   UserOutlined
 } from "@ant-design/icons";
@@ -50,16 +48,16 @@ export function Root() {
       label: "Nota Kustomer",
       icon: <AuditOutlined />,
     },
-    {
-      key: currentMenuKey("/app/hutang"),
-      label: "Hutang",
-      icon: <SnippetsOutlined />,
-    },
-    {
-      key: currentMenuKey("/app/piutang"),
-      label: "Piutang",
-      icon: <DiffOutlined />,
-    },
+    // {
+    //   key: currentMenuKey("/app/hutang"),
+    //   label: "Hutang",
+    //   icon: <SnippetsOutlined />,
+    // },
+    // {
+    //   key: currentMenuKey("/app/piutang"),
+    //   label: "Piutang",
+    //   icon: <DiffOutlined />,
+    // },
     {
       key: currentMenuKey("/app/supplier"),
       label: "Supplier",

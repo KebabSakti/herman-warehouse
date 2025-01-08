@@ -27,9 +27,11 @@ export class InstallmentMysql implements InstallmentApi {
 
     const total = (
       await MySql.query(
-        "select count(*) as total from invoices where deleted is null"
+        `select * from installments where deleted is null and invoiceId = ${pool.escape(
+          invoiceId
+        )}`
       )
-    )[0].total;
+    )[0]?.total;
 
     const data = {
       data: result,

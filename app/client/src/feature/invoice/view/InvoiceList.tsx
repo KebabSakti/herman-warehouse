@@ -44,7 +44,7 @@ export function InvoiceList() {
   };
   const param: any =
     search.size == 0 ? initParam : Object.fromEntries(search.entries());
-    
+
   const searchRecord = debounce((message: string) => {
     const searchValue = {
       ...param,

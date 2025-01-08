@@ -32,13 +32,13 @@ export class InvoiceMysql implements InvoiceApi {
 
     const offset = (param.page - 1) * param.limit;
     const limit = param.limit;
-    table += ` limit ${limit} offset ${offset}`;
+    table += ` order by created desc limit ${limit} offset ${offset}`;
 
     let query = `
     select invoices.*, items.*, installments.*
     from (${table}) as invoices
     left join items on invoices.id = items.invoiceId
-    left join installments on invoices.id = items.invoiceId
+    left join installments on invoices.id = installments.invoiceId
     `;
 
     query += ` order by invoices.created desc`;
