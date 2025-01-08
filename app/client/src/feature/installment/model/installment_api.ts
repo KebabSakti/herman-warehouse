@@ -4,7 +4,8 @@ import { InstallmentCreate, InstallmentList } from "./installment_types";
 
 export interface InstallmentApi {
   list(
-    param: InstallmentList,
+    invoiceId: string,
+    param?: InstallmentList|null|undefined,
     extra?: Record<string, any>
   ): Promise<Result<Installment[]>>;
 

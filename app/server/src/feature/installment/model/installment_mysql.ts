@@ -1,26 +1,42 @@
 import { NotFound } from "../../../common/error";
 import { Result } from "../../../common/type";
-import { MySql } from "../../../helper/mysql";
+import { MySql, pool } from "../../../helper/mysql";
 import { InstallmentApi } from "./installment_api";
 import { Installment } from "./installment_model";
 import { InstallmentCreate, InstallmentList } from "./installment_types";
 
 export class InstallmentMysql implements InstallmentApi {
-  async list(param: InstallmentList): Promise<Result<Installment[]>> {
-    const offset = (param.page - 1) * param.limit;
-    const limit = param.limit;
+  async list(
+    invoiceId: string,
+    param: InstallmentList
+  ): Promise<Result<Installment[]>> {
+    let query = `select * from installments where deleted is null and invoiceId = ${pool.escape(
+      invoiceId
+    )}`;
 
-    const result = await MySql.query(
-      "select * from installments where deleted is null and invoiceId = ? order by created desc limit ? offset ?",
-      [param.invoiceId, limit, offset]
-    );
+    query += ` order by created desc`;
+
+    if (param.page && param.limit) {
+      const offset = (param.page - 1) * param.limit;
+      const limit = param.limit;
+
+      query += ` limit ${pool.escape(limit)} offset ${pool.escape(offset)}`;
+    }
+
+    const result = await MySql.query(query);
+
+    const total = (
+      await MySql.query(
+        "select count(*) as total from invoices where deleted is null"
+      )
+    )[0].total;
 
     const data = {
       data: result,
       paging: {
-        page: param.page,
-        limit: param.limit,
-        total: result.length,
+        page: param.page ?? 0,
+        limit: param.limit ?? 0,
+        total: total,
       },
     };
 
@@ -45,6 +61,17 @@ export class InstallmentMysql implements InstallmentApi {
             created: today,
             updated: today,
           },
+          (err) => {
+            if (err) reject(err);
+            resolve();
+          }
+        );
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        connection.query(
+          "update invoices set outstanding = ? where id = ?",
+          [param.outstanding, param.invoiceId],
           (err) => {
             if (err) reject(err);
             resolve();

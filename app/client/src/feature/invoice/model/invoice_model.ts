@@ -9,7 +9,10 @@ export interface Invoice {
   customerAddress?: string | null | undefined;
   code: string;
   note?: string | null | undefined;
+  totalItem: number;
+  totalPaid: number;
   total: number;
+  outstanding: number;
   item: Item[];
   installment?: Installment[] | null | undefined;
   printed?: string | null | undefined;

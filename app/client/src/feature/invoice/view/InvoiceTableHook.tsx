@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { Invoice as InvoiceID } from "../../../helper/invoice";
 import { randomID } from "../../../helper/util";
-import { Invoice } from "../model/invoice_model";
 import { Installment } from "../../installment/model/installment_model";
+import { Invoice } from "../model/invoice_model";
 import { Item } from "../model/item_model";
+
+type Total = {
+  totalItem: number;
+  totalPaid: number;
+  total: number;
+  outstanding: number;
+};
 
 export type InvoiceTableHookType = {
   state: Invoice;
@@ -19,7 +26,10 @@ export function useInvoiceTableHook(): InvoiceTableHookType {
     customerId: "",
     customerName: "",
     customerPhone: "",
+    totalItem: 0,
+    totalPaid: 0,
     total: 0,
+    outstanding: 0,
     item: [],
   });
 
@@ -40,12 +50,13 @@ export function useInvoiceTableHook(): InvoiceTableHookType {
     }
 
     const installment = items.length == 0 ? null : state.installment;
+    const totals = total(items);
 
     setState({
       ...state,
+      ...totals,
       item: items,
       installment: installment,
-      total: total(items),
     });
   }
 
@@ -59,22 +70,31 @@ export function useInvoiceTableHook(): InvoiceTableHookType {
       installment = null;
     }
 
+    const totals = total(state.item, installment ?? []);
+
     setState({
       ...state,
+      ...totals,
       installment: installment,
-      total: total(state.item, installment ?? []),
     });
   }
 
   function total(
     item: Item[],
     installment: Installment[] = state.installment ?? []
-  ) {
-    const itemTotal = item.reduce((a, b) => a + b.total, 0);
-    const installmentTotal = installment.reduce((a, b) => a + b.amount, 0);
-    const total = itemTotal - installmentTotal;
+  ): Total {
+    const totalItem = item.reduce((a, b) => a + b.total, 0);
+    const totalPaid = installment.reduce((a, b) => a + b.amount, 0);
+    const total = totalItem - totalPaid;
 
-    return total;
+    const result = {
+      totalItem: totalItem,
+      totalPaid: totalPaid,
+      total: total,
+      outstanding: total,
+    };
+
+    return result;
   }
 
   return {

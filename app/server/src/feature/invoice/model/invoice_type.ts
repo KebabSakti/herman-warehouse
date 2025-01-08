@@ -1,5 +1,4 @@
-import { array, InferType, mixed, number, object, string } from "yup";
-import { FILE_SIZE, IMAGE_FORMATS } from "../../../common/common";
+import { array, InferType, number, object, string } from "yup";
 
 export const invoiceCreateSchema = object({
   id: string().required(),
@@ -9,7 +8,10 @@ export const invoiceCreateSchema = object({
   customerAddress: string().nullable(),
   code: string().required(),
   note: string().nullable(),
+  totalItem: number().required(),
+  totalPaid: number().required(),
   total: number().required(),
+  outstanding: number().required(),
   printed: string().required("Tanggal tidak boleh kosong"),
   item: array(
     object({

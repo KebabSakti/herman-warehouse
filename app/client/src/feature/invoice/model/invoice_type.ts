@@ -9,7 +9,10 @@ export const invoiceCreateSchema = object({
   customerAddress: string().nullable(),
   code: string().required(),
   note: string().nullable(),
+  totalItem: number().required(),
+  totalPaid: number().required(),
   total: number().required(),
+  outstanding: number().required(),
   printed: string().required("Tanggal tidak boleh kosong"),
   item: array(
     object({

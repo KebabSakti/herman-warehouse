@@ -16,6 +16,7 @@ import purchaseRoute from "./feature/purchase/view/purchase_route";
 import stockRoute from "./feature/stock/view/stock_route";
 import supplierRoute from "./feature/supplier/view/supplier_route";
 import userRoute from "./feature/user/view/user_route";
+import installmentRoute from "./feature/installment/view/installment_route";
 
 dayjs.extend(utc);
 
@@ -45,6 +46,7 @@ app.use("/app/purchase", purchaseRoute);
 app.use("/app/invoice", invoiceRoute);
 app.use("/app/stock", stockRoute);
 app.use("/app/customer", customerRoute);
+app.use("/app/installment", installmentRoute);
 
 app.post("/app/test", async (req, res) => {
   try {

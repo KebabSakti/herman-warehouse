@@ -82,7 +82,7 @@ export function InvoicePrint() {
 
   if (invoice.state.status == "complete" && invoice.state.data != null) {
     const data = invoice.state.data as Invoice;
-    const produkTotal = data.item.reduce((a, b) => a + b.total, 0);
+    // const produkTotal = data.item.reduce((a, b) => a + b.total, 0);
 
     return (
       <PDFViewer
@@ -157,7 +157,7 @@ export function InvoicePrint() {
                         { textAlign: "right" },
                       ]}
                     >
-                      {Num.format(produkTotal)}
+                      {Num.format(data.totalItem)}
                     </Text>
                   </View>
                   <View style={[styles.tableRow, { border: "none" }]}>
@@ -177,7 +177,7 @@ export function InvoicePrint() {
                         { textAlign: "right" },
                       ]}
                     >
-                      {Num.format(data.installment?.[0]?.amount ?? 0)}
+                      {Num.format(data.totalPaid)}
                     </Text>
                   </View>
                   <View style={[styles.tableRow, { border: "none" }]}>

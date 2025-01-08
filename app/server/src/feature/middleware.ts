@@ -59,7 +59,7 @@ export async function isSigned(
         if (serverSignature == signature) {
           req.body = JSON.parse(payload);
         } else {
-          throw new BadRequest();
+          throw new BadRequest("Parameter compromise");
         }
       }
 

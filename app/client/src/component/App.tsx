@@ -21,9 +21,9 @@ import { CustomerCreate } from "../feature/customer/view/CustomerCreate";
 import { CustomerEdit } from "../feature/customer/view/CustomerEdit";
 import { CustomerList } from "../feature/customer/view/CustomerList";
 import { DashboardPage } from "../feature/dashboard/view/DashboardPage";
-import { InstallmentController } from "../feature/installment/controller/invoice_controller";
+import { InstallmentController } from "../feature/installment/controller/installment_controller";
 import { InstallmentApi } from "../feature/installment/model/installment_api";
-import { InstallmentAxios } from "../feature/installment/model/invoice_axios";
+import { InstallmentAxios } from "../feature/installment/model/installment_axios";
 import { InvoiceController } from "../feature/invoice/controller/invoice_controller";
 import { InvoiceApi } from "../feature/invoice/model/invoice_api";
 import { InvoiceAxios } from "../feature/invoice/model/invoice_axios";
@@ -66,7 +66,7 @@ export type Dependency = {
   invoiceController: InvoiceController;
   stockController: StockController;
   customerController: CustomerController;
-  isntallmentController: InstallmentController;
+  installmentController: InstallmentController;
 };
 
 export const Dependency = createContext<Dependency | null>(null);
@@ -88,7 +88,7 @@ const router = createBrowserRouter([
         element: <InvoicePrint />,
       },
       {
-        path: "/print/installment/:id",
+        path: "/print/installment/:invoiceId",
         element: <InstallmentPrint />,
       },
     ],
@@ -138,7 +138,7 @@ const router = createBrowserRouter([
             element: <InvoiceList />,
             children: [
               {
-                path: "/app/order/read/:id",
+                path: "/app/order/read/:invoiceId",
                 element: <InvoiceRead />,
               },
             ],
@@ -253,7 +253,7 @@ export function App() {
     invoiceController: new InvoiceController(invoiceApi),
     stockController: new StockController(stockApi),
     customerController: new CustomerController(customerApi),
-    isntallmentController: new InstallmentController(installmentApi),
+    installmentController: new InstallmentController(installmentApi),
   };
 
   return (

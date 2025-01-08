@@ -39,26 +39,6 @@ export class InstallmentAxios implements InstallmentApi {
     }
   }
 
-  async read(
-    id: string,
-    extra?: Record<string, any>
-  ): Promise<Installment | null | undefined> {
-    try {
-      const result = await axios({
-        url: `${SERVER}/app/installment/${id}`,
-        method: "get",
-        headers: {
-          Authorization: `Bearer ${extra?.token ?? ""}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      return result.data;
-    } catch (error: any) {
-      throw Failure(error.response.status, error.response.data);
-    }
-  }
-
   async remove(id: string, extra?: Record<string, any>): Promise<void> {
     try {
       await axios({
@@ -75,11 +55,12 @@ export class InstallmentAxios implements InstallmentApi {
   }
 
   async list(
-    param: InstallmentList,
+    invoiceId: string,
+    param?: InstallmentList | null | undefined,
     extra?: Record<string, any>
   ): Promise<Result<Installment[]>> {
     try {
-      const result = await axios.get(`${SERVER}/app/installment`, {
+      const result = await axios.get(`${SERVER}/app/installment/${invoiceId}`, {
         params: param,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,

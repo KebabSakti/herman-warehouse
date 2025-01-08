@@ -22,10 +22,11 @@ export class InstallmentController {
   }
 
   async list(
-    param: InstallmentList,
+    invoiceId: string,
+    param?: InstallmentList | null | undefined,
     extra?: Record<string, any>
   ): Promise<Result<Installment[]>> {
-    const result = await this.installmentApi.list(param, extra);
+    const result = await this.installmentApi.list(invoiceId, param, extra);
 
     return result;
   }

@@ -9,8 +9,11 @@ import {
 import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { Result } from "../../../common/type";
 import { Dependency } from "../../../component/App";
 import { Num } from "../../../helper/num";
+import { Installment } from "../../installment/model/installment_model";
+import { useInstallmentHook } from "../../installment/view/InstallmentHook";
 import { Invoice } from "../model/invoice_model";
 import { useInvoiceHook } from "./InvoiceHook";
 
@@ -66,26 +69,41 @@ const styles = StyleSheet.create({
 });
 
 export function InstallmentPrint() {
-  const { auth, invoiceController } = useContext(Dependency)!;
+  const { auth, invoiceController, installmentController } =
+    useContext(Dependency)!;
   const invoice = useInvoiceHook(invoiceController);
-  const param = useParams();
+  const installment = useInstallmentHook(installmentController);
+  const { invoiceId } = useParams();
 
   useEffect(() => {
-    if (
-      auth.state.data &&
-      invoice.state.action == "idle" &&
-      invoice.state.status == "idle"
-    ) {
-      invoice.read(param.id!, { token: auth.state.data! });
-    }
-  }, [invoice.state, auth.state]);
+    if (invoiceId && auth.state.data) {
+      if (invoice.state.action == "idle" && invoice.state.status == "idle") {
+        invoice.read(invoiceId, { token: auth.state.data });
+      }
 
-  if (invoice.state.status == "complete" && invoice.state.data != null) {
-    const data = invoice.state.data as Invoice;
-    const installmentTotal = data.installment?.reduce(
-      (a, b) => a + b.amount,
-      0
-    );
+      if (
+        installment.state.action == "idle" &&
+        installment.state.status == "idle"
+      ) {
+        installment.list(
+          invoiceId,
+          { page: 0, limit: 0 },
+          { token: auth.state.data }
+        );
+      }
+    }
+  }, [invoice.state, installment.state, auth.state]);
+
+  if (
+    invoice.state.status == "complete" &&
+    invoice.state.data != null &&
+    installment.state.status == "complete" &&
+    installment.state.data != null
+  ) {
+    const invoiceData = invoice.state.data as Invoice;
+    const installmentData = installment.state.data as Result<Installment[]>;
+    const totalPaid =
+      installmentData.data?.reduce((a, b) => a + b.amount, 0) ?? 0;
 
     return (
       <PDFViewer
@@ -97,17 +115,17 @@ export function InstallmentPrint() {
             <View style={styles.container}>
               <Text style={styles.heading}>NOTA</Text>
               <View style={styles.subHeadingContainer}>
-                <Text style={styles.subHeading}>#{data.code}</Text>
+                <Text style={styles.subHeading}>#{invoiceData.code}</Text>
                 <Text style={styles.subHeading}>
-                  {dayjs(data.printed).format("DD-MM-YYYY")}
+                  {dayjs(invoiceData.printed).format("DD-MM-YYYY")}
                 </Text>
                 <Text style={styles.subHeading}>
-                  {data.customerName} - {data.customerPhone}
+                  {invoiceData.customerName} - {invoiceData.customerPhone}
                 </Text>
                 <Text
                   style={[styles.subHeading, { fontSize: "16", marginTop: 6 }]}
                 >
-                  Rp {Num.format(data.total)}
+                  Rp {Num.format(invoiceData.totalItem)}
                 </Text>
               </View>
               <View style={styles.table}>
@@ -118,7 +136,7 @@ export function InstallmentPrint() {
                     NO
                   </Text>
                   <Text style={[styles.tableItem, styles.th]}>TANGGAL</Text>
-                  <Text style={[styles.tableItem, styles.th]}>PIUTANG</Text>
+                  <Text style={[styles.tableItem, styles.th]}>SETOR</Text>
                   <Text
                     style={[
                       styles.tableItem,
@@ -126,23 +144,23 @@ export function InstallmentPrint() {
                       { textAlign: "right" },
                     ]}
                   >
-                    SETOR
+                    PIUTANG
                   </Text>
                 </View>
                 <View>
-                  {data.installment?.map((row, i) => (
+                  {installmentData.data?.map((row, i) => (
                     <View key={i} style={styles.tableRow}>
                       <Text style={[styles.tableItem, { textAlign: "left" }]}>
                         {i + 1}
                       </Text>
                       <Text style={[styles.tableItem]}>
-                        {dayjs(data.printed).format("DD-MM-YYYY")}
+                        {dayjs(invoiceData.printed).format("DD-MM-YYYY")}
                       </Text>
                       <Text style={[styles.tableItem]}>
-                        {Num.format(row.outstanding)}
+                        {Num.format(row.amount)}
                       </Text>
                       <Text style={[styles.tableItem, { textAlign: "right" }]}>
-                        {Num.format(row.amount)}
+                        {Num.format(row.outstanding)}
                       </Text>
                     </View>
                   ))}
@@ -156,7 +174,7 @@ export function InstallmentPrint() {
                         { textAlign: "left" },
                       ]}
                     >
-                      TOTAL
+                      OUTSTANDING
                     </Text>
                     <Text
                       style={[
@@ -165,15 +183,15 @@ export function InstallmentPrint() {
                         { textAlign: "right" },
                       ]}
                     >
-                      {Num.format(installmentTotal ?? 0)}
+                      {Num.format(invoiceData.outstanding)}
                     </Text>
                   </View>
                 </View>
               </View>
-              {data.note == null ? (
+              {invoiceData.note == null ? (
                 ""
               ) : (
-                <Text style={styles.note}>Catatan : {data.note}</Text>
+                <Text style={styles.note}>Catatan : {invoiceData.note}</Text>
               )}
             </View>
           </Page>
@@ -182,7 +200,10 @@ export function InstallmentPrint() {
     );
   }
 
-  if (invoice.state.status == "complete" && invoice.state.data == null) {
+  if (
+    (invoice.state.status == "complete" && invoice.state.data == null) ||
+    (installment.state.status == "complete" && installment.state.data == null)
+  ) {
     return (
       <div
         style={{

@@ -1,6 +1,9 @@
 import { CustomerController } from "./customer/controller/customer_controller";
 import { CustomerApi } from "./customer/model/customer_api";
 import { CustomerMysql } from "./customer/model/customer_mysql";
+import { InstallmentController } from "./installment/controller/installment_controller";
+import { InstallmentApi } from "./installment/model/installment_api";
+import { InstallmentMysql } from "./installment/model/installment_mysql";
 import { InvoiceController } from "./invoice/controller/invoice_controller";
 import { InvoiceApi } from "./invoice/model/invoice_api";
 import { InvoiceMysql } from "./invoice/model/invoice_mysql";
@@ -27,6 +30,7 @@ const purchaseApi: PurchaseApi = new PurchaseMysql();
 const invoiceApi: InvoiceApi = new InvoiceMysql();
 const stockApi: StockApi = new StockMysql();
 const customerApi: CustomerApi = new CustomerMysql();
+const installmentApi: InstallmentApi = new InstallmentMysql();
 
 export const userController = new UserController(userApi);
 export const productController = new ProductController(productApi);
@@ -35,3 +39,4 @@ export const purchaseController = new PurchaseController(purchaseApi);
 export const invoiceController = new InvoiceController(invoiceApi);
 export const stockController = new StockController(stockApi);
 export const customerController = new CustomerController(customerApi);
+export const installmentController = new InstallmentController(installmentApi);
