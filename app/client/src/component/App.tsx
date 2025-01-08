@@ -21,6 +21,9 @@ import { CustomerCreate } from "../feature/customer/view/CustomerCreate";
 import { CustomerEdit } from "../feature/customer/view/CustomerEdit";
 import { CustomerList } from "../feature/customer/view/CustomerList";
 import { DashboardPage } from "../feature/dashboard/view/DashboardPage";
+import { InstallmentController } from "../feature/installment/controller/invoice_controller";
+import { InstallmentApi } from "../feature/installment/model/installment_api";
+import { InstallmentAxios } from "../feature/installment/model/invoice_axios";
 import { InvoiceController } from "../feature/invoice/controller/invoice_controller";
 import { InvoiceApi } from "../feature/invoice/model/invoice_api";
 import { InvoiceAxios } from "../feature/invoice/model/invoice_axios";
@@ -63,6 +66,7 @@ export type Dependency = {
   invoiceController: InvoiceController;
   stockController: StockController;
   customerController: CustomerController;
+  isntallmentController: InstallmentController;
 };
 
 export const Dependency = createContext<Dependency | null>(null);
@@ -239,6 +243,7 @@ export function App() {
   const invoiceApi: InvoiceApi = new InvoiceAxios();
   const stockApi: StockApi = new StockAxios();
   const customerApi: CustomerApi = new CustomerAxios();
+  const installmentApi: InstallmentApi = new InstallmentAxios();
 
   const dependencies: Dependency = {
     auth: useAuthHook(new AuthController(authApi)),
@@ -248,6 +253,7 @@ export function App() {
     invoiceController: new InvoiceController(invoiceApi),
     stockController: new StockController(stockApi),
     customerController: new CustomerController(customerApi),
+    isntallmentController: new InstallmentController(installmentApi),
   };
 
   return (

@@ -1,4 +1,4 @@
-import { Installment } from "./installment_model";
+import { Installment } from "../../installment/model/installment_model";
 import { Item } from "./item_model";
 
 export interface Invoice {

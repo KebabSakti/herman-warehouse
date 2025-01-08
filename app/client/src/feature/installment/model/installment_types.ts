@@ -4,9 +4,9 @@ import { FILE_SIZE, IMAGE_FORMATS } from "../../../common/common";
 export const installmentCreateSchema = object({
   id: string().required(),
   invoiceId: string().required(),
-  amount: number().required("Kolom total tidak boleh kosong"),
+  amount: number().required("Kolom jumlah tidak boleh kosong"),
   note: string().nullable(),
-  printed: string().required("Tanggal tidak boleh kosong"),
+  printed: string().required("Kolom tanggal tidak boleh kosong"),
   attachment: mixed()
     .nullable()
     .notRequired()
@@ -21,7 +21,7 @@ export const installmentCreateSchema = object({
 export const installmentListSchema = object({
   page: number().required(),
   limit: number().required(),
-  search: string().nullable(),
+  invoiceId: string().required(),
 });
 
 export type InstallmentList = InferType<typeof installmentListSchema>;

@@ -1,7 +1,12 @@
-import { PrinterFilled, UploadOutlined } from "@ant-design/icons";
+import {
+  CloseCircleFilled,
+  PrinterFilled,
+  UploadOutlined,
+} from "@ant-design/icons";
 import {
   Button,
   Col,
+  DatePicker,
   Flex,
   Form,
   Input,
@@ -15,39 +20,52 @@ import {
   Tabs,
   Typography,
   Upload,
+  UploadFile,
 } from "antd";
 import dayjs from "dayjs";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
-import { mixed, number, object } from "yup";
-import { FILE_SIZE, IMAGE_FORMATS, SERVER } from "../../../common/common";
+import { SERVER } from "../../../common/common";
 import { Dependency } from "../../../component/App";
 import { Num } from "../../../helper/num";
+import { useInstallmentHook } from "../../installment/view/InstallmentHook";
 import { Invoice } from "../model/invoice_model";
 import { useInvoiceHook } from "./InvoiceHook";
+import { randomID } from "../../../helper/util";
+import { installmentCreateSchema } from "../../installment/model/installment_types";
 
 export function InvoiceRead() {
-  const { auth, invoiceController } = useContext(Dependency)!;
+  const { auth, invoiceController, isntallmentController } =
+    useContext(Dependency)!;
   const invoice = useInvoiceHook(invoiceController);
+  const installment = useInstallmentHook(isntallmentController);
   const navigate = useNavigate();
   const location = useLocation();
   const param = useParams();
-  const [form] = Form.useForm();
   const { Text } = Typography;
+  const [form] = Form.useForm();
+  const [attachment, setAttachment] = useState<UploadFile | null | undefined>();
+  const [activeTab, setActiveTab] = useState<string>("1");
 
   useEffect(() => {
     if (invoice.state.action == "idle" && invoice.state.status == "idle") {
       invoice.read(param.id!, { token: auth.state.data! });
     }
-  }, [invoice.state]);
+
+    if (
+      installment.state.action == "idle" &&
+      installment.state.status == "idle"
+    ) {
+      // install.read(param.id!, { token: auth.state.data! });
+    }
+  }, [invoice.state, installment.state]);
 
   return (
     <>
       <Modal
         centered
         destroyOnClose
-        width={650}
-        loading={invoice.state.status == "loading"}
+        width={800}
         maskClosable={false}
         open={location.pathname.includes("/app/order/read")}
         footer={null}
@@ -88,7 +106,10 @@ export function InvoiceRead() {
 
             return (
               <Tabs
-                defaultActiveKey="1"
+                activeKey={activeTab}
+                onTabClick={(key) => {
+                  setActiveTab(key);
+                }}
                 items={[
                   {
                     key: "1",
@@ -238,10 +259,6 @@ export function InvoiceRead() {
                   {
                     key: "2",
                     label: "Riwayat Setoran",
-                    disabled:
-                      data.installment && data.installment.length > 0
-                        ? false
-                        : true,
                     children: (
                       <>
                         <Space
@@ -249,56 +266,27 @@ export function InvoiceRead() {
                           size={20}
                           style={{ width: "100%" }}
                         >
-                          <Space direction="vertical">
+                          <Space direction="vertical" style={{ width: "100%" }}>
                             <Form
                               size="large"
                               form={form}
                               style={{ paddingTop: "14px" }}
                               onFinish={async (values) => {
-                                const schema = object({
-                                  amount: number().required(
-                                    "Total tidak boleh kosong"
+                                const payload = {
+                                  ...values,
+                                  id: randomID(),
+                                  invoiceId: data.id,
+                                  printed: dayjs(values.printed).format(
+                                    "YYYY-MM-DD"
                                   ),
-                                  attachment: mixed()
-                                    .nullable()
-                                    .notRequired()
-                                    .test(
-                                      "fileSize",
-                                      "Maksimal ukuran file adalah 2MB",
-                                      (value: any) => {
-                                        return (
-                                          !value || value.size <= FILE_SIZE
-                                        );
-                                      }
-                                    )
-                                    .test(
-                                      "fileFormat",
-                                      "Format file tidak didukung",
-                                      (value: any) => {
-                                        return (
-                                          !value ||
-                                          IMAGE_FORMATS.includes(value.type)
-                                        );
-                                      }
-                                    ),
-                                });
+                                };
 
-                                await schema
-                                  .validate(values, {
-                                    strict: true,
-                                    abortEarly: false,
-                                  })
+                                await installmentCreateSchema
+                                  .validate(payload)
                                   .then(() => {
-                                    // const outstanding = itemTotal - values.amount;
-                                    // props.hook.changeInstallment({
-                                    //   id: randomID(),
-                                    //   invoiceId: props.hook.state.id,
-                                    //   amount: values.amount,
-                                    //   note: values.note,
-                                    //   attachment: values.attachment,
-                                    //   outstanding: outstanding,
-                                    // });
-                                    // form.resetFields();
+                                    installment.create(payload, {
+                                      token: auth.state.data!,
+                                    });
                                   })
                                   .catch((e) => {
                                     notification.error({
@@ -319,9 +307,15 @@ export function InvoiceRead() {
                               }}
                             >
                               <Flex gap="small">
+                                <Form.Item noStyle name="printed">
+                                  <DatePicker
+                                    placeholder="Tanggal"
+                                    style={{ display: "block", width: "100%" }}
+                                  />
+                                </Form.Item>
                                 <Form.Item noStyle name="amount">
                                   <InputNumber
-                                    placeholder="Setor"
+                                    placeholder="Jumlah"
                                     min={0}
                                     max={data.total}
                                     style={{ display: "block", width: "100%" }}
@@ -342,15 +336,31 @@ export function InvoiceRead() {
                                     return e.file;
                                   }}
                                 >
-                                  <Upload
-                                    name="file"
-                                    maxCount={1}
-                                    beforeUpload={() => false}
-                                  >
-                                    <Button icon={<UploadOutlined />}>
-                                      Lampiran
+                                  {attachment ? (
+                                    <Button
+                                      icon={<CloseCircleFilled />}
+                                      iconPosition="end"
+                                      onClick={() => {
+                                        setAttachment(null);
+                                      }}
+                                    >
+                                      1 File
                                     </Button>
-                                  </Upload>
+                                  ) : (
+                                    <Upload
+                                      showUploadList={false}
+                                      name="file"
+                                      maxCount={1}
+                                      beforeUpload={() => false}
+                                      onChange={(e) => {
+                                        setAttachment(e.file);
+                                      }}
+                                    >
+                                      <Button icon={<UploadOutlined />}>
+                                        Lampiran
+                                      </Button>
+                                    </Upload>
+                                  )}
                                 </Form.Item>
                                 <Form.Item noStyle>
                                   <Button
@@ -420,7 +430,7 @@ export function InvoiceRead() {
                                   render: (value) => <>{Num.format(value)}</>,
                                 },
                                 {
-                                  title: "Piutang",
+                                  title: "Sisa Piutang",
                                   dataIndex: "outstanding",
                                   render: (value) => <>{Num.format(value)}</>,
                                 },
@@ -435,6 +445,11 @@ export function InvoiceRead() {
                             variant="solid"
                             target="_blank"
                             href={`/print/installment/${data.id}`}
+                            disabled={
+                              data.installment && data.installment.length > 0
+                                ? false
+                                : true
+                            }
                           >
                             Print
                           </Button>
