@@ -39,7 +39,7 @@ export class PurchaseMysql implements PurchaseApi {
 
     const offset = (param.page - 1) * param.limit;
     const limit = param.limit;
-    table += ` limit ${limit} offset ${offset}`;
+    table += ` order by created desc limit ${limit} offset ${offset}`;
 
     let query = `
     select purchases.*, inventories.*, payments.*

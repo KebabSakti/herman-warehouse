@@ -236,7 +236,7 @@ export function PurchaseList() {
                           },
                           {
                             title: "Tanggal",
-                            dataIndex: "printed",
+                            dataIndex: "created",
                             minWidth: 60,
                             render: (value) => {
                               return <>{dayjs(value).format("DD-MM-YYYY")}</>;
