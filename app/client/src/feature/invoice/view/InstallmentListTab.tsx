@@ -121,7 +121,7 @@ export function InstallmentListTab({ invoice }: { invoice: Invoice }) {
                   Total
                 </Col>
                 <Col style={{ fontWeight: "bold", fontSize: "16px" }}>
-                  Rp {invoice.total}
+                  Rp {invoice.totalItem}
                 </Col>
               </Row>
             </Col>
@@ -216,7 +216,8 @@ export function InstallmentListTab({ invoice }: { invoice: Invoice }) {
                             ? undefined
                             : dayjs(values.printed).format("YYYY-MM-DD");
                           const amount = values.amount ?? 0;
-                          const updatedOutstanding = invoice.outstanding - amount;
+                          const updatedOutstanding =
+                            invoice.outstanding - amount;
 
                           const payload = {
                             ...values,
