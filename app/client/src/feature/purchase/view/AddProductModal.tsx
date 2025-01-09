@@ -129,8 +129,8 @@ export function AddProductModal(props: PurchaseCreateProps) {
                           },
                           {
                             render: (_, record) => {
-                              const item = props.hook.state.item.filter(
-                                (a) => a.id == record.id
+                              const item = props.hook.state.inventory.filter(
+                                (a) => a.productId == record.id
                               );
 
                               return (
@@ -139,17 +139,26 @@ export function AddProductModal(props: PurchaseCreateProps) {
                                   value={item.length}
                                   onStep={(_, info) => {
                                     if (info.type == "down") {
-                                      const index = item.length - 1;
-                                      props.hook.removeItem(item[index]);
+                                      props.hook.setInventory({
+                                        id: randomID(),
+                                        purchaseId: props.hook.state.id,
+                                        productId: record.id,
+                                        productCode: record.code,
+                                        productName: record.name,
+                                        qty: 0,
+                                        price: 0,
+                                        total: 0,
+                                      });
                                     }
 
                                     if (info.type == "up") {
-                                      props.hook.addItem({
-                                        key: randomID(),
-                                        id: record.id,
-                                        name: record.name,
-                                        tag: ReceiptTableTag.Inventory,
-                                        qty: 0,
+                                      props.hook.setInventory({
+                                        id: randomID(),
+                                        purchaseId: props.hook.state.id,
+                                        productId: record.id,
+                                        productCode: record.code,
+                                        productName: record.name,
+                                        qty: 1,
                                         price: 0,
                                         total: 0,
                                       });

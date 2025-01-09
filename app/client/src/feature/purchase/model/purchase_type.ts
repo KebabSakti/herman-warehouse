@@ -3,17 +3,17 @@ import { array, InferType, number, object, string } from "yup";
 export const purchaseCreateSchema = object({
   id: string().required("ID tidak boleh kosong"),
   supplierId: string().required("Supplier tidak boleh kosong"),
-  supplierName: string().required(),
-  supplierPhone: string().required(),
+  supplierName: string().required("Supplier tidak boleh kosong"),
+  supplierPhone: string().nullable(),
   supplierAddress: string().nullable(),
   supplierNote: string().nullable(),
-  code: string().nullable(),
+  code: string().required(),
   fee: number().required("Fee tidak boleh kosong"),
   margin: number().required(),
   totalItem: number().required(),
-  dp: number().required(),
-  other: number().required(),
-  outstanding: number().required(),
+  dp: number().nullable(),
+  other: number().nullable(),
+  outstanding: number().nullable(),
   total: number().required(),
   balance: number().required(),
   note: string().nullable(),
@@ -41,14 +41,16 @@ export const purchaseCreateSchema = object({
       note: string().required(),
     })
   ).nullable(),
-  ledger: object({
-    id: string().required(),
-    purchaseId: string().required(),
-    supplierId: string().required(),
-    amount: number().required(),
-    file: string().nullable(),
-    note: string().nullable(),
-  }).nullable(),
+  ledger: array(
+    object({
+      id: string().required(),
+      purchaseId: string().required(),
+      supplierId: string().required(),
+      amount: number().required(),
+      file: string().nullable(),
+      note: string().nullable(),
+    })
+  ).nullable(),
 });
 
 export const purchaseUpdateSchema = purchaseCreateSchema;

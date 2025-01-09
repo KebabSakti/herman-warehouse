@@ -1,3 +1,4 @@
+import { UploadOutlined } from "@ant-design/icons";
 import {
   Button,
   Flex,
@@ -7,14 +8,15 @@ import {
   Modal,
   notification,
   Typography,
+  Upload,
 } from "antd";
-import { number, object, string } from "yup";
 import { Num } from "../../../helper/num";
 import { randomID } from "../../../helper/util";
+import { ledgerCreateSchema } from "../../ledger/model/ledger_type";
 import { PurchaseCreateProps } from "./PurchaseCreate";
 
-export function AddPaymentModal(props: PurchaseCreateProps) {
-  const active = props.modal == "payment";
+export function AddLedgerModal(props: PurchaseCreateProps) {
+  const active = props.modal == "dp";
   const { Text } = Typography;
   const [form] = Form.useForm();
 
@@ -23,7 +25,7 @@ export function AddPaymentModal(props: PurchaseCreateProps) {
       <Modal
         centered
         destroyOnClose
-        title="Tambah biaya Lain"
+        title="Tambah Panjar (DP)"
         maskClosable={false}
         open={active}
         footer={null}
@@ -36,21 +38,19 @@ export function AddPaymentModal(props: PurchaseCreateProps) {
           form={form}
           style={{ paddingTop: "14px" }}
           onFinish={async (values) => {
-            const schema = object({
-              name: string().required("Jenis biaya tidak boleh kosong"),
-              total: number().required("Nilai tidak boleh kosong"),
-            });
+            const payload = {
+              id: randomID(),
+              purchaseId: props.hook.state.id,
+              supplierId: props.hook.state.supplierId,
+              amount: values.amount,
+              file: values.file,
+              note: values.note,
+            };
 
-            await schema
-              .validate(values, { strict: true })
+            await ledgerCreateSchema
+              .validate(payload, { strict: true })
               .then(() => {
-                props.hook.setPayment({
-                  id: randomID(),
-                  purchaseId: props.hook.state.id,
-                  amount: values.total,
-                  note: values.name,
-                });
-
+                props.hook.setLedger(payload);
                 form.resetFields();
                 props.setModal("");
               })
@@ -73,12 +73,9 @@ export function AddPaymentModal(props: PurchaseCreateProps) {
           }}
         >
           <Flex vertical gap="middle">
-            <Form.Item noStyle name="name">
-              <Input type="text" placeholder="Jenis biaya" />
-            </Form.Item>
-            <Form.Item noStyle name="total">
+            <Form.Item noStyle name="amount">
               <InputNumber
-                placeholder="Nilai"
+                placeholder="Jumlah"
                 min={0}
                 style={{ display: "block", width: "100%" }}
                 formatter={(value) => {
@@ -86,6 +83,23 @@ export function AddPaymentModal(props: PurchaseCreateProps) {
                   return formatted;
                 }}
               />
+            </Form.Item>
+            <Form.Item noStyle name="note">
+              <Input.TextArea placeholder="Catatan" />
+            </Form.Item>
+            <Form.Item
+              noStyle
+              name="file"
+              valuePropName="file"
+              getValueFromEvent={(e) => {
+                return e.file;
+              }}
+            >
+              <Upload name="file" maxCount={1} beforeUpload={() => false}>
+                <Button icon={<UploadOutlined />} size="large">
+                  Upload Lampiran
+                </Button>
+              </Upload>
             </Form.Item>
             <Form.Item noStyle>
               <Button htmlType="submit" type="primary" size="large">

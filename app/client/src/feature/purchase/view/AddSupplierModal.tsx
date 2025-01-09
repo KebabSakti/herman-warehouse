@@ -12,10 +12,10 @@ import { useContext, useEffect, useState } from "react";
 import { Result } from "../../../common/type";
 import { Dependency } from "../../../component/App";
 import { debounce } from "../../../helper/debounce";
+import { Num } from "../../../helper/num";
 import { Supplier } from "../../supplier/model/supplier_model";
 import { useSupplierHook } from "../../supplier/view/SupplierHook";
 import { PurchaseCreateProps } from "./PurchaseCreate";
-import { Num } from "../../../helper/num";
 
 export function AddSupplierModal(props: PurchaseCreateProps) {
   const active = props.modal == "supplier";
@@ -137,19 +137,14 @@ export function AddSupplierModal(props: PurchaseCreateProps) {
                                 <Button
                                   type="primary"
                                   disabled={
-                                    props.hook.state.supplier?.id == record.id
+                                    props.hook.state.supplierId == record.id
                                   }
                                   onClick={() => {
-                                    props.hook.supplier({
-                                      id: record.id!,
-                                      name: record.name!,
-                                      outstanding: record.outstanding!,
-                                    });
-
+                                    props.hook.setSupplier(record);
                                     props.setModal("");
                                   }}
                                 >
-                                  {props.hook.state.supplier?.id == record.id
+                                  {props.hook.state.supplierId == record.id
                                     ? "Terpilih"
                                     : "Pilih"}
                                 </Button>

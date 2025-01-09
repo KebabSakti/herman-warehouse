@@ -2,14 +2,18 @@ import { Card, Flex } from "antd";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HeadTitle } from "../../../component/HeadTitle";
+import { AddLedgerModal } from "./AddLedgerModal";
 import { AddPaymentModal } from "./AddPaymentModal";
 import { AddProductModal } from "./AddProductModal";
 import { AddSupplierModal } from "./AddSupplierModal";
-import { ReceiptTable } from "./ReceiptTable";
-import { ReceiptTableHookType, useReceiptTableHook } from "./ReceiptTableHook";
+import { PurchaseTable } from "./PurchaseTable";
+import {
+  PurchaseTableHookType,
+  usePurchaseTableHook,
+} from "./PurchaseTableHook";
 
 export type PurchaseCreateProps = {
-  hook: ReceiptTableHookType;
+  hook: PurchaseTableHookType;
   modal: string;
   setModal: (value: string) => void;
 };
@@ -17,22 +21,27 @@ export type PurchaseCreateProps = {
 export function PurchaseCreate() {
   const navigate = useNavigate();
   const [modal, setModal] = useState("");
-  const receiptTableHook = useReceiptTableHook();
+  const purchaseTableHook = usePurchaseTableHook();
 
   return (
     <>
       <AddProductModal
-        hook={receiptTableHook}
+        hook={purchaseTableHook}
         modal={modal}
         setModal={setModal}
       />
       <AddPaymentModal
-        hook={receiptTableHook}
+        hook={purchaseTableHook}
+        modal={modal}
+        setModal={setModal}
+      />
+      <AddLedgerModal
+        hook={purchaseTableHook}
         modal={modal}
         setModal={setModal}
       />
       <AddSupplierModal
-        hook={receiptTableHook}
+        hook={purchaseTableHook}
         modal={modal}
         setModal={setModal}
       />
@@ -44,8 +53,8 @@ export function PurchaseCreate() {
           }}
         />
         <Card>
-          <ReceiptTable
-            hook={receiptTableHook}
+          <PurchaseTable
+            hook={purchaseTableHook}
             modal={modal}
             setModal={setModal}
           />
