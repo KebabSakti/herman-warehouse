@@ -61,7 +61,7 @@ export function PurchaseRead() {
                     {
                       key: "2",
                       label: "Riwayat Pembayaran",
-                      children: <LedgerDetailTab />,
+                      children: <LedgerDetailTab purchase={purchaseData} />,
                     },
                   ]}
                 />

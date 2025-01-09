@@ -25,9 +25,10 @@ import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dependency } from "../../../component/App";
 import { Num } from "../../../helper/num";
+import { purchaseCreateSchema } from "../model/purchase_type";
 import { PurchaseCreateProps } from "./PurchaseCreate";
 import { usePurchaseHook } from "./PurchaseHook";
-import { purchaseCreateSchema } from "../model/purchase_type";
+import { fileSchema } from "../../../common/type";
 
 export function PurchaseTable(props: PurchaseCreateProps) {
   const { Text } = Typography;
@@ -36,8 +37,31 @@ export function PurchaseTable(props: PurchaseCreateProps) {
   const purchase = usePurchaseHook(purchaseController);
 
   async function submitForm(): Promise<void> {
+    if (
+      props.hook.state.ledger &&
+      props.hook.state.ledger.length > 0 &&
+      props.hook.state.ledger[0].file
+    ) {
+      await fileSchema.validate(props.hook.state.ledger[0]).catch((e) => {
+        notification.error({
+          message: "Error",
+          description: (
+            <Flex vertical gap={1}>
+              {e.errors.map((e: any, i: any) => {
+                return (
+                  <Text key={i} type="danger">
+                    {e}
+                  </Text>
+                );
+              })}
+            </Flex>
+          ),
+        });
+      });
+    }
+
     await purchaseCreateSchema
-      .validate(props.hook.state, { strict: false })
+      .validate(props.hook.state)
       .then(() => {
         purchase.create(props.hook.state, { token: auth.state.data! });
       })

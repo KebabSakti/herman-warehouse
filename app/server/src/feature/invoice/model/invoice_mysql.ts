@@ -18,11 +18,13 @@ export class InvoiceMysql implements InvoiceApi {
 
     if (param.start != null && param.end != null) {
       const startDate = dayjs
-        .utc(`${param.start}T00:00:00`)
+        .tz(`${param.start}T00:00:00`, "Asia/Kuala_Lumpur")
+        .utc()
         .format("YYYY-MM-DD HH:mm:ss");
 
       const endDate = dayjs
-        .utc(`${param.end}T23:59:59`)
+        .tz(`${param.start}T23:59:59`, "Asia/Kuala_Lumpur")
+        .utc()
         .format("YYYY-MM-DD HH:mm:ss");
 
       const start = pool.escape(startDate);

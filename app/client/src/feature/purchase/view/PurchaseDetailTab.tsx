@@ -129,16 +129,6 @@ export function PurchaseDetailTab({ purchase }: PurchaseTabProps) {
             <Col>{Num.format(paymentTotal ?? 0)}</Col>
           </Row>
         </Col>
-        {data.outstanding == 0 ? (
-          ""
-        ) : (
-          <Col span={24}>
-            <Row justify="space-between">
-              <Col>Sisa Hutang ({data.supplierName})</Col>
-              <Col>{Num.format(data.outstanding)}</Col>
-            </Row>
-          </Col>
-        )}
         <Col span={24}>
           <Row justify="space-between">
             <Col style={{ fontWeight: "bold", fontSize: "16px" }}>Total</Col>

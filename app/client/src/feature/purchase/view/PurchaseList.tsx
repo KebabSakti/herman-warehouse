@@ -199,8 +199,8 @@ export function PurchaseList() {
                             minWidth: 60,
                           },
                           {
-                            title: "Total",
-                            dataIndex: "total",
+                            title: "Produk",
+                            dataIndex: "totalItem",
                             minWidth: 60,
                             render: (value) => {
                               return <>{Num.format(value)}</>;
@@ -219,16 +219,8 @@ export function PurchaseList() {
                             },
                           },
                           {
-                            title: "Biaya",
-                            dataIndex: "other",
-                            minWidth: 60,
-                            render: (value) => {
-                              return <>{Num.format(value)}</>;
-                            },
-                          },
-                          {
-                            title: "Hutang",
-                            dataIndex: "balance",
+                            title: "Total",
+                            dataIndex: "total",
                             minWidth: 60,
                             render: (value) => {
                               return <>{Num.format(value)}</>;

@@ -5,6 +5,8 @@ import {
   purchaseCreateSchema,
   purchaseListSchema,
 } from "../model/purchase_type";
+import { fileSchema } from "../../../common/type";
+import { uploadFile } from "../../../helper/util";
 
 const router = express.Router();
 
@@ -24,7 +26,26 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const param = await purchaseCreateSchema.validate(req.body).catch((e) => {
+    const param = req.body;
+
+    if (param.ledger && param.ledger.length > 0 && param.ledger[0].file) {
+      const files = req.files as Express.Multer.File[] | undefined;
+
+      for (let i = 0; i < param.ledger.length; i++) {
+        if (files && files[i]) {
+          await fileSchema
+            .validate(files[i])
+            .then(async () => {
+              await uploadFile(files[i], param.ledger[i].id + ".jpg");
+            })
+            .catch((e) => {
+              throw new BadRequest(e.message);
+            });
+        }
+      }
+    }
+
+    await purchaseCreateSchema.validate(param).catch((e) => {
       throw new BadRequest(e.message);
     });
 

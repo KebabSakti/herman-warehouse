@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import dayjs from "dayjs";
 import { Request } from "express";
 import path from "path";
 import sharp from "sharp";
@@ -61,4 +62,8 @@ export function parsePaylod(req: Request): string | undefined {
   }
 
   return payload;
+}
+
+export function now() {
+  return dayjs.utc().format("YYYY-MM-DD HH:mm:ss");
 }

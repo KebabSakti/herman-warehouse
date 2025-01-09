@@ -4,6 +4,7 @@ type TransactionCallback<T> = (connection: mysql.PoolConnection) => Promise<T>;
 
 export const pool = mysql.createPool({
   connectionLimit: 10,
+  timezone: "Z",
   host: process.env.DB_HOST!,
   user: process.env.DB_USER!,
   password: process.env.DB_PASS!,
