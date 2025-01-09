@@ -43,10 +43,11 @@ export class PurchaseMysql implements PurchaseApi {
     table += ` order by created desc limit ${limit} offset ${offset}`;
 
     let query = `
-    select purchases.*, inventories.*, payments.*
+    select purchases.*, inventories.*, payments.*, ledgers.*
     from (${table}) as purchases
     left join inventories on purchases.id = inventories.purchaseId
     left join payments on purchases.id = payments.purchaseId
+    left join ledgers on purchases.id = ledgers.purchaseId
     order by purchases.created desc
     `;
 
@@ -56,14 +57,19 @@ export class PurchaseMysql implements PurchaseApi {
       const purchase = a.find((c: any) => c.id == b.purchases.id);
 
       if (purchase == undefined) {
-        const item = { ...b.purchases, inventory: [], payment: [] };
+        const item = {
+          ...b.purchases,
+          inventory: [b.inventories],
+          payment: [],
+          ledger: [],
+        };
 
-        if (b.inventories.purchaseId == item.id) {
-          item.inventory.push(b.inventories);
+        if (b.payments && b.payments.purchaseId == item.id) {
+          item.payment.push(b.payments);
         }
 
-        if (b.payments.purchaseId == item.id) {
-          item.payment.push(b.payments);
+        if (b.ledgers && b.ledgers.purchaseId == item.id) {
+          item.ledger.push(b.ledgers);
         }
 
         a.push(item);
@@ -72,16 +78,26 @@ export class PurchaseMysql implements PurchaseApi {
           (c: any) => c.id == b.inventories.id
         );
 
-        const payment = purchase.payment.find(
-          (c: any) => c.id == b.payments.id
-        );
-
         if (inventory == undefined) {
           purchase.inventory.push(b.inventories);
         }
 
-        if (payment == undefined) {
-          purchase.payment.push(b.payments);
+        if (b.payments) {
+          const payment = purchase.payment.find(
+            (c: any) => c.id == b.payments.id
+          );
+
+          if (payment == undefined) {
+            purchase.payment.push(b.payments);
+          }
+        }
+
+        if (b.ledgers) {
+          const ledger = purchase.ledger.find((c: any) => c.id == b.ledgers.id);
+
+          if (ledger == undefined) {
+            purchase.ledger.push(b.ledgers);
+          }
         }
       }
 
@@ -110,6 +126,8 @@ export class PurchaseMysql implements PurchaseApi {
   }
 
   async create(param: PurchaseCreate): Promise<void> {
+    console.log(param);
+
     await MySql.transaction(async (connection) => {
       const today = now();
 
@@ -146,28 +164,28 @@ export class PurchaseMysql implements PurchaseApi {
       });
 
       // LEDGERS TABLE
-      if (param.ledger) {
-        for await (const ledger of param.ledger) {
-          await new Promise<void>((resolve, reject) => {
-            connection.query(
-              "insert into ledgers set ?",
-              {
-                id: ledger.id,
-                purchaseId: ledger.purchaseId,
-                supplierId: ledger.supplierId,
-                amount: ledger.amount,
-                file: ledger.id + ".jpg",
-                note: ledger.note,
-                created: today,
-                updated: today,
-              },
-              (err) => {
-                if (err) reject(err);
-                resolve();
-              }
-            );
-          });
-        }
+      if (param.ledger && param.ledger.length > 0) {
+        const ledgers = param.ledger.map((ledger) => [
+          ledger.id,
+          ledger.purchaseId,
+          ledger.supplierId,
+          ledger.amount,
+          ledger.id + ".jpg",
+          ledger.note,
+          today,
+          today,
+        ]);
+
+        await new Promise<void>((resolve, reject) => {
+          connection.query(
+            "insert into ledgers (id,purchaseId,supplierId,amount,file,note,created,updated) values ?",
+            [ledgers],
+            (err) => {
+              if (err) reject(err);
+              resolve();
+            }
+          );
+        });
       }
 
       // PAYMENT TABLE
@@ -268,26 +286,33 @@ export class PurchaseMysql implements PurchaseApi {
 
   async read(id: string): Promise<Purchase | null | undefined> {
     const query = `
-        select purchases.*, inventories.*, payments.*
+        select purchases.*, inventories.*, payments.*, ledgers.*
         from purchases
         left join inventories on purchases.id = inventories.purchaseId
         left join payments on purchases.id = payments.purchaseId
+        left join ledgers on purchases.id = ledgers.purchaseId
         where purchases.deleted is null
         and purchases.id = ${pool.escape(id)}`;
 
     const purchases = await MySql.query({ sql: query, nestTables: true });
+
     const result = purchases.reduce((a: any, b: any) => {
       const purchase = a.find((c: any) => c.id == b.purchases.id);
 
       if (purchase == undefined) {
-        const item = { ...b.purchases, inventory: [], payment: [] };
+        const item = {
+          ...b.purchases,
+          inventory: [b.inventories],
+          payment: [],
+          ledger: [],
+        };
 
-        if (b.inventories.purchaseId == item.id) {
-          item.inventory.push(b.inventories);
+        if (b.payments && b.payments.purchaseId == item.id) {
+          item.payment.push(b.payments);
         }
 
-        if (b.payments.purchaseId == item.id) {
-          item.payment.push(b.payments);
+        if (b.ledgers && b.ledgers.purchaseId == item.id) {
+          item.ledger.push(b.ledgers);
         }
 
         a.push(item);
@@ -296,16 +321,26 @@ export class PurchaseMysql implements PurchaseApi {
           (c: any) => c.id == b.inventories.id
         );
 
-        const payment = purchase.payment.find(
-          (c: any) => c.id == b.payments.id
-        );
-
         if (inventory == undefined) {
           purchase.inventory.push(b.inventories);
         }
 
-        if (payment == undefined) {
-          purchase.payment.push(b.payments);
+        if (b.payments) {
+          const payment = purchase.payment.find(
+            (c: any) => c.id == b.payments.id
+          );
+
+          if (payment == undefined) {
+            purchase.payment.push(b.payments);
+          }
+        }
+
+        if (b.ledgers) {
+          const ledger = purchase.ledger.find((c: any) => c.id == b.ledgers.id);
+
+          if (ledger == undefined) {
+            purchase.ledger.push(b.ledgers);
+          }
         }
       }
 

@@ -1,41 +1,64 @@
 import { PrinterFilled } from "@ant-design/icons";
-import { Button, Col, Row, Table } from "antd";
+import { Button, Col, Row, Table, Typography } from "antd";
 import dayjs from "dayjs";
 import { Num } from "../../../helper/num";
 import { PurchaseTabProps } from "./PurchaseRead";
-import { ReceiptTableItem, ReceiptTableTag } from "./ReceiptTableHook";
+import { SERVER } from "../../../common/common";
 
 export function PurchaseDetailTab({ purchase }: PurchaseTabProps) {
-  const data = purchase;
+  const { Text } = Typography;
 
-  const inventories: ReceiptTableItem[] = data.inventory!.map((e) => {
-    return {
-      key: e.id,
-      id: e.id,
-      name: e.productName,
-      tag: ReceiptTableTag.Inventory,
-      qty: e.qty,
-      price: e.price,
-      total: e.total,
-    };
-  });
+  const summaries = [
+    {
+      item: "Total Produk",
+      total: purchase.totalItem,
+      min: false,
+    },
+  ];
 
-  const payments: ReceiptTableItem[] | undefined =
-    data.payment?.[0]?.id == null
-      ? undefined
-      : data.payment?.map((e) => {
-          return {
-            key: e.id,
-            id: e.id,
-            name: e.note,
-            tag: ReceiptTableTag.Payment,
-            total: e.amount,
-          };
-        });
+  function init() {
+    if (purchase.fee > 0) {
+      summaries.push({
+        item: `Fee ${purchase.fee}%`,
+        total: purchase.margin,
+        min: true,
+      });
+    }
 
-  const inventoryTotal = inventories.reduce((a, b) => a + b.total, 0);
-  const paymentTotal = payments?.reduce((a, b) => a + b.total, 0);
-  const tableData = inventories.concat(payments ?? []);
+    if (purchase.other ?? 0 > 0) {
+      summaries.push({
+        item: "Biaya Lain",
+        total: purchase.other ?? 0,
+        min: true,
+      });
+    }
+
+    if (purchase.dp ?? 0 > 0) {
+      summaries.push({
+        item: "Panjar",
+        total: purchase.dp ?? 0,
+        min: true,
+      });
+    }
+
+    if (purchase.outstanding ?? 0 > 0) {
+      summaries.push({
+        item: "Sisa Hutang",
+        total: purchase.outstanding ?? 0,
+        min: false,
+      });
+    }
+
+    summaries.push({
+      item: "TOTAL",
+      total: purchase.total,
+      min: false,
+    });
+  }
+
+  init();
+
+  console.log(purchase);
 
   return (
     <>
@@ -43,101 +66,142 @@ export function PurchaseDetailTab({ purchase }: PurchaseTabProps) {
         <Col span={24}>
           <Row justify="space-between">
             <Col>Kode</Col>
-            <Col>{data.code}</Col>
+            <Col>{purchase.code}</Col>
           </Row>
         </Col>
         <Col span={24}>
           <Row justify="space-between">
             <Col>Tanggal</Col>
-            <Col>{dayjs(data.printed).format("DD-MM-YYYY")}</Col>
+            <Col>{dayjs(purchase.printed).format("DD-MM-YYYY")}</Col>
           </Row>
         </Col>
         <Col span={24}>
           <Row justify="space-between">
             <Col>Supplier</Col>
-            <Col>{data.supplierName}</Col>
+            <Col>{purchase.supplierName}</Col>
           </Row>
         </Col>
         <Col span={24}>
           <Table
-            bordered
             size="small"
             loading={false}
-            style={{ overflowX: "scroll" }}
+            style={{ overflowX: "auto" }}
             pagination={false}
-            dataSource={tableData}
+            dataSource={purchase.inventory.map((e, i) => {
+              return { key: i, ...e };
+            })}
             columns={[
               {
                 title: "Item",
-                dataIndex: "name",
-                onCell: (record) => {
-                  if (record.tag == ReceiptTableTag.Payment) {
-                    return { colSpan: 3 };
-                  }
-
-                  return {};
-                },
+                dataIndex: "productName",
               },
               {
                 title: "Quantity",
                 dataIndex: "qty",
-                onCell: (record) => {
-                  if (record.tag == ReceiptTableTag.Payment) {
-                    return { colSpan: 0 };
-                  }
-
-                  return {};
-                },
-                render: (value) => <>{Num.format(value ?? 0)}</>,
+                render: (value) => Num.format(value),
               },
               {
                 title: "Harga",
                 dataIndex: "price",
-                onCell: (record) => {
-                  if (record.tag == ReceiptTableTag.Payment) {
-                    return { colSpan: 0 };
-                  }
-
-                  return {};
-                },
-                render: (value) => <>{Num.format(value ?? 0)}</>,
+                render: (value) => Num.format(value),
               },
               {
                 title: "Total",
                 dataIndex: "total",
                 align: "right",
-                render: (value) => <>{Num.format(value ?? 0)}</>,
+                render: (value) => Num.format(value),
+              },
+            ]}
+          />
+
+          {(() => {
+            if (purchase.payment && purchase.payment.length > 0) {
+              return (
+                <>
+                  <Table
+                    size="small"
+                    showHeader={false}
+                    loading={false}
+                    style={{ overflowX: "auto" }}
+                    pagination={false}
+                    dataSource={purchase.payment?.map((e, i) => {
+                      return { key: i, ...e };
+                    })}
+                    columns={[
+                      {
+                        dataIndex: "note",
+                      },
+                      {
+                        dataIndex: "amount",
+                        align: "right",
+                        render: (value) => Num.format(value ?? 0),
+                      },
+                    ]}
+                  />
+                </>
+              );
+            }
+          })()}
+
+          <Table
+            size="small"
+            showHeader={false}
+            loading={false}
+            pagination={false}
+            style={{ overflowX: "auto" }}
+            dataSource={summaries.map((e, i) => {
+              return { key: i, ...e };
+            })}
+            columns={[
+              {
+                dataIndex: "item",
+                render: (value) => {
+                  return (
+                    <>
+                      <div
+                        style={{
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {value}
+                        {value == "Panjar" && purchase.ledger?.[0]?.file ? (
+                          <>
+                            <Button
+                              color="primary"
+                              variant="link"
+                              size="small"
+                              target="_blank"
+                              href={`${SERVER}/${purchase.ledger?.[0]?.file}`}
+                            >
+                              [Lampiran]
+                            </Button>
+                          </>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    </>
+                  );
+                },
+              },
+              {
+                dataIndex: "total",
+                align: "right",
+                render: (value, record) => {
+                  return (
+                    <div style={{ fontWeight: "bold" }}>
+                      <Text style={{ color: record.min ? "red" : "" }}>
+                        {Num.format(value ?? 0)}
+                      </Text>
+                    </div>
+                  );
+                },
               },
             ]}
           />
         </Col>
-        <Col span={24}>
-          <Row justify="space-between">
-            <Col>Produk Total</Col>
-            <Col>{Num.format(inventoryTotal)}</Col>
-          </Row>
-        </Col>
-        <Col span={24}>
-          <Row justify="space-between">
-            <Col>Fee {data.fee}%</Col>
-            <Col>{Num.format(data.margin)}</Col>
-          </Row>
-        </Col>
-        <Col span={24}>
-          <Row justify="space-between">
-            <Col>Biaya Lain</Col>
-            <Col>{Num.format(paymentTotal ?? 0)}</Col>
-          </Row>
-        </Col>
-        <Col span={24}>
-          <Row justify="space-between">
-            <Col style={{ fontWeight: "bold", fontSize: "16px" }}>Total</Col>
-            <Col style={{ fontWeight: "bold", fontSize: "16px" }}>
-              {Num.format(data.balance)}
-            </Col>
-          </Row>
-        </Col>
-        {data.note == null ? "" : <Col span={24}>Catatan : {data.note}</Col>}
+
         <Col span={24} style={{ marginTop: 14 }}>
           <Button
             block
@@ -146,7 +210,7 @@ export function PurchaseDetailTab({ purchase }: PurchaseTabProps) {
             size="large"
             variant="solid"
             target="_blank"
-            href={`/print/inventory/${data.id}`}
+            href={`/print/inventory/${purchase.id}`}
           >
             Print
           </Button>
