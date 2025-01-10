@@ -21,6 +21,7 @@ export type PurchaseTableHookType = {
   setState: (param: Purchase) => void;
   setValue: (param: Inventory) => void;
   setSupplier: (param: Supplier) => void;
+  setDate: (param: string) => void;
   setFee: (param: number) => void;
   setInventory: (param: Inventory) => void;
   setLedger: (param: Ledger) => void;
@@ -88,29 +89,42 @@ export function usePurchaseTableHook(): PurchaseTableHookType {
   }
 
   function setSupplier(param: Supplier) {
-    const ledger = state.ledger ?? [];
+    // const ledger = state.ledger ?? [];
 
-    if (ledger.length > 0) {
-      ledger[0] = { ...ledger[0], supplierId: param.id };
-    }
+    // if (ledger.length > 0) {
+    //   ledger[0] = { ...ledger[0], supplierId: param.id };
+    // }
 
-    const total = calculateTotal(
-      state.inventory,
-      param.outstanding,
-      state.fee,
-      state.payment,
-      state.ledger
-    );
+    // const total = calculateTotal(
+    //   state.inventory,
+    //   param.outstanding,
+    //   state.fee,
+    //   state.payment,
+    //   state.ledger
+    // );
 
     setState({
       ...state,
-      ...total,
+      // ...total,
       supplierId: param.id,
       supplierName: param.name,
       supplierPhone: param.phone,
       supplierAddress: param.address,
       supplierNote: param.note,
       outstanding: param.outstanding,
+    });
+  }
+
+  function setDate(param: string) {
+    // const ledger = state.ledger ?? [];
+
+    // if (ledger.length > 0) {
+    //   ledger[0] = { ...ledger[0], printed: param };
+    // }
+
+    setState({
+      ...state,
+      printed: param,
     });
   }
 
@@ -209,6 +223,7 @@ export function usePurchaseTableHook(): PurchaseTableHookType {
     setState,
     setValue,
     setSupplier,
+    setDate,
     setFee,
     setInventory,
     setPayment,

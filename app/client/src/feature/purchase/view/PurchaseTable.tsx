@@ -123,8 +123,7 @@ export function PurchaseTable(props: PurchaseCreateProps) {
                       disabled:
                         props.hook.state.inventory.length == 0 ||
                         (props.hook.state.ledger != undefined &&
-                          props.hook.state.ledger.length > 0) ||
-                        props.hook.state.supplierId.length == 0,
+                          props.hook.state.ledger.length > 0),
                     },
                     {
                       key: "payment",
@@ -174,10 +173,7 @@ export function PurchaseTable(props: PurchaseCreateProps) {
                     placeholder="Tanggal nota"
                     style={{ display: "block" }}
                     onChange={(_, dateString) => {
-                      props.hook.setState({
-                        ...props.hook.state,
-                        printed: dateString as string,
-                      });
+                      props.hook.setDate(dateString as string);
                     }}
                   />
                 </Col>

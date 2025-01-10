@@ -39,6 +39,7 @@ export class LedgerMysql implements LedgerApi {
   }
 
   async create(param: LedgerCreate): Promise<void> {
+    console.log(param);
     await MySql.transaction(async (connection) => {
       await new Promise<void>((resolve, reject) => {
         connection.query(
@@ -49,7 +50,7 @@ export class LedgerMysql implements LedgerApi {
             supplierId: param.purchaseId,
             amount: param.amount,
             outstanding: param.outstanding,
-            file: param.id + ".jpg",
+            file: param.file && param.id + ".jpg",
             note: param.note,
             created: now(),
             updated: now(),

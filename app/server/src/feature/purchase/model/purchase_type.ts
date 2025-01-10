@@ -44,12 +44,13 @@ export const purchaseCreateSchema = object({
   ledger: array(
     object({
       id: string().required(),
-      purchaseId: string().required(),
-      supplierId: string().required(),
-      amount: number().required(),
-      outstanding: number().required(),
+      purchaseId: string().nullable(),
+      supplierId: string().nullable(),
+      amount: number().required("Jumlah tidak boleh kosong"),
+      outstanding: number().nullable(),
       file: mixed().nullable(),
       note: string().nullable(),
+      printed: string().nullable(),
     })
   ).nullable(),
 });

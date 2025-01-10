@@ -28,7 +28,7 @@ export function PurchaseRead() {
       <Modal
         centered
         destroyOnClose
-        width={600}
+        width={750}
         maskClosable={false}
         open={location.pathname.includes("/app/inventory/read")}
         footer={null}
@@ -61,7 +61,7 @@ export function PurchaseRead() {
                     {
                       key: "2",
                       label: "Riwayat Pembayaran",
-                      children: <LedgerDetailTab purchase={purchaseData} />,
+                      children: <LedgerDetailTab purchaseHook={purchase} />,
                     },
                   ]}
                 />

@@ -43,9 +43,10 @@ export function AddLedgerModal(props: PurchaseCreateProps) {
               purchaseId: props.hook.state.id,
               supplierId: props.hook.state.supplierId,
               amount: values.amount,
-              outstanding: props.hook.state.total - values.amount,
+              outstanding: props.hook.state.total,
               file: values.file,
               note: values.note,
+              printed: props.hook.state.printed,
             };
 
             await ledgerCreateSchema

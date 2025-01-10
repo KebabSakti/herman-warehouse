@@ -8,11 +8,12 @@ export const ledgerCreateSchema = object({
   outstanding: number().required(),
   file: mixed().nullable(),
   note: string().nullable(),
+  printed: string().required("Tanggal tidak boleh kosong"),
 });
 
 export const ledgerListSchema = object({
-  page: number().required(),
-  limit: number().required(),
+  page: number().nullable(),
+  limit: number().nullable(),
 });
 
 export type LedgerList = InferType<typeof ledgerListSchema>;

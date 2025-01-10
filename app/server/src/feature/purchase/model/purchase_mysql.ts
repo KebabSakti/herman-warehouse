@@ -165,11 +165,11 @@ export class PurchaseMysql implements PurchaseApi {
       if (param.ledger && param.ledger.length > 0) {
         const ledgers = param.ledger.map((ledger) => [
           ledger.id,
-          ledger.purchaseId,
-          ledger.supplierId,
+          param.id,
+          param.supplierId,
           ledger.amount,
-          ledger.outstanding,
-          ledger.id + ".jpg",
+          param.total,
+          ledger.file && ledger.id + ".jpg",
           ledger.note,
           today,
           today,
@@ -177,7 +177,7 @@ export class PurchaseMysql implements PurchaseApi {
 
         await new Promise<void>((resolve, reject) => {
           connection.query(
-            "insert into ledgers (id,purchaseId,supplierId,amount,file,note,created,updated) values ?",
+            "insert into ledgers (id,purchaseId,supplierId,amount,outstanding,file,note,created,updated) values ?",
             [ledgers],
             (err) => {
               if (err) reject(err);

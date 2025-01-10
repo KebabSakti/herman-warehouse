@@ -1,4 +1,4 @@
-import { array, InferType, number, object, string } from "yup";
+import { array, InferType, mixed, number, object, string } from "yup";
 
 export const purchaseCreateSchema = object({
   id: string().required("ID tidak boleh kosong"),
@@ -44,11 +44,13 @@ export const purchaseCreateSchema = object({
   ledger: array(
     object({
       id: string().required(),
-      purchaseId: string().required(),
-      supplierId: string().required(),
-      amount: number().required(),
-      file: string().nullable(),
+      purchaseId: string().nullable(),
+      supplierId: string().nullable(),
+      amount: number().required("Jumlah tidak boleh kosong"),
+      outstanding: number().nullable(),
+      file: mixed().nullable(),
       note: string().nullable(),
+      printed: string().nullable(),
     })
   ).nullable(),
 });

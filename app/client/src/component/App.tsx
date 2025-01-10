@@ -32,6 +32,9 @@ import { InvoiceCreate } from "../feature/invoice/view/InvoiceCreate";
 import { InvoiceList } from "../feature/invoice/view/InvoiceList";
 import { InvoicePrint } from "../feature/invoice/view/InvoicePrint";
 import { InvoiceRead } from "../feature/invoice/view/InvoiceRead";
+import { LedgerController } from "../feature/ledger/controller/ledger_controller";
+import { LedgerApi } from "../feature/ledger/model/ledger_api";
+import { LedgerAxios } from "../feature/ledger/model/ledger_axios";
 import { ProductController } from "../feature/product/controller/product_controller";
 import { ProductApi } from "../feature/product/model/product_api";
 import { ProductAxios } from "../feature/product/model/product_axios";
@@ -67,6 +70,7 @@ export type Dependency = {
   stockController: StockController;
   customerController: CustomerController;
   installmentController: InstallmentController;
+  ledgerController: LedgerController;
 };
 
 export const Dependency = createContext<Dependency | null>(null);
@@ -244,6 +248,7 @@ export function App() {
   const stockApi: StockApi = new StockAxios();
   const customerApi: CustomerApi = new CustomerAxios();
   const installmentApi: InstallmentApi = new InstallmentAxios();
+  const ledgerApi: LedgerApi = new LedgerAxios();
 
   const dependencies: Dependency = {
     auth: useAuthHook(new AuthController(authApi)),
@@ -254,6 +259,7 @@ export function App() {
     stockController: new StockController(stockApi),
     customerController: new CustomerController(customerApi),
     installmentController: new InstallmentController(installmentApi),
+    ledgerController: new LedgerController(ledgerApi),
   };
 
   return (
