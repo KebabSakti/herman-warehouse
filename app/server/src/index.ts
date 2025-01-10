@@ -1,7 +1,7 @@
 import cors from "cors";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import express from "express";
 import http from "http";
 import multer from "multer";
@@ -9,6 +9,7 @@ import { Failure } from "./common/error";
 import customerRoute from "./feature/customer/view/customer_route";
 import installmentRoute from "./feature/installment/view/installment_route";
 import invoiceRoute from "./feature/invoice/view/invoice_route";
+import ledgerRoute from "./feature/ledger/view/ledger_route";
 import { isLogin, isSigned } from "./feature/middleware";
 import productRoute from "./feature/product/view/product_route";
 import purchaseRoute from "./feature/purchase/view/purchase_route";
@@ -41,6 +42,7 @@ app.use("/app/invoice", invoiceRoute);
 app.use("/app/stock", stockRoute);
 app.use("/app/customer", customerRoute);
 app.use("/app/installment", installmentRoute);
+app.use("/app/ledger", ledgerRoute);
 
 app.get("/", async (req, res) => {
   try {

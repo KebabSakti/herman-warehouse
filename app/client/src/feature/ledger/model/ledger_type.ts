@@ -6,6 +6,7 @@ export const ledgerCreateSchema = object({
   purchaseId: string().required(),
   supplierId: string().required("Supplier tidak boleh kosong"),
   amount: number().required("Jumlah tidak boleh kosong"),
+  outstanding: number().required(),
   note: string().nullable(),
   file: mixed()
     .nullable()

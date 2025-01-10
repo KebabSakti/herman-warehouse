@@ -37,12 +37,10 @@ export function PurchaseTable(props: PurchaseCreateProps) {
   const purchase = usePurchaseHook(purchaseController);
 
   async function submitForm(): Promise<void> {
-    if (
-      props.hook.state.ledger &&
-      props.hook.state.ledger.length > 0 &&
-      props.hook.state.ledger[0].file
-    ) {
-      await fileSchema.validate(props.hook.state.ledger[0]).catch((e) => {
+    let payload = props.hook.state;
+
+    if (payload.ledger && payload.ledger.length > 0 && payload.ledger[0].file) {
+      await fileSchema.validate(payload.ledger[0]).catch((e) => {
         notification.error({
           message: "Error",
           description: (

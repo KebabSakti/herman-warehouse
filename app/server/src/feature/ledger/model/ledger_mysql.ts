@@ -1,35 +1,27 @@
-import { NotFound } from "../../../common/error";
 import { Result } from "../../../common/type";
 import { MySql, pool } from "../../../helper/mysql";
 import { now } from "../../../helper/util";
-import { InstallmentApi } from "./installment_api";
-import { Installment } from "./installment_model";
-import { InstallmentCreate, InstallmentList } from "./installment_types";
+import { LedgerApi } from "./ledger_api";
+import { Ledger } from "./ledger_model";
+import { LedgerCreate, LedgerList } from "./ledger_type";
 
-export class InstallmentMysql implements InstallmentApi {
-  async list(
-    invoiceId: string,
-    param: InstallmentList
-  ): Promise<Result<Installment[]>> {
-    let query = `select * from installments where deleted is null and invoiceId = ${pool.escape(
-      invoiceId
-    )}`;
-
-    query += ` order by created desc`;
+export class LedgerMysql implements LedgerApi {
+  async list(purchaseId: string, param: LedgerList): Promise<Result<Ledger[]>> {
+    let query = `select * from ledgers where deleted is null and purchaseId = ${pool.escape(
+      purchaseId
+    )} order by created desc`;
 
     if (param.page && param.limit) {
       const offset = (param.page - 1) * param.limit;
       const limit = param.limit;
-
-      query += ` limit ${pool.escape(limit)} offset ${pool.escape(offset)}`;
+      query += ` limit ${limit} offset ${offset}`;
     }
 
     const result = await MySql.query(query);
-
     const total = (
       await MySql.query(
-        `select * from installments where deleted is null and invoiceId = ${pool.escape(
-          invoiceId
+        `select * from ledgers where deleted is null and purchaseId = ${pool.escape(
+          purchaseId
         )}`
       )
     )[0]?.total;
@@ -46,23 +38,21 @@ export class InstallmentMysql implements InstallmentApi {
     return data;
   }
 
-  async create(param: InstallmentCreate): Promise<void> {
+  async create(param: LedgerCreate): Promise<void> {
     await MySql.transaction(async (connection) => {
-      const today = now();
-
       await new Promise<void>((resolve, reject) => {
         connection.query(
-          "insert into installments set ?",
+          "insert into ledgers set ?",
           {
             id: param.id,
-            invoiceid: param.invoiceId,
+            purchaseId: param.purchaseId,
+            supplierId: param.purchaseId,
             amount: param.amount,
             outstanding: param.outstanding,
+            file: param.id + ".jpg",
             note: param.note,
-            attachment: param.attachment,
-            printed: param.printed,
-            created: today,
-            updated: today,
+            created: now(),
+            updated: now(),
           },
           (err) => {
             if (err) reject(err);
@@ -73,8 +63,8 @@ export class InstallmentMysql implements InstallmentApi {
 
       await new Promise<void>((resolve, reject) => {
         connection.query(
-          "update invoices set outstanding = ? where id = ?",
-          [param.outstanding, param.invoiceId],
+          "update purchases set balance = ? where id = ?",
+          [param.outstanding, param.purchaseId],
           (err) => {
             if (err) reject(err);
             resolve();
@@ -84,8 +74,8 @@ export class InstallmentMysql implements InstallmentApi {
 
       await new Promise<void>((resolve, reject) => {
         connection.query(
-          "update customers set outstanding = outstanding - ? where id = ?",
-          [param.amount, param.customerId],
+          "update suppliers set outstanding = outstanding - ? where id = ?",
+          [param.amount, param.supplierId],
           (err) => {
             if (err) reject(err);
             resolve();
@@ -97,28 +87,22 @@ export class InstallmentMysql implements InstallmentApi {
 
   async remove(id: string): Promise<void> {
     await MySql.transaction(async (connection) => {
-      const today = new Date();
-
-      const installment = await new Promise<Installment>((resolve, reject) => {
+      const ledger = await new Promise<Ledger>((resolve, reject) => {
         connection.query(
-          "select * from installments where id = ?",
-          id,
+          "select * from ledgers where id = ?",
+          [id],
           (err, res) => {
             if (err) reject(err);
             if (res.length == 0) reject(err);
-            resolve(res);
+            resolve(res[0]);
           }
         );
       });
 
-      if (!installment) {
-        throw new NotFound();
-      }
-
       await new Promise<void>((resolve, reject) => {
         connection.query(
-          "update customers set outstanding = outstanding + ?, where id = ?",
-          [installment.amount, id],
+          "update suppliers set outstanding = ? where id = ?",
+          [ledger.outstanding, ledger.supplierId],
           (err) => {
             if (err) reject(err);
             resolve();
@@ -128,8 +112,19 @@ export class InstallmentMysql implements InstallmentApi {
 
       await new Promise<void>((resolve, reject) => {
         connection.query(
-          "update installments set deleted = ? where id = ?",
-          [today, id],
+          "update purchases set outstanding = ?, updated = ? where id = ?",
+          [ledger.outstanding, now(), ledger.supplierId],
+          (err) => {
+            if (err) reject(err);
+            resolve();
+          }
+        );
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        connection.query(
+          "update ledgers set deleted = ? where id = ?",
+          [now(), id],
           (err) => {
             if (err) reject(err);
             resolve();

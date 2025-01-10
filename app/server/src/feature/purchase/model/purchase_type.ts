@@ -47,6 +47,7 @@ export const purchaseCreateSchema = object({
       purchaseId: string().required(),
       supplierId: string().required(),
       amount: number().required(),
+      outstanding: number().required(),
       file: mixed().nullable(),
       note: string().nullable(),
     })

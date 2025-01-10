@@ -13,7 +13,6 @@ import { Dependency } from "../../../component/App";
 import { Num } from "../../../helper/num";
 import { Purchase } from "../model/purchase_model";
 import { usePurchaseHook } from "./PurchaseHook";
-import { ReceiptTableItem, ReceiptTableTag } from "./ReceiptTableHook";
 
 const styles = StyleSheet.create({
   page: {
@@ -23,7 +22,7 @@ const styles = StyleSheet.create({
   container: {
     display: "flex",
     flexDirection: "column",
-    gap: 16,
+    gap: 6,
   },
   heading: {
     fontSize: 32,
@@ -83,32 +82,46 @@ export function PurchasePrint() {
 
   if (purchase.state.status == "complete" && purchase.state.data != null) {
     const data = purchase.state.data as Purchase;
-    const inventories: ReceiptTableItem[] = data.inventory!.map((e) => {
-      return {
-        key: e.id,
-        id: e.id,
-        name: e.productName,
-        tag: ReceiptTableTag.Inventory,
-        qty: e.qty,
-        price: e.price,
-        total: e.total,
-      };
+
+    const summaries = [
+      {
+        item: "Total Produk",
+        total: data.totalItem,
+      },
+    ];
+
+    if (data.fee > 0) {
+      summaries.push({
+        item: `Fee ${data.fee}%`,
+        total: data.margin,
+      });
+    }
+
+    if (data.other ?? 0 > 0) {
+      summaries.push({
+        item: "Biaya Lain",
+        total: data.other ?? 0,
+      });
+    }
+
+    if (data.dp ?? 0 > 0) {
+      summaries.push({
+        item: "Panjar",
+        total: data.dp ?? 0,
+      });
+    }
+
+    if (data.outstanding ?? 0 > 0) {
+      summaries.push({
+        item: "Sisa Hutang",
+        total: data.outstanding ?? 0,
+      });
+    }
+
+    summaries.push({
+      item: "TOTAL",
+      total: data.total,
     });
-    const payments: ReceiptTableItem[] | undefined =
-      data.payment?.[0]?.id == null
-        ? undefined
-        : data.payment?.map((e) => {
-            return {
-              key: e.id,
-              id: e.id,
-              name: e.note,
-              tag: ReceiptTableTag.Payment,
-              total: e.amount,
-            };
-          });
-    const inventoryTotal = inventories.reduce((a, b) => a + b.total, 0);
-    const paymentTotal = payments?.reduce((a, b) => a + b.total, 0);
-    const tableData = inventories.concat(payments ?? []);
 
     return (
       <PDFViewer
@@ -148,128 +161,81 @@ export function PurchasePrint() {
                   </Text>
                 </View>
                 <View>
-                  {tableData.map((row, i) => (
-                    <View key={i} style={styles.tableRow}>
+                  {data.inventory.map((e) => (
+                    <View key={e.id} style={styles.tableRow}>
                       <Text style={[styles.tableItem, { textAlign: "left" }]}>
-                        {row.name}
+                        {e.productName}
                       </Text>
                       <Text style={styles.tableItem}>
-                        {row.qty != null ? Num.format(row.qty) : ""}
+                        {e.qty != null ? Num.format(e.qty) : ""}
                       </Text>
                       <Text style={styles.tableItem}>
-                        {row.price != null ? Num.format(row.price) : ""}
+                        {e.price != null ? Num.format(e.price) : ""}
                       </Text>
                       <Text style={[styles.tableItem, { textAlign: "right" }]}>
-                        {Num.format(row.total)}
+                        {Num.format(e.total)}
                       </Text>
                     </View>
                   ))}
+                  {(() => {
+                    if (data.payment && data.payment.length > 0) {
+                      return (
+                        <>
+                          {data.payment.map((e) => (
+                            <View key={e.id} style={styles.tableRow}>
+                              <Text
+                                style={[
+                                  styles.tableItem,
+                                  { textAlign: "left" },
+                                ]}
+                              >
+                                {e.note}
+                              </Text>
+                              <Text style={styles.tableItem}></Text>
+                              <Text style={styles.tableItem}></Text>
+                              <Text
+                                style={[
+                                  styles.tableItem,
+                                  { textAlign: "right" },
+                                ]}
+                              >
+                                {Num.format(e.amount)}
+                              </Text>
+                            </View>
+                          ))}
+                        </>
+                      );
+                    }
+                  })()}
                 </View>
                 <View>
-                  <View style={[styles.tableRow, { border: "none" }]}>
-                    <Text
-                      style={[
-                        styles.tableItem,
-                        styles.th,
-                        { textAlign: "left" },
-                      ]}
-                    >
-                      Total Produk
-                    </Text>
-                    <Text
-                      style={[
-                        styles.tableItem,
-                        styles.th,
-                        { textAlign: "right" },
-                      ]}
-                    >
-                      {Num.format(inventoryTotal)}
-                    </Text>
-                  </View>
-                  <View style={[styles.tableRow, { border: "none" }]}>
-                    <Text
-                      style={[
-                        styles.tableItem,
-                        styles.th,
-                        { textAlign: "left" },
-                      ]}
-                    >
-                      Fee {data.fee}%
-                    </Text>
-                    <Text
-                      style={[
-                        styles.tableItem,
-                        styles.th,
-                        { textAlign: "right" },
-                      ]}
-                    >
-                      {Num.format(data.margin)}
-                    </Text>
-                  </View>
-                  <View style={[styles.tableRow, { border: "none" }]}>
-                    <Text
-                      style={[
-                        styles.tableItem,
-                        styles.th,
-                        { textAlign: "left" },
-                      ]}
-                    >
-                      Biaya Lain
-                    </Text>
-                    <Text
-                      style={[
-                        styles.tableItem,
-                        styles.th,
-                        { textAlign: "right" },
-                      ]}
-                    >
-                      {Num.format(paymentTotal ?? 0)}
-                    </Text>
-                  </View>
-                  {data.outstanding == 0 ? (
-                    ""
-                  ) : (
-                    <View style={[styles.tableRow, { border: "none" }]}>
-                      <Text
-                        style={[
-                          styles.tableItem,
-                          styles.th,
-                          { textAlign: "left" },
-                        ]}
+                  {summaries.map((e, i) => {
+                    return (
+                      <View
+                        key={i}
+                        style={[styles.tableRow, { border: "none" }]}
                       >
-                        Sisa Hutang ({data.supplierName})
-                      </Text>
-                      <Text
-                        style={[
-                          styles.tableItem,
-                          styles.th,
-                          { textAlign: "right" },
-                        ]}
-                      >
-                        {Num.format(data.outstanding)}
-                      </Text>
-                    </View>
-                  )}
-                  <View style={[styles.tableRow, { border: "none" }]}>
-                    <Text
-                      style={[
-                        styles.tableItem,
-                        styles.th,
-                        { textAlign: "left" },
-                      ]}
-                    >
-                      TOTAL
-                    </Text>
-                    <Text
-                      style={[
-                        styles.tableItem,
-                        styles.th,
-                        { textAlign: "right" },
-                      ]}
-                    >
-                      {Num.format(data.balance)}
-                    </Text>
-                  </View>
+                        <Text
+                          style={[
+                            styles.tableItem,
+                            styles.th,
+                            { textAlign: "left" },
+                          ]}
+                        >
+                          {e.item}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.tableItem,
+                            styles.th,
+                            { textAlign: "right" },
+                          ]}
+                        >
+                          {Num.format(e.total)}
+                        </Text>
+                      </View>
+                    );
+                  })}
                 </View>
               </View>
               {data.note == null ? (

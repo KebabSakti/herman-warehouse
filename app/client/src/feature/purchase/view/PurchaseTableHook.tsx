@@ -13,6 +13,7 @@ type Total = {
   margin: number;
   dp: number;
   total: number;
+  balance: number;
 };
 
 export type PurchaseTableHookType = {
@@ -63,6 +64,7 @@ export function usePurchaseTableHook(): PurchaseTableHookType {
       margin: margin,
       other: totalPayment,
       dp: totalLedger,
+      balance: total,
       total: total,
     };
   }

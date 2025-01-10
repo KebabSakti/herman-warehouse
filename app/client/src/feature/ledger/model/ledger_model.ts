@@ -3,6 +3,7 @@ export interface Ledger {
   purchaseId: string;
   supplierId: string;
   amount: number;
+  outstanding: number;
   file?: string | null | undefined;
   note?: string | null | undefined;
   created?: string | null | undefined;

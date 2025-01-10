@@ -43,6 +43,7 @@ export function AddLedgerModal(props: PurchaseCreateProps) {
               purchaseId: props.hook.state.id,
               supplierId: props.hook.state.supplierId,
               amount: values.amount,
+              outstanding: props.hook.state.total - values.amount,
               file: values.file,
               note: values.note,
             };

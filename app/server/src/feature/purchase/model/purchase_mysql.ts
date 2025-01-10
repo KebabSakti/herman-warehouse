@@ -126,8 +126,6 @@ export class PurchaseMysql implements PurchaseApi {
   }
 
   async create(param: PurchaseCreate): Promise<void> {
-    console.log(param);
-
     await MySql.transaction(async (connection) => {
       const today = now();
 
@@ -170,6 +168,7 @@ export class PurchaseMysql implements PurchaseApi {
           ledger.purchaseId,
           ledger.supplierId,
           ledger.amount,
+          ledger.outstanding,
           ledger.id + ".jpg",
           ledger.note,
           today,
@@ -274,7 +273,7 @@ export class PurchaseMysql implements PurchaseApi {
       await new Promise<void>((resolve, reject) => {
         connection.query(
           "update suppliers set outstanding = ? where id = ?",
-          [param.outstanding, param.supplierId],
+          [param.total, param.supplierId],
           (err) => {
             if (err) reject(err);
             resolve();

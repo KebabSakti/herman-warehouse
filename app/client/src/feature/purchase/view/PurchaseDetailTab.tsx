@@ -58,8 +58,6 @@ export function PurchaseDetailTab({ purchase }: PurchaseTabProps) {
 
   init();
 
-  console.log(purchase);
-
   return (
     <>
       <Row gutter={[0, 8]}>
