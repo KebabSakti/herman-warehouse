@@ -53,55 +53,49 @@ export class PurchaseMysql implements PurchaseApi {
 
     const purchases = await MySql.query({ sql: query, nestTables: true });
 
-    const result = purchases.reduce((a: any, b: any) => {
-      const purchase = a.find((c: any) => c.id == b.purchases.id);
+    const result = purchases.reduce((acc: any[], current: any) => {
+      // Find existing purchase in the accumulated result
+      let purchase = acc.find((item: any) => item.id === current.purchases.id);
 
-      if (purchase == undefined) {
-        const item = {
-          ...b.purchases,
-          inventory: [b.inventories],
+      if (!purchase) {
+        // Create a new purchase entry if it doesn't exist
+        purchase = {
+          ...current.purchases,
+          inventory: [],
           payment: [],
           ledger: [],
         };
 
-        if (b.payments && b.payments.purchaseId == item.id) {
-          item.payment.push(b.payments);
-        }
-
-        if (b.ledgers && b.ledgers.purchaseId == item.id) {
-          item.ledger.push(b.ledgers);
-        }
-
-        a.push(item);
-      } else {
-        const inventory = purchase.inventory.find(
-          (c: any) => c.id == b.inventories.id
-        );
-
-        if (inventory == undefined) {
-          purchase.inventory.push(b.inventories);
-        }
-
-        if (b.payments) {
-          const payment = purchase.payment.find(
-            (c: any) => c.id == b.payments.id
-          );
-
-          if (payment == undefined) {
-            purchase.payment.push(b.payments);
-          }
-        }
-
-        if (b.ledgers) {
-          const ledger = purchase.ledger.find((c: any) => c.id == b.ledgers.id);
-
-          if (ledger == undefined) {
-            purchase.ledger.push(b.ledgers);
-          }
-        }
+        acc.push(purchase);
       }
 
-      return a;
+      // Add inventory if not already present
+      if (
+        current.inventories &&
+        !purchase.inventory.some(
+          (inv: any) => inv.id === current.inventories.id
+        )
+      ) {
+        purchase.inventory.push(current.inventories);
+      }
+
+      // Add payment if not already present
+      if (
+        current.payments &&
+        !purchase.payment.some((pay: any) => pay.id === current.payments.id)
+      ) {
+        purchase.payment.push(current.payments);
+      }
+
+      // Add ledger if not already present
+      if (
+        current.ledgers &&
+        !purchase.ledger.some((led: any) => led.id === current.ledgers.id)
+      ) {
+        purchase.ledger.push(current.ledgers);
+      }
+
+      return acc;
     }, []);
 
     const total =
@@ -128,6 +122,32 @@ export class PurchaseMysql implements PurchaseApi {
   async create(param: PurchaseCreate): Promise<void> {
     await MySql.transaction(async (connection) => {
       const today = now();
+
+      if (param.outstanding != null && param.outstanding > 0) {
+        console.log(param);
+
+        const purchase = await new Promise<Purchase>((resolve, reject) => {
+          connection.query(
+            "select * from purchases where deleted is null and supplierId = ? order by created desc limit 1",
+            param.supplierId,
+            (err, res) => {
+              if (err && res.length == 0) reject(err);
+              resolve(res[0]);
+            }
+          );
+        });
+
+        await new Promise<void>((resolve, reject) => {
+          connection.query(
+            "update purchases set balance = ? where id = ?",
+            [0.0, purchase.id],
+            (err) => {
+              if (err) reject(err);
+              resolve();
+            }
+          );
+        });
+      }
 
       // PURCHASE TABLE
       await new Promise<void>((resolve, reject) => {
@@ -189,7 +209,7 @@ export class PurchaseMysql implements PurchaseApi {
 
       // PAYMENT TABLE
       if (param.payment && param.payment.length > 0) {
-        const payments = param.payment!.map((payment) => [
+        const payments = param.payment.map((payment) => [
           payment.id,
           payment.purchaseId,
           payment.amount,
@@ -295,55 +315,49 @@ export class PurchaseMysql implements PurchaseApi {
 
     const purchases = await MySql.query({ sql: query, nestTables: true });
 
-    const result = purchases.reduce((a: any, b: any) => {
-      const purchase = a.find((c: any) => c.id == b.purchases.id);
+    const result = purchases.reduce((acc: any[], current: any) => {
+      // Find existing purchase in the accumulated result
+      let purchase = acc.find((item: any) => item.id === current.purchases.id);
 
-      if (purchase == undefined) {
-        const item = {
-          ...b.purchases,
-          inventory: [b.inventories],
+      if (!purchase) {
+        // Create a new purchase entry if it doesn't exist
+        purchase = {
+          ...current.purchases,
+          inventory: [],
           payment: [],
           ledger: [],
         };
 
-        if (b.payments && b.payments.purchaseId == item.id) {
-          item.payment.push(b.payments);
-        }
-
-        if (b.ledgers && b.ledgers.purchaseId == item.id) {
-          item.ledger.push(b.ledgers);
-        }
-
-        a.push(item);
-      } else {
-        const inventory = purchase.inventory.find(
-          (c: any) => c.id == b.inventories.id
-        );
-
-        if (inventory == undefined) {
-          purchase.inventory.push(b.inventories);
-        }
-
-        if (b.payments) {
-          const payment = purchase.payment.find(
-            (c: any) => c.id == b.payments.id
-          );
-
-          if (payment == undefined) {
-            purchase.payment.push(b.payments);
-          }
-        }
-
-        if (b.ledgers) {
-          const ledger = purchase.ledger.find((c: any) => c.id == b.ledgers.id);
-
-          if (ledger == undefined) {
-            purchase.ledger.push(b.ledgers);
-          }
-        }
+        acc.push(purchase);
       }
 
-      return a;
+      // Add inventory if not already present
+      if (
+        current.inventories &&
+        !purchase.inventory.some(
+          (inv: any) => inv.id === current.inventories.id
+        )
+      ) {
+        purchase.inventory.push(current.inventories);
+      }
+
+      // Add payment if not already present
+      if (
+        current.payments &&
+        !purchase.payment.some((pay: any) => pay.id === current.payments.id)
+      ) {
+        purchase.payment.push(current.payments);
+      }
+
+      // Add ledger if not already present
+      if (
+        current.ledgers &&
+        !purchase.ledger.some((led: any) => led.id === current.ledgers.id)
+      ) {
+        purchase.ledger.push(current.ledgers);
+      }
+
+      return acc;
     }, []);
 
     if (result.length > 0) {

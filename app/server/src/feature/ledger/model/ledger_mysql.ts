@@ -39,7 +39,6 @@ export class LedgerMysql implements LedgerApi {
   }
 
   async create(param: LedgerCreate): Promise<void> {
-    console.log(param);
     await MySql.transaction(async (connection) => {
       await new Promise<void>((resolve, reject) => {
         connection.query(

@@ -23,11 +23,9 @@ import {
 import dayjs from "dayjs";
 import { useContext, useEffect, useState } from "react";
 import { SERVER } from "../../../common/common";
-import { Result } from "../../../common/type";
 import { Dependency } from "../../../component/App";
 import { Num } from "../../../helper/num";
 import { randomID } from "../../../helper/util";
-import { Ledger } from "../../ledger/model/ledger_model";
 import { ledgerCreateSchema } from "../../ledger/model/ledger_type";
 import { useLedgerHook } from "../../ledger/view/LedgerHook";
 import { Purchase } from "../model/purchase_model";
@@ -40,19 +38,12 @@ export function LedgerDetailTab({
 }) {
   const { auth, ledgerController } = useContext(Dependency)!;
   const ledger = useLedgerHook(ledgerController);
-  const result = ledger.state.data as Result<Ledger[]> | null;
   const [form] = Form.useForm();
   const { Title, Text } = Typography;
   const [attachment, setAttachment] = useState<UploadFile<File> | null>();
   const purchase = purchaseHook.state.data as Purchase;
 
   useEffect(() => {
-    if (ledger.state.action == "idle" && ledger.state.status == "idle") {
-      ledger.list(purchase.id, null, {
-        token: auth.state.data!,
-      });
-    }
-
     if (ledger.state.status == "complete" && ledger.state.error != null) {
       notification.error({
         message: "Error",
@@ -66,7 +57,7 @@ export function LedgerDetailTab({
       ledger.state.error == null
     ) {
       form.resetFields();
-      ledger.list(purchase.id, null, { token: auth.state.data! });
+      purchaseHook.read(purchase.id, { token: auth.state.data! });
 
       notification.success({
         message: "Sukses",
@@ -117,6 +108,16 @@ export function LedgerDetailTab({
                 </Col>
               </Row>
             </Col>
+            <Col span={24}>
+              <Row justify="space-between">
+                <Col style={{ fontWeight: "bold", fontSize: "16px" }}>
+                  Sisa Hutang
+                </Col>
+                <Col style={{ fontWeight: "bold", fontSize: "16px" }}>
+                  Rp {Num.format(purchase.balance)}
+                </Col>
+              </Row>
+            </Col>
           </Row>
           <Space direction="vertical" style={{ width: "100%" }}>
             <Table
@@ -126,7 +127,7 @@ export function LedgerDetailTab({
               style={{ overflowX: "scroll" }}
               pagination={false}
               dataSource={
-                result?.data.map((e, i) => {
+                purchase.ledger?.map((e, i) => {
                   return { key: i, ...e };
                 }) ?? []
               }
@@ -176,7 +177,7 @@ export function LedgerDetailTab({
                   render: (value) => <>{Num.format(value)}</>,
                 },
                 {
-                  title: "Sisa Piutang",
+                  title: "Sisa Hutang",
                   dataIndex: "outstanding",
                   render: (value) => <>{Num.format(value)}</>,
                 },

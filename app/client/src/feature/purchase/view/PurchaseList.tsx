@@ -227,6 +227,14 @@ export function PurchaseList() {
                             },
                           },
                           {
+                            title: "Hutang",
+                            dataIndex: "balance",
+                            minWidth: 60,
+                            render: (value) => {
+                              return <>{Num.format(value)}</>;
+                            },
+                          },
+                          {
                             title: "Tanggal",
                             dataIndex: "created",
                             minWidth: 60,

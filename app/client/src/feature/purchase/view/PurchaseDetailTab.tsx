@@ -114,6 +114,7 @@ export function PurchaseDetailTab({ purchase }: PurchaseTabProps) {
 
           {(() => {
             if (purchase.payment && purchase.payment.length > 0) {
+              console.log(purchase);
               return (
                 <>
                   <Table
@@ -122,7 +123,7 @@ export function PurchaseDetailTab({ purchase }: PurchaseTabProps) {
                     loading={false}
                     style={{ overflowX: "auto" }}
                     pagination={false}
-                    dataSource={purchase.payment?.map((e, i) => {
+                    dataSource={purchase.payment.map((e, i) => {
                       return { key: i, ...e };
                     })}
                     columns={[

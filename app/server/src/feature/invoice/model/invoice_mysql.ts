@@ -46,44 +46,61 @@ export class InvoiceMysql implements InvoiceApi {
     query += ` order by invoices.created desc`;
     const invoices = await MySql.query({ sql: query, nestTables: true });
 
-    const result = invoices.reduce((a: any, b: any) => {
-      const index = a.findIndex((c: any) => c.id == b.invoices.id);
+    const result = invoices.reduce((acc: any[], current: any) => {
+      // Find the index of the current invoice in the accumulated result
+      const index = acc.findIndex((inv: any) => inv.id === current.invoices.id);
 
-      if (index == -1) {
-        const invoice = { ...b.invoices, item: [], installment: [] };
+      if (index === -1) {
+        // Create a new invoice entry if it doesn't exist
+        const invoice = {
+          ...current.invoices,
+          item: [],
+          installment: [],
+        };
 
-        if (b.items.invoiceId == b.invoices.id) {
-          invoice.item.push(b.items);
+        // Add items if invoiceId matches
+        if (current.items && current.items.invoiceId === current.invoices.id) {
+          invoice.item.push(current.items);
         }
 
-        if (b.installments.invoiceId == b.invoices.id) {
-          invoice.installment.push(b.installments);
+        // Add installments if invoiceId matches
+        if (
+          current.installments &&
+          current.installments.invoiceId === current.invoices.id
+        ) {
+          invoice.installment.push(current.installments);
         }
 
-        a.push(invoice);
+        acc.push(invoice);
       } else {
-        const invoice = a[index];
+        // Get the existing invoice from the accumulated result
+        const invoice = acc[index];
 
-        if (b.items.invoiceId == invoice.id) {
-          const item = invoice.item.find((c: any) => c.id == b.items.id);
-
-          if (!item) {
-            invoice.item.push(b.items);
+        // Add items if not already present and invoiceId matches
+        if (current.items && current.items.invoiceId === invoice.id) {
+          const existingItem = invoice.item.find(
+            (it: any) => it.id === current.items.id
+          );
+          if (!existingItem) {
+            invoice.item.push(current.items);
           }
         }
 
-        if (b.installments.invoiceId == invoice.id) {
-          const installment = invoice.installment.find(
-            (c: any) => c.id == b.installments.id
+        // Add installments if not already present and invoiceId matches
+        if (
+          current.installments &&
+          current.installments.invoiceId === invoice.id
+        ) {
+          const existingInstallment = invoice.installment.find(
+            (inst: any) => inst.id === current.installments.id
           );
-
-          if (!installment) {
-            invoice.installment.push(b.installments);
+          if (!existingInstallment) {
+            invoice.installment.push(current.installments);
           }
         }
       }
 
-      return a;
+      return acc;
     }, []);
 
     const total =
@@ -226,44 +243,61 @@ export class InvoiceMysql implements InvoiceApi {
 
     const invoices = await MySql.query({ sql: query, nestTables: true });
 
-    const result = invoices.reduce((a: any, b: any) => {
-      const index = a.findIndex((c: any) => c.id == b.invoices.id);
+    const result = invoices.reduce((acc: any[], current: any) => {
+      // Find the index of the current invoice in the accumulated result
+      const index = acc.findIndex((inv: any) => inv.id === current.invoices.id);
 
-      if (index == -1) {
-        const invoice = { ...b.invoices, item: [], installment: [] };
+      if (index === -1) {
+        // Create a new invoice entry if it doesn't exist
+        const invoice = {
+          ...current.invoices,
+          item: [],
+          installment: [],
+        };
 
-        if (b.items.invoiceId == b.invoices.id) {
-          invoice.item.push(b.items);
+        // Add items if invoiceId matches
+        if (current.items && current.items.invoiceId === current.invoices.id) {
+          invoice.item.push(current.items);
         }
 
-        if (b.installments.invoiceId == b.invoices.id) {
-          invoice.installment.push(b.installments);
+        // Add installments if invoiceId matches
+        if (
+          current.installments &&
+          current.installments.invoiceId === current.invoices.id
+        ) {
+          invoice.installment.push(current.installments);
         }
 
-        a.push(invoice);
+        acc.push(invoice);
       } else {
-        const invoice = a[index];
+        // Get the existing invoice from the accumulated result
+        const invoice = acc[index];
 
-        if (b.items.invoiceId == invoice.id) {
-          const item = invoice.item.find((c: any) => c.id == b.items.id);
-
-          if (!item) {
-            invoice.item.push(b.items);
+        // Add items if not already present and invoiceId matches
+        if (current.items && current.items.invoiceId === invoice.id) {
+          const existingItem = invoice.item.find(
+            (it: any) => it.id === current.items.id
+          );
+          if (!existingItem) {
+            invoice.item.push(current.items);
           }
         }
 
-        if (b.installments.invoiceId == invoice.id) {
-          const installment = invoice.installment.find(
-            (c: any) => c.id == b.installments.id
+        // Add installments if not already present and invoiceId matches
+        if (
+          current.installments &&
+          current.installments.invoiceId === invoice.id
+        ) {
+          const existingInstallment = invoice.installment.find(
+            (inst: any) => inst.id === current.installments.id
           );
-
-          if (!installment) {
-            invoice.installment.push(b.installments);
+          if (!existingInstallment) {
+            invoice.installment.push(current.installments);
           }
         }
       }
 
-      return a;
+      return acc;
     }, []);
 
     if (result.length > 0) {
