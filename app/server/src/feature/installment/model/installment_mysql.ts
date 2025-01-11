@@ -2,6 +2,7 @@ import { NotFound } from "../../../common/error";
 import { Result } from "../../../common/type";
 import { MySql, pool } from "../../../helper/mysql";
 import { now } from "../../../helper/util";
+import { Invoice } from "../../invoice/model/invoice_model";
 import { InstallmentApi } from "./installment_api";
 import { Installment } from "./installment_model";
 import { InstallmentCreate, InstallmentList } from "./installment_types";
@@ -97,16 +98,13 @@ export class InstallmentMysql implements InstallmentApi {
 
   async remove(id: string): Promise<void> {
     await MySql.transaction(async (connection) => {
-      const today = new Date();
-
       const installment = await new Promise<Installment>((resolve, reject) => {
         connection.query(
           "select * from installments where id = ?",
           id,
           (err, res) => {
-            if (err) reject(err);
-            if (res.length == 0) reject(err);
-            resolve(res);
+            if (err && res.length == 0) reject(err);
+            resolve(res[0]);
           }
         );
       });
@@ -115,10 +113,21 @@ export class InstallmentMysql implements InstallmentApi {
         throw new NotFound();
       }
 
+      const invoice = await new Promise<Invoice>((resolve, reject) => {
+        connection.query(
+          "select * from invoices where id = ?",
+          installment.invoiceId,
+          (err, res) => {
+            if (err && res.length == 0) reject(err);
+            resolve(res[0]);
+          }
+        );
+      });
+
       await new Promise<void>((resolve, reject) => {
         connection.query(
-          "update customers set outstanding = outstanding + ?, where id = ?",
-          [installment.amount, id],
+          "update invoices set outstanding = outstanding + ? where id = ?",
+          [installment.amount, installment.invoiceId],
           (err) => {
             if (err) reject(err);
             resolve();
@@ -128,14 +137,27 @@ export class InstallmentMysql implements InstallmentApi {
 
       await new Promise<void>((resolve, reject) => {
         connection.query(
-          "update installments set deleted = ? where id = ?",
-          [today, id],
+          "update customers set outstanding = outstanding + ? where id = ?",
+          [installment.amount, invoice.customerId],
           (err) => {
             if (err) reject(err);
             resolve();
           }
         );
       });
+
+      await new Promise<void>((resolve, reject) => {
+        connection.query(
+          "delete from installments where id = ?",
+          [id],
+          (err) => {
+            if (err) reject(err);
+            resolve();
+          }
+        );
+      });
+
+      console.log(installment);
     });
   }
 }

@@ -1,7 +1,7 @@
 import { Modal, Skeleton, Tabs } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
-import { InstallmentListTab } from "./InstallmentListTab";
+import { InstallmentDetailTab } from "./InstallmentDetailTab";
 import { InvoiceDetailTab } from "./InvoiceDetailTab";
 import { Dependency } from "../../../component/App";
 import { useInvoiceHook } from "./InvoiceHook";
@@ -63,7 +63,7 @@ export function InvoiceRead() {
                     {
                       key: "2",
                       label: "Riwayat Setoran",
-                      children: <InstallmentListTab invoice={data} />,
+                      children: <InstallmentDetailTab invoiceHook={invoice} />,
                     },
                   ]}
                 />

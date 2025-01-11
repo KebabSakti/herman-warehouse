@@ -1,4 +1,4 @@
-import { array, InferType, number, object, string } from "yup";
+import { array, boolean, InferType, number, object, string } from "yup";
 
 export const invoiceCreateSchema = object({
   id: string().required(),
@@ -40,6 +40,7 @@ export const invoiceCreateSchema = object({
       outstanding: number().required(),
       note: string().nullable(),
       attachment: string().nullable(),
+      dp: boolean().nullable(),
     })
   ).nullable(),
 });

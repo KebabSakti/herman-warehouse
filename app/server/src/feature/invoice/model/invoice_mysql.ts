@@ -220,6 +220,7 @@ export class InvoiceMysql implements InvoiceApi {
                 note: installment.note,
                 outstanding: param.total,
                 printed: param.printed,
+                dp: installment.dp,
                 created: today,
                 updated: today,
               },

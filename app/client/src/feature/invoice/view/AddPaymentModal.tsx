@@ -73,6 +73,7 @@ export function AddPaymentModal(props: InvoiceCreateProps) {
                   note: values.note,
                   attachment: values.attachment,
                   outstanding: outstanding,
+                  dp: true,
                 });
 
                 form.resetFields();
