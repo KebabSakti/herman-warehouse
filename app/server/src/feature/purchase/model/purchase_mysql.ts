@@ -123,6 +123,130 @@ export class PurchaseMysql implements PurchaseApi {
     return data;
   }
 
+  async findBySupplierId(
+    id: string,
+    param?: Record<string, any> | null | undefined
+  ): Promise<Result<Purchase[]>> {
+    let table = `select * from purchases where deleted is null and supplierId = ${pool.escape(
+      id
+    )}`;
+
+    if (param) {
+      if (param.search) {
+        const search = pool.escape(param.search);
+        table += ` and code like "%"${search}"%"`;
+      }
+
+      if (param.start && param.end) {
+        const startDate = dayjs
+          .tz(`${param.start}T00:00:00`, "Asia/Kuala_Lumpur")
+          .utc()
+          .format("YYYY-MM-DD HH:mm:ss");
+
+        const endDate = dayjs
+          .tz(`${param.start}T23:59:59`, "Asia/Kuala_Lumpur")
+          .utc()
+          .format("YYYY-MM-DD HH:mm:ss");
+
+        const start = pool.escape(startDate);
+        const end = pool.escape(endDate);
+        table += ` and created between ${start} and ${end}`;
+      }
+
+      if (
+        param.page &&
+        param.limit &&
+        !isNaN(param.page) &&
+        !isNaN(param.limit)
+      ) {
+        const offset = (param.page - 1) * param.limit;
+        const limit = param.limit;
+        table += ` order by created desc limit ${limit} offset ${offset}`;
+      }
+    }
+
+    let query = `
+    select purchases.*, inventories.*, payments.*, ledgers.*
+    from (${table}) as purchases
+    left join inventories on purchases.id = inventories.purchaseId
+    left join payments on purchases.id = payments.purchaseId
+    left join ledgers on purchases.id = ledgers.purchaseId
+    order by purchases.created desc
+    `;
+
+    const purchases = await MySql.query({ sql: query, nestTables: true });
+
+    const result = purchases.reduce((acc: any[], current: any) => {
+      // Find existing purchase in the accumulated result
+      let purchase = acc.find((item: any) => item.id === current.purchases.id);
+
+      if (!purchase) {
+        // Create a new purchase entry if it doesn't exist
+        purchase = {
+          ...current.purchases,
+          inventory: [],
+          payment: [],
+          ledger: [],
+        };
+
+        acc.push(purchase);
+      }
+
+      // Add inventory if not already present
+      if (
+        current.inventories &&
+        !purchase.inventory.some(
+          (inv: any) => inv.id === current.inventories.id
+        )
+      ) {
+        purchase.inventory.push(current.inventories);
+      }
+
+      // Add payment if not already present
+      if (
+        current.payments &&
+        !purchase.payment.some((pay: any) => pay.id === current.payments.id)
+      ) {
+        if (current.payments.id) {
+          purchase.payment.push(current.payments);
+        }
+      }
+
+      // Add ledger if not already present
+      if (
+        current.ledgers &&
+        !purchase.ledger.some((led: any) => led.id === current.ledgers.id)
+      ) {
+        if (current.ledgers.id) {
+          purchase.ledger.push(current.ledgers);
+        }
+      }
+
+      return acc;
+    }, []);
+
+    const total = param
+      ? result.length
+      : (
+          await MySql.query(
+            `select count(*) as total from purchases where deleted is null and supplierId = ${pool.escape(
+              id
+            )}`
+          )
+        )[0].total;
+
+    const data = {
+      data: result,
+      paging: {
+        page: param?.page,
+        limit: param?.limit,
+        total: total,
+      },
+    };
+
+    return data;
+  }
+
   async create(param: PurchaseCreate): Promise<void> {
     await MySql.transaction(async (connection) => {
       const today = now();

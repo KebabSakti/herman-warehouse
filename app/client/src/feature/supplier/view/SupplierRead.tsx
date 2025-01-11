@@ -1,12 +1,17 @@
 import { Button, Card, Flex, Result, Skeleton } from "antd";
 import { useContext, useEffect } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Dependency } from "../../../component/App";
 import { HeadTitle } from "../../../component/HeadTitle";
 import { Num } from "../../../helper/num";
 import { Supplier } from "../model/supplier_model";
-import { PurchaseList } from "./PurchaseList";
 import { useSupplierHook } from "./SupplierHook";
+import { SupplierPurchaseList } from "./SupplierPurchaseList";
+
+export type SupplierReadProps = {
+  modal: string | null | undefined;
+  setModal: (value?: string | null | undefined) => void;
+};
 
 export function SupplierRead() {
   const { auth, supplierController } = useContext(Dependency)!;
@@ -32,6 +37,7 @@ export function SupplierRead() {
 
   return (
     <>
+      <Outlet />
       {(() => {
         if (supplier.state.error != null) {
           return (
@@ -72,10 +78,9 @@ export function SupplierRead() {
                     title={`${data.name} | Rp ${Num.format(data.outstanding)}`}
                     onClick={back}
                   />
-                  {/* <Title level={3}>Rp {Num.format(data.outstanding)}</Title> */}
                 </Flex>
                 <Card>
-                  <PurchaseList supplier={data} />
+                  <SupplierPurchaseList supplier={data} />
                 </Card>
               </Flex>
             </>

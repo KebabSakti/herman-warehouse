@@ -1,5 +1,5 @@
 import { PrinterFilled } from "@ant-design/icons";
-import { Button, Col, Row, Table, Typography } from "antd";
+import { Button, Col, Row, Table, Tag, Typography } from "antd";
 import dayjs from "dayjs";
 import { SERVER } from "../../../common/common";
 import { Num } from "../../../helper/num";
@@ -54,6 +54,18 @@ export function InvoiceDetailTab({ invoice }: { invoice: Invoice }) {
           <Row justify="space-between">
             <Col>No. Hp</Col>
             <Col>{invoice.customerPhone}</Col>
+          </Row>
+        </Col>
+        <Col span={24}>
+          <Row justify="space-between">
+            <Col>Status</Col>
+            <Col>
+              {invoice.outstanding > 0 ? (
+                <Tag color="red">BELUM LUNAS</Tag>
+              ) : (
+                <Tag color="green">LUNAS</Tag>
+              )}
+            </Col>
           </Row>
         </Col>
         <Col span={24}>

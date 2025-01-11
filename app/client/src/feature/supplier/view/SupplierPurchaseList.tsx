@@ -5,6 +5,7 @@ import {
   DatePicker,
   Flex,
   Input,
+  Modal,
   notification,
   Pagination,
   Popconfirm,
@@ -23,7 +24,7 @@ import { Purchase } from "../../purchase/model/purchase_model";
 import { usePurchaseHook } from "../../purchase/view/PurchaseHook";
 import { Supplier } from "../model/supplier_model";
 
-export function PurchaseList({ supplier }: { supplier: Supplier }) {
+export function SupplierPurchaseList({ supplier }: { supplier: Supplier }) {
   const { auth, purchaseController } = useContext(Dependency)!;
   const purchase = usePurchaseHook(purchaseController);
   const result = purchase.state.data as Result<Purchase[]> | null;
@@ -33,7 +34,6 @@ export function PurchaseList({ supplier }: { supplier: Supplier }) {
   const initParam = {
     page: "1",
     limit: "10",
-    supplierId: supplier.id,
   };
   const param: any =
     search.size == 0 ? initParam : Object.fromEntries(search.entries());
@@ -58,7 +58,9 @@ export function PurchaseList({ supplier }: { supplier: Supplier }) {
 
   useEffect(() => {
     if (search.size >= 2) {
-      purchase.list(param, { token: auth.state.data! });
+      purchase.findBySupplierId(supplier.id, param, {
+        token: auth.state.data!,
+      });
     }
   }, [search]);
 
@@ -151,7 +153,7 @@ export function PurchaseList({ supplier }: { supplier: Supplier }) {
                         render: (_, record) => (
                           <>
                             <Link
-                              to={`/app/inventory/read/${record.id}`}
+                              to={`/app/supplier/read/${supplier.id}/inventory/read/${record.id}`}
                               state={{
                                 from: location.pathname + location.search,
                               }}
@@ -162,8 +164,8 @@ export function PurchaseList({ supplier }: { supplier: Supplier }) {
                         ),
                       },
                       {
-                        title: "Total",
-                        dataIndex: "total",
+                        title: "Produk",
+                        dataIndex: "totalItem",
                         minWidth: 60,
                         render: (value) => {
                           return <>{Num.format(value)}</>;
@@ -182,8 +184,8 @@ export function PurchaseList({ supplier }: { supplier: Supplier }) {
                         },
                       },
                       {
-                        title: "Biaya",
-                        dataIndex: "other",
+                        title: "Total",
+                        dataIndex: "total",
                         minWidth: 60,
                         render: (value) => {
                           return <>{Num.format(value)}</>;

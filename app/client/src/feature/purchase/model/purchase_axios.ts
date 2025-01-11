@@ -2,7 +2,7 @@ import axios from "axios";
 import { SERVER } from "../../../common/common";
 import { Failure } from "../../../common/error";
 import { Result } from "../../../common/type";
-import { hmac, randomID } from "../../../helper/util";
+import { hmac } from "../../../helper/util";
 import { PurchaseApi } from "./purchase_api";
 import { Purchase } from "./purchase_model";
 import { PurchaseCreate, PurchaseList, PurchaseUpdate } from "./purchase_type";
@@ -16,7 +16,7 @@ export class PurchaseAxios implements PurchaseApi {
       const formData = new FormData();
 
       if (param.ledger && param.ledger.length > 0 && param.ledger[0].file) {
-        formData.append("file", param.ledger[0].file);
+        formData.append("file", param.ledger[0].file as File);
       }
 
       const payload = JSON.stringify(param);
@@ -103,6 +103,26 @@ export class PurchaseAxios implements PurchaseApi {
   ): Promise<Result<Purchase[]>> {
     try {
       const result = await axios.get(`${SERVER}/app/purchase`, {
+        params: param,
+        headers: {
+          Authorization: `Bearer ${extra?.token ?? ""}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      return result.data;
+    } catch (error: any) {
+      throw Failure(error.response.status, error.response.data);
+    }
+  }
+
+  async findBySupplierId(
+    id: string,
+    param?: Record<string, any> | null | undefined,
+    extra?: Record<string, any> | null | undefined
+  ): Promise<Result<Purchase[]>> {
+    try {
+      const result = await axios.get(`${SERVER}/app/purchase/find/${id}`, {
         params: param,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,

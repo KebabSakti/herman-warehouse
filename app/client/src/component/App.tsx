@@ -56,6 +56,7 @@ import { StockAxios } from "../feature/stock/model/stock_axios";
 import { SupplierController } from "../feature/supplier/controller/supplier_controller";
 import { SupplierApi } from "../feature/supplier/model/supplier_api";
 import { SupplierAxios } from "../feature/supplier/model/supplier_axios";
+import { PurchaseListModal } from "../feature/supplier/view/PurchaseListModal";
 import { SupplierCreate } from "../feature/supplier/view/SupplierCreate";
 import { SupplierEdit } from "../feature/supplier/view/SupplierEdit";
 import { SupplierList } from "../feature/supplier/view/SupplierList";
@@ -191,6 +192,12 @@ const router = createBrowserRouter([
           {
             path: "/app/supplier/read/:id",
             element: <SupplierRead />,
+            children: [
+              {
+                path: "/app/supplier/read/:id/inventory/read/:purchaseId",
+                element: <PurchaseListModal />,
+              },
+            ],
           },
         ],
       },
@@ -215,10 +222,6 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: "/app/report",
-        element: <></>,
-      },
-      {
         path: "/app/product",
         element: <ProductPage />,
         children: [
@@ -237,7 +240,19 @@ const router = createBrowserRouter([
         element: <></>,
       },
       {
-        path: "/app/log",
+        path: "/app/sales",
+        element: <></>,
+      },
+      {
+        path: "/app/bill",
+        element: <></>,
+      },
+      {
+        path: "/app/credit",
+        element: <></>,
+      },
+      {
+        path: "/app/stock",
         element: <></>,
       },
     ],

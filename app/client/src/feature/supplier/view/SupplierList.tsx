@@ -26,6 +26,7 @@ import { Dependency } from "../../../component/App";
 import { debounce } from "../../../helper/debounce";
 import { Supplier } from "../model/supplier_model";
 import { useSupplierHook } from "./SupplierHook";
+import { Num } from "../../../helper/num";
 
 export function SupplierList() {
   const { auth, supplierController } = useContext(Dependency)!;
@@ -150,18 +151,18 @@ export function SupplierList() {
                             title: "Supplier",
                             dataIndex: "name",
                             minWidth: 60,
-                            render: (_, record) => (
-                              <>
-                                <Link
-                                  to={`/app/supplier/read/${record.id}`}
-                                  state={{
-                                    from: location.pathname + location.search,
-                                  }}
-                                >
-                                  {record.name}
-                                </Link>
-                              </>
-                            ),
+                            // render: (_, record) => (
+                            //   <>
+                            //     <Link
+                            //       to={`/app/supplier/read/${record.id}`}
+                            //       state={{
+                            //         from: location.pathname + location.search,
+                            //       }}
+                            //     >
+                            //       {record.name}
+                            //     </Link>
+                            //   </>
+                            // ),
                           },
                           {
                             title: "No Hp",
@@ -172,6 +173,12 @@ export function SupplierList() {
                             title: "Alamat",
                             dataIndex: "address",
                             minWidth: 60,
+                          },
+                          {
+                            title: "Hutang",
+                            dataIndex: "outstanding",
+                            minWidth: 60,
+                            render: (value) => Num.format(value),
                           },
                           {
                             render: (_, e) => (

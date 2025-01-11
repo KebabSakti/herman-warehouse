@@ -18,6 +18,7 @@ import {
   Space,
   Spin,
   Table,
+  Tag,
   Typography,
   Upload,
   UploadFile,
@@ -111,6 +112,18 @@ export function LedgerDetailTab({
               <Row justify="space-between">
                 <Col>No. Hp</Col>
                 <Col>{purchase.supplierPhone}</Col>
+              </Row>
+            </Col>
+            <Col span={24}>
+              <Row justify="space-between">
+                <Col>Status</Col>
+                <Col>
+                  {purchase.balance > 0 ? (
+                    <Tag color="red">BELUM LUNAS</Tag>
+                  ) : (
+                    <Tag color="green">LUNAS</Tag>
+                  )}
+                </Col>
               </Row>
             </Col>
             <Col

@@ -8,4 +8,8 @@ export abstract class PurchaseApi {
   abstract read(id: string): Promise<Purchase | null | undefined>;
   abstract update(id: string, param: PurchaseUpdate): Promise<void>;
   abstract remove(id: string): Promise<void>;
+  abstract findBySupplierId(
+    id: string,
+    param?: Record<string, any> | null | undefined
+  ): Promise<Result<Purchase[]>>;
 }

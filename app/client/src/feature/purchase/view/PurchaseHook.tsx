@@ -13,6 +13,11 @@ type PurchaseState = State<Result<Purchase[]> | Purchase | null | undefined>;
 export type PurchaseHookType = {
   state: PurchaseState;
   list(param: PurchaseList, extra?: Record<string, any>): Promise<void>;
+  findBySupplierId(
+    id: string,
+    param?: Record<string, any> | null | undefined,
+    extra?: Record<string, any> | null | undefined
+  ): Promise<void>;
   create(param: PurchaseCreate, extra?: Record<string, any>): Promise<void>;
   read(id: string, extra?: Record<string, any>): Promise<void>;
   update(
@@ -41,6 +46,20 @@ export function usePurchaseHook(
       setState({ action: "list", status: "complete", data: data });
     } catch (error: any) {
       setState({ ...state, action: "list", status: "complete", error: error });
+    }
+  }
+
+  async function findBySupplierId(
+    id: string,
+    param?: Record<string, any> | null | undefined,
+    extra?: Record<string, any> | null | undefined
+  ): Promise<void> {
+    try {
+      setState({ ...state, action: "find", status: "loading" });
+      const data = await purchaseController.findBySupplierId(id, param, extra);
+      setState({ action: "find", status: "complete", data: data });
+    } catch (error: any) {
+      setState({ ...state, action: "find", status: "complete", error: error });
     }
   }
 
@@ -109,5 +128,5 @@ export function usePurchaseHook(
     }
   }
 
-  return { state, list, create, read, update, remove };
+  return { state, list, findBySupplierId, create, read, update, remove };
 }

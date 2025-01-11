@@ -25,4 +25,10 @@ export abstract class PurchaseApi {
     param: PurchaseList,
     extra?: Record<string, any>
   ): Promise<Result<Purchase[]>>;
+
+  abstract findBySupplierId(
+    id: string,
+    param?: Record<string, any> | null | undefined,
+    extra?: Record<string, any> | null | undefined
+  ): Promise<Result<Purchase[]>>;
 }

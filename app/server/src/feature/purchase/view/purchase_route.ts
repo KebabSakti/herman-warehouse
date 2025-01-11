@@ -24,6 +24,19 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/find/:id", async (req, res) => {
+  try {
+    const result = await purchaseController.findBySupplierId(
+      req.params.id,
+      req.query
+    );
+
+    return res.json(result);
+  } catch (error: any) {
+    return Failure(error, res);
+  }
+});
+
 router.post("/", async (req, res) => {
   try {
     const param = req.body;

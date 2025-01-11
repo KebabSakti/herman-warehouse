@@ -50,4 +50,14 @@ export class PurchaseController {
 
     return result;
   }
+
+  async findBySupplierId(
+    id: string,
+    param?: Record<string, any> | null | undefined,
+    extra?: Record<string, any> | null | undefined
+  ): Promise<Result<Purchase[]>> {
+    const result = await this.purchaseApi.findBySupplierId(id, param, extra);
+
+    return result;
+  }
 }

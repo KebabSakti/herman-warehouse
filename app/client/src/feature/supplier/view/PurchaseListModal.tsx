@@ -2,50 +2,50 @@ import { Modal, Skeleton, Tabs } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { Dependency } from "../../../component/App";
-import { Invoice } from "../model/invoice_model";
-import { InstallmentDetailTab } from "./InstallmentDetailTab";
-import { InvoiceDetailTab } from "./InvoiceDetailTab";
-import { useInvoiceHook } from "./InvoiceHook";
+import { Purchase } from "../../purchase/model/purchase_model";
+import { LedgerDetailTab } from "../../purchase/view/LedgerDetailTab";
+import { PurchaseDetailTab } from "../../purchase/view/PurchaseDetailTab";
+import { usePurchaseHook } from "../../purchase/view/PurchaseHook";
 
-export function InvoiceRead() {
+export type PurchaseTabProps = { purchase: Purchase };
+
+export function PurchaseListModal() {
+  const { auth, purchaseController } = useContext(Dependency)!;
+  const purchase = usePurchaseHook(purchaseController);
   const navigate = useNavigate();
   const location = useLocation();
+  const param = useParams();
   const [activeTab, setActiveTab] = useState<string>("1");
-  const { auth, invoiceController } = useContext(Dependency)!;
-  const invoice = useInvoiceHook(invoiceController);
-  const { invoiceId } = useParams();
 
   useEffect(() => {
-    if (
-      invoiceId &&
-      invoice.state.action == "idle" &&
-      invoice.state.status == "idle"
-    ) {
-      invoice.read(invoiceId, { token: auth.state.data! });
+    if (purchase.state.action == "idle" && purchase.state.status == "idle") {
+      purchase.read(param.purchaseId!, { token: auth.state.data! });
     }
-  }, [invoice.state]);
+  }, [purchase.state]);
 
   return (
     <>
       <Modal
         centered
         destroyOnClose
-        width={800}
+        width={750}
         maskClosable={false}
-        open={location.pathname.includes("/app/order/read")}
+        open={location.pathname.includes(
+          `/app/supplier/read/${param.id}/inventory/read/${param.purchaseId}`
+        )}
         footer={null}
         onCancel={() => {
           const target =
             location.state?.from == null
-              ? "/app/order?page=1&limit=10"
+              ? "/app/supplier/read/${param.id}?page=1&limit=10"
               : location.state.from;
 
           navigate(target);
         }}
       >
         {(() => {
-          if (invoice.state.data) {
-            const data = invoice.state.data as Invoice;
+          if (purchase.state.data) {
+            const purchaseData = purchase.state.data as Purchase;
 
             return (
               <>
@@ -58,12 +58,12 @@ export function InvoiceRead() {
                     {
                       key: "1",
                       label: "Detail Nota",
-                      children: <InvoiceDetailTab invoice={data} />,
+                      children: <PurchaseDetailTab purchase={purchaseData} />,
                     },
                     {
                       key: "2",
-                      label: "Riwayat Setoran",
-                      children: <InstallmentDetailTab invoiceHook={invoice} />,
+                      label: "Riwayat Pembayaran",
+                      children: <LedgerDetailTab purchaseHook={purchase} />,
                     },
                   ]}
                 />

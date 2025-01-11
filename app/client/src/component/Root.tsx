@@ -1,14 +1,16 @@
 import {
+  ApartmentOutlined,
   AuditOutlined,
   BarChartOutlined,
   DashboardOutlined,
   DatabaseOutlined,
-  FileSearchOutlined,
+  DiffOutlined,
   IdcardOutlined,
   LogoutOutlined,
   ProductOutlined,
+  SnippetsOutlined,
   TeamOutlined,
-  UserOutlined
+  UserOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, Space, Typography } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
@@ -34,6 +36,11 @@ export function Root() {
 
   const items: any[] = [
     {
+      key: "1",
+      label: "Menu",
+      type: "group",
+    },
+    {
       key: currentMenuKey("/app/dashboard"),
       label: "Dashboard",
       icon: <DashboardOutlined />,
@@ -48,16 +55,6 @@ export function Root() {
       label: "Nota Kustomer",
       icon: <AuditOutlined />,
     },
-    // {
-    //   key: currentMenuKey("/app/hutang"),
-    //   label: "Hutang",
-    //   icon: <SnippetsOutlined />,
-    // },
-    // {
-    //   key: currentMenuKey("/app/piutang"),
-    //   label: "Piutang",
-    //   icon: <DiffOutlined />,
-    // },
     {
       key: currentMenuKey("/app/supplier"),
       label: "Supplier",
@@ -69,25 +66,65 @@ export function Root() {
       icon: <UserOutlined />,
     },
     {
-      key: currentMenuKey("/app/report"),
-      label: "Report",
-      icon: <BarChartOutlined />,
-    },
-    {
       key: currentMenuKey("/app/product"),
       label: "Product",
       icon: <ProductOutlined />,
     },
     {
       key: currentMenuKey("/app/account"),
-      label: "Account",
+      label: "Akun",
       icon: <IdcardOutlined />,
     },
     {
-      key: currentMenuKey("/app/log"),
-      label: "Log",
-      icon: <FileSearchOutlined />,
+      type: "divider",
     },
+    {
+      key: "2",
+      label: "Laporan",
+      type: "group",
+      children: [
+        {
+          key: currentMenuKey("/app/sales"),
+          label: "Penjualan",
+          icon: <BarChartOutlined />,
+        },
+        {
+          key: currentMenuKey("/app/bill"),
+          label: "Hutang",
+          icon: <SnippetsOutlined />,
+        },
+        {
+          key: currentMenuKey("/app/credit"),
+          label: "Piutang",
+          icon: <DiffOutlined />,
+        },
+        {
+          key: currentMenuKey("/app/stock"),
+          label: "Stok",
+          icon: <ApartmentOutlined />,
+        },
+      ],
+    },
+    {
+      type: "divider",
+    },
+    // {
+    //   key: currentMenuKey("/app/report"),
+    //   label: "Laporan",
+    //   icon: <BarChartOutlined />,
+    //   children: [
+    //     {
+    //       key: currentMenuKey("/app/report/sale"),
+    //       label: "Penjualan",
+    //       type: "group",
+    //     },
+    //   ],
+    // },
+    // {
+    //   key: currentMenuKey("/app/log"),
+    //   label: "Log",
+    //   icon: <FileSearchOutlined />,
+    // },
     {
       key: "/app/logout",
       label: "Logout",

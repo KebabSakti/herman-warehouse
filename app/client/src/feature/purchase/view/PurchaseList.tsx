@@ -12,6 +12,7 @@ import {
   Row,
   Spin,
   Table,
+  Tag,
 } from "antd";
 import Title from "antd/es/typography/Title";
 import dayjs from "dayjs";
@@ -232,6 +233,22 @@ export function PurchaseList() {
                             minWidth: 60,
                             render: (value) => {
                               return <>{Num.format(value)}</>;
+                            },
+                          },
+                          {
+                            title: "Status",
+                            dataIndex: "balance",
+                            minWidth: 60,
+                            render: (value) => {
+                              return (
+                                <>
+                                  {value > 0 ? (
+                                    <Tag color="red">BELUM LUNAS</Tag>
+                                  ) : (
+                                    <Tag color="green">LUNAS</Tag>
+                                  )}
+                                </>
+                              );
                             },
                           },
                           {

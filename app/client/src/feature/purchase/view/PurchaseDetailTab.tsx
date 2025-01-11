@@ -1,5 +1,5 @@
 import { PrinterFilled } from "@ant-design/icons";
-import { Button, Col, Row, Table, Typography } from "antd";
+import { Button, Col, Row, Table, Tag, Typography } from "antd";
 import dayjs from "dayjs";
 import { Num } from "../../../helper/num";
 import { PurchaseTabProps } from "./PurchaseRead";
@@ -77,6 +77,24 @@ export function PurchaseDetailTab({ purchase }: PurchaseTabProps) {
           <Row justify="space-between">
             <Col>Supplier</Col>
             <Col>{purchase.supplierName}</Col>
+          </Row>
+        </Col>
+        <Col span={24}>
+          <Row justify="space-between">
+            <Col>No. Hp</Col>
+            <Col>{purchase.supplierPhone}</Col>
+          </Row>
+        </Col>
+        <Col span={24}>
+          <Row justify="space-between">
+            <Col>Status</Col>
+            <Col>
+              {purchase.balance > 0 ? (
+                <Tag color="red">BELUM LUNAS</Tag>
+              ) : (
+                <Tag color="green">LUNAS</Tag>
+              )}
+            </Col>
           </Row>
         </Col>
         <Col span={24}>

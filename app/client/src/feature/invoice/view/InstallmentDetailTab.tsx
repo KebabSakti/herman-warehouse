@@ -17,6 +17,7 @@ import {
   Space,
   Spin,
   Table,
+  Tag,
   Typography,
   Upload,
   UploadFile,
@@ -91,8 +92,6 @@ export function InstallmentDetailTab({
     }
   }, [installment.state]);
 
-  console.log(invoice);
-
   return (
     <>
       <Spin spinning={installment.state.status == "loading"}>
@@ -120,6 +119,18 @@ export function InstallmentDetailTab({
               <Row justify="space-between">
                 <Col>No. Hp</Col>
                 <Col>{invoice.customerPhone}</Col>
+              </Row>
+            </Col>
+            <Col span={24}>
+              <Row justify="space-between">
+                <Col>Status</Col>
+                <Col>
+                  {invoice.outstanding > 0 ? (
+                    <Tag color="red">BELUM LUNAS</Tag>
+                  ) : (
+                    <Tag color="green">LUNAS</Tag>
+                  )}
+                </Col>
               </Row>
             </Col>
             <Col

@@ -25,6 +25,7 @@ import { Dependency } from "../../../component/App";
 import { debounce } from "../../../helper/debounce";
 import { Customer } from "../model/customer_model";
 import { useCustomerHook } from "./CustomerHook";
+import { Num } from "../../../helper/num";
 
 export function CustomerList() {
   const { auth, customerController } = useContext(Dependency)!;
@@ -159,6 +160,12 @@ export function CustomerList() {
                             title: "Alamat",
                             dataIndex: "address",
                             minWidth: 60,
+                          },
+                          {
+                            title: "Piutang",
+                            dataIndex: "outstanding",
+                            minWidth: 60,
+                            render: (value) => Num.format(value),
                           },
                           {
                             render: (_, e) => (
