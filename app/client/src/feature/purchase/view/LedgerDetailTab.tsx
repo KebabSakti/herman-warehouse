@@ -1,5 +1,6 @@
 import {
   CloseCircleFilled,
+  DeleteFilled,
   PrinterFilled,
   UploadOutlined,
 } from "@ant-design/icons";
@@ -12,6 +13,7 @@ import {
   Input,
   InputNumber,
   notification,
+  Popconfirm,
   Row,
   Space,
   Spin,
@@ -39,9 +41,14 @@ export function LedgerDetailTab({
   const { auth, ledgerController } = useContext(Dependency)!;
   const ledger = useLedgerHook(ledgerController);
   const [form] = Form.useForm();
-  const { Title, Text } = Typography;
+  const { Text } = Typography;
   const [attachment, setAttachment] = useState<UploadFile<File> | null>();
   const purchase = purchaseHook.state.data as Purchase;
+  const ledgerData = purchase.ledger?.sort(
+    (a, b) => dayjs(b.created).valueOf() - dayjs(a.created).valueOf()
+  );
+
+  console.log(ledgerData);
 
   useEffect(() => {
     if (ledger.state.status == "complete" && ledger.state.error != null) {
@@ -57,6 +64,19 @@ export function LedgerDetailTab({
       ledger.state.error == null
     ) {
       form.resetFields();
+      purchaseHook.read(purchase.id, { token: auth.state.data! });
+
+      notification.success({
+        message: "Sukses",
+        description: "Proses berhasil",
+      });
+    }
+
+    if (
+      ledger.state.action == "remove" &&
+      ledger.state.status == "complete" &&
+      ledger.state.error == null
+    ) {
       purchaseHook.read(purchase.id, { token: auth.state.data! });
 
       notification.success({
@@ -127,7 +147,7 @@ export function LedgerDetailTab({
               style={{ overflowX: "scroll" }}
               pagination={false}
               dataSource={
-                purchase.ledger?.map((e, i) => {
+                ledgerData?.map((e, i) => {
                   return { key: i, ...e };
                 }) ?? []
               }
@@ -181,19 +201,35 @@ export function LedgerDetailTab({
                   dataIndex: "outstanding",
                   render: (value) => <>{Num.format(value)}</>,
                 },
+                {
+                  render: (_, record) =>
+                    !record.dp && (
+                      <Flex justify="center">
+                        <Popconfirm
+                          placement="topLeft"
+                          title="Data akan dihapus"
+                          description="Proses ini tidak dapat dikembalikan, lanjutkan?"
+                          okText="Ya"
+                          cancelText="Batal"
+                          onConfirm={() => {
+                            ledger.remove(record.id, {
+                              token: auth.state.data!,
+                            });
+                          }}
+                        >
+                          <Button
+                            icon={<DeleteFilled />}
+                            color="danger"
+                            size="small"
+                            variant="solid"
+                          />
+                        </Popconfirm>
+                      </Flex>
+                    ),
+                },
               ]}
             />
-            {purchase.balance == 0 ? (
-              <div
-                style={{
-                  textAlign: "center",
-                }}
-              >
-                <Title level={1} type="success">
-                  LUNAS
-                </Title>
-              </div>
-            ) : (
+            {purchase.balance > 0 && (
               <Form
                 size="large"
                 form={form}
@@ -211,8 +247,6 @@ export function LedgerDetailTab({
                     note: values.note,
                     printed: values.printed,
                   };
-
-                  console.log(payload);
 
                   await ledgerCreateSchema
                     .validate(payload)
@@ -263,8 +297,8 @@ export function LedgerDetailTab({
                   </Form.Item>
                   <Form.Item
                     noStyle
-                    name="attachment"
-                    valuePropName="attachment"
+                    name="file"
+                    valuePropName="file"
                     getValueFromEvent={(e) => {
                       return e.file;
                     }}

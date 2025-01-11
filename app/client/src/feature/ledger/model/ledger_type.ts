@@ -1,4 +1,4 @@
-import { InferType, mixed, number, object, string } from "yup";
+import { boolean, InferType, mixed, number, object, string } from "yup";
 
 export const ledgerCreateSchema = object({
   id: string().required(),
@@ -11,6 +11,7 @@ export const ledgerCreateSchema = object({
   file: mixed().nullable(),
   note: string().nullable(),
   printed: string().nullable(),
+  dp: boolean().nullable(),
 });
 
 export const ledgerListSchema = object({

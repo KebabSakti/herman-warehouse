@@ -68,7 +68,9 @@ export class InvoiceMysql implements InvoiceApi {
           current.installments &&
           current.installments.invoiceId === current.invoices.id
         ) {
-          invoice.installment.push(current.installments);
+          if (current.installments.id) {
+            invoice.installment.push(current.installments);
+          }
         }
 
         acc.push(invoice);
@@ -265,7 +267,9 @@ export class InvoiceMysql implements InvoiceApi {
           current.installments &&
           current.installments.invoiceId === current.invoices.id
         ) {
-          invoice.installment.push(current.installments);
+          if (current.installments) {
+            invoice.installment.push(current.installments);
+          }
         }
 
         acc.push(invoice);

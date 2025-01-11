@@ -1,4 +1,4 @@
-import { array, InferType, mixed, number, object, string } from "yup";
+import { array, boolean, InferType, mixed, number, object, string } from "yup";
 
 export const purchaseCreateSchema = object({
   id: string().required("ID tidak boleh kosong"),
@@ -51,6 +51,7 @@ export const purchaseCreateSchema = object({
       file: mixed().nullable(),
       note: string().nullable(),
       printed: string().nullable(),
+      dp: boolean().nullable(),
     })
   ).nullable(),
 });

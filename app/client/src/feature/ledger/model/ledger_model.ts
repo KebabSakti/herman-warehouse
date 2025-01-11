@@ -4,6 +4,7 @@ export interface Ledger {
   supplierId: string;
   amount: number;
   outstanding: number;
+  dp: boolean;
   file?: string | null | undefined;
   note?: string | null | undefined;
   printed?: string | null | undefined;

@@ -46,7 +46,7 @@ export class LedgerMysql implements LedgerApi {
           {
             id: param.id,
             purchaseId: param.purchaseId,
-            supplierId: param.purchaseId,
+            supplierId: param.supplierId,
             amount: param.amount,
             outstanding: param.outstanding,
             file: param.file && param.id + ".jpg",
@@ -92,8 +92,7 @@ export class LedgerMysql implements LedgerApi {
           "select * from ledgers where id = ?",
           [id],
           (err, res) => {
-            if (err) reject(err);
-            if (res.length == 0) reject(err);
+            if (err && res.length == 0) reject(err);
             resolve(res[0]);
           }
         );
@@ -101,8 +100,8 @@ export class LedgerMysql implements LedgerApi {
 
       await new Promise<void>((resolve, reject) => {
         connection.query(
-          "update suppliers set outstanding = ? where id = ?",
-          [ledger.outstanding, ledger.supplierId],
+          "update suppliers set outstanding = outstanding + ? where id = ?",
+          [ledger.amount, ledger.supplierId],
           (err) => {
             if (err) reject(err);
             resolve();
@@ -112,8 +111,8 @@ export class LedgerMysql implements LedgerApi {
 
       await new Promise<void>((resolve, reject) => {
         connection.query(
-          "update purchases set outstanding = ?, updated = ? where id = ?",
-          [ledger.outstanding, now(), ledger.supplierId],
+          "update purchases set balance =  balance + ?, updated = ? where id = ?",
+          [ledger.amount, now(), ledger.purchaseId],
           (err) => {
             if (err) reject(err);
             resolve();
@@ -122,14 +121,10 @@ export class LedgerMysql implements LedgerApi {
       });
 
       await new Promise<void>((resolve, reject) => {
-        connection.query(
-          "update ledgers set deleted = ? where id = ?",
-          [now(), id],
-          (err) => {
-            if (err) reject(err);
-            resolve();
-          }
-        );
+        connection.query("delete from ledgers where id = ?", [id], (err) => {
+          if (err) reject(err);
+          resolve();
+        });
       });
     });
   }

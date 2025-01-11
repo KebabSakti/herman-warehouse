@@ -35,6 +35,7 @@ import { InvoiceRead } from "../feature/invoice/view/InvoiceRead";
 import { LedgerController } from "../feature/ledger/controller/ledger_controller";
 import { LedgerApi } from "../feature/ledger/model/ledger_api";
 import { LedgerAxios } from "../feature/ledger/model/ledger_axios";
+import { LedgerPrint } from "../feature/ledger/view/LedgerPrint";
 import { ProductController } from "../feature/product/controller/product_controller";
 import { ProductApi } from "../feature/product/model/product_api";
 import { ProductAxios } from "../feature/product/model/product_axios";
@@ -94,6 +95,10 @@ const router = createBrowserRouter([
       {
         path: "/print/installment/:invoiceId",
         element: <InstallmentPrint />,
+      },
+      {
+        path: "/print/ledger/:purchaseId",
+        element: <LedgerPrint />,
       },
     ],
   },

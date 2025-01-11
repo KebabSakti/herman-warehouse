@@ -114,7 +114,6 @@ export function PurchaseDetailTab({ purchase }: PurchaseTabProps) {
 
           {(() => {
             if (purchase.payment && purchase.payment.length > 0) {
-              console.log(purchase);
               return (
                 <>
                   <Table

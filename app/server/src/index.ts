@@ -10,7 +10,7 @@ import customerRoute from "./feature/customer/view/customer_route";
 import installmentRoute from "./feature/installment/view/installment_route";
 import invoiceRoute from "./feature/invoice/view/invoice_route";
 import ledgerRoute from "./feature/ledger/view/ledger_route";
-import { isLogin, isSigned } from "./feature/middleware";
+import { isLogin, isSigned, logger } from "./feature/middleware";
 import productRoute from "./feature/product/view/product_route";
 import purchaseRoute from "./feature/purchase/view/purchase_route";
 import stockRoute from "./feature/stock/view/stock_route";
@@ -32,6 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("./static"));
 app.use(multerInstance.any());
+app.use(logger);
 
 app.use("/", userRoute);
 app.use("/app", isLogin, isSigned);

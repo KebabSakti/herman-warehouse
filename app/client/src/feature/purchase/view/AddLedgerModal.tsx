@@ -47,6 +47,7 @@ export function AddLedgerModal(props: PurchaseCreateProps) {
               file: values.file,
               note: values.note,
               printed: props.hook.state.printed,
+              dp: true,
             };
 
             await ledgerCreateSchema

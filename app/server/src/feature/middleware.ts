@@ -69,3 +69,29 @@ export async function isSigned(
     return Failure(error, res);
   }
 }
+
+export async function logger(req: Request, res: Response, next: NextFunction) {
+  const method = req.method;
+  const headers = req.headers;
+  const path = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
+  const body = req.body;
+
+  console.log(" ");
+  console.log("METHOD : " + method);
+  console.log("PATH : " + path);
+
+  if (Object.keys(req.body).length > 0) {
+    console.log("BODY");
+    console.log(body);
+  }
+
+  if (req.files) {
+    console.log("FILE");
+    console.log(req.files);
+  }
+
+  console.log("HEADERS");
+  console.log(headers);
+
+  return next();
+}

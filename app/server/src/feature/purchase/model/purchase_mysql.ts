@@ -84,7 +84,9 @@ export class PurchaseMysql implements PurchaseApi {
         current.payments &&
         !purchase.payment.some((pay: any) => pay.id === current.payments.id)
       ) {
-        purchase.payment.push(current.payments);
+        if (current.payments.id) {
+          purchase.payment.push(current.payments);
+        }
       }
 
       // Add ledger if not already present
@@ -92,7 +94,9 @@ export class PurchaseMysql implements PurchaseApi {
         current.ledgers &&
         !purchase.ledger.some((led: any) => led.id === current.ledgers.id)
       ) {
-        purchase.ledger.push(current.ledgers);
+        if (current.ledgers.id) {
+          purchase.ledger.push(current.ledgers);
+        }
       }
 
       return acc;
@@ -191,13 +195,14 @@ export class PurchaseMysql implements PurchaseApi {
           param.total,
           ledger.file && ledger.id + ".jpg",
           ledger.note,
+          ledger.dp,
           today,
           today,
         ]);
 
         await new Promise<void>((resolve, reject) => {
           connection.query(
-            "insert into ledgers (id,purchaseId,supplierId,amount,outstanding,file,note,created,updated) values ?",
+            "insert into ledgers (id,purchaseId,supplierId,amount,outstanding,file,note,dp,created,updated) values ?",
             [ledgers],
             (err) => {
               if (err) reject(err);
@@ -346,7 +351,9 @@ export class PurchaseMysql implements PurchaseApi {
         current.payments &&
         !purchase.payment.some((pay: any) => pay.id === current.payments.id)
       ) {
-        purchase.payment.push(current.payments);
+        if (current.payments.id) {
+          purchase.payment.push(current.payments);
+        }
       }
 
       // Add ledger if not already present
@@ -354,7 +361,9 @@ export class PurchaseMysql implements PurchaseApi {
         current.ledgers &&
         !purchase.ledger.some((led: any) => led.id === current.ledgers.id)
       ) {
-        purchase.ledger.push(current.ledgers);
+        if (current.ledgers.id) {
+          purchase.ledger.push(current.ledgers);
+        }
       }
 
       return acc;
@@ -434,7 +443,7 @@ export class PurchaseMysql implements PurchaseApi {
         });
 
         if (invoices.length > 0 || ledgers.length > 0) {
-          throw new BadRequest("Proses tidak boleh dilakukan");
+          throw new BadRequest("Data tidak dapat dihapus");
         }
 
         await new Promise<void>((resolve, reject) => {
