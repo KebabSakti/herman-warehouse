@@ -50,6 +50,10 @@ import { PurchaseEdit } from "../feature/purchase/view/PurchaseEdit";
 import { PurchaseList } from "../feature/purchase/view/PurchaseList";
 import { PurchasePrint } from "../feature/purchase/view/PurchasePrint";
 import { PurchaseRead } from "../feature/purchase/view/PurchaseRead";
+import { SaleController } from "../feature/sale/controller/sale_controller";
+import { SaleApi } from "../feature/sale/model/sale_api";
+import { SaleAxios } from "../feature/sale/model/sale_axios";
+import { SaleList } from "../feature/sale/view/SaleList";
 import { StockController } from "../feature/stock/controller/stock_controller";
 import { StockApi } from "../feature/stock/model/stock_api";
 import { StockAxios } from "../feature/stock/model/stock_axios";
@@ -62,6 +66,7 @@ import { SupplierEdit } from "../feature/supplier/view/SupplierEdit";
 import { SupplierList } from "../feature/supplier/view/SupplierList";
 import { SupplierRead } from "../feature/supplier/view/SupplierRead";
 import { Root } from "./Root";
+import { SalePrint } from "../feature/sale/view/SalePrint";
 
 export type Dependency = {
   auth: AuthHookType;
@@ -73,6 +78,7 @@ export type Dependency = {
   customerController: CustomerController;
   installmentController: InstallmentController;
   ledgerController: LedgerController;
+  saleController: SaleController;
 };
 
 export const Dependency = createContext<Dependency | null>(null);
@@ -100,6 +106,10 @@ const router = createBrowserRouter([
       {
         path: "/print/ledger/:purchaseId",
         element: <LedgerPrint />,
+      },
+      {
+        path: "/print/sale/:start/to/:end",
+        element: <SalePrint />,
       },
     ],
   },
@@ -241,7 +251,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/app/sales",
-        element: <></>,
+        element: <SaleList />,
       },
       {
         path: "/app/bill",
@@ -269,6 +279,7 @@ export function App() {
   const customerApi: CustomerApi = new CustomerAxios();
   const installmentApi: InstallmentApi = new InstallmentAxios();
   const ledgerApi: LedgerApi = new LedgerAxios();
+  const saleApi: SaleApi = new SaleAxios();
 
   const dependencies: Dependency = {
     auth: useAuthHook(new AuthController(authApi)),
@@ -280,6 +291,7 @@ export function App() {
     customerController: new CustomerController(customerApi),
     installmentController: new InstallmentController(installmentApi),
     ledgerController: new LedgerController(ledgerApi),
+    saleController: new SaleController(saleApi),
   };
 
   return (

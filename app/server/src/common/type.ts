@@ -8,11 +8,14 @@ export type Paging = {
 
 export type Result<T> = {
   data: T;
-  paging: {
-    page: number;
-    limit: number;
-    total: number;
-  };
+  paging?:
+    | {
+        page?: number | null | undefined;
+        limit?: number | null | undefined;
+        total?: number | null | undefined;
+      }
+    | null
+    | undefined;
 };
 
 export const fileSchema = object({

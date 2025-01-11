@@ -13,6 +13,7 @@ import ledgerRoute from "./feature/ledger/view/ledger_route";
 import { isLogin, isSigned, logger } from "./feature/middleware";
 import productRoute from "./feature/product/view/product_route";
 import purchaseRoute from "./feature/purchase/view/purchase_route";
+import saleRoute from "./feature/sale/view/sale_route";
 import stockRoute from "./feature/stock/view/stock_route";
 import supplierRoute from "./feature/supplier/view/supplier_route";
 import userRoute from "./feature/user/view/user_route";
@@ -44,24 +45,11 @@ app.use("/app/stock", stockRoute);
 app.use("/app/customer", customerRoute);
 app.use("/app/installment", installmentRoute);
 app.use("/app/ledger", ledgerRoute);
+app.use("/app/sale", saleRoute);
 
 app.get("/", async (req, res) => {
   try {
-    const localStartDate = "2025-01-10T00:00:00";
-    const localEndDate = "2025-01-10T23:59:59";
-    const utcStartDate = dayjs
-      .tz(localStartDate, "Asia/Kuala_Lumpur")
-      .utc()
-      .format("YYYY-MM-DD HH:mm:ss");
-    const utcEndDate = dayjs
-      .tz(localEndDate, "Asia/Kuala_Lumpur")
-      .utc()
-      .format("YYYY-MM-DD HH:mm:ss");
-
-    console.log(utcStartDate.toString());
-    console.log(utcEndDate.toString());
-
-    return res.json("OKE");
+    return res.end();
   } catch (error: any) {
     return Failure(error, res);
   }
