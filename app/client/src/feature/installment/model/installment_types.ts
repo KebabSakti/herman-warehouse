@@ -1,4 +1,4 @@
-import { InferType, mixed, number, object, string } from "yup";
+import { boolean, InferType, mixed, number, object, string } from "yup";
 import { FILE_SIZE, IMAGE_FORMATS } from "../../../common/common";
 
 export const installmentCreateSchema = object({
@@ -8,6 +8,7 @@ export const installmentCreateSchema = object({
   amount: number().required("Kolom jumlah tidak boleh kosong"),
   note: string().nullable(),
   printed: string().required("Kolom tanggal tidak boleh kosong"),
+  dp: boolean().nullable(),
   attachment: mixed()
     .nullable()
     .notRequired()

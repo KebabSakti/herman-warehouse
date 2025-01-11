@@ -3,6 +3,7 @@ export interface Installment {
   invoiceId: string;
   amount: number;
   outstanding: number;
+  dp: boolean;
   note?: string | null | undefined;
   attachment?: string | File | null | undefined;
   printed?: string | null | undefined;

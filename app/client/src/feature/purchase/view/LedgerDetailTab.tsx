@@ -48,8 +48,6 @@ export function LedgerDetailTab({
     (a, b) => dayjs(b.created).valueOf() - dayjs(a.created).valueOf()
   );
 
-  console.log(ledgerData);
-
   useEffect(() => {
     if (ledger.state.status == "complete" && ledger.state.error != null) {
       notification.error({

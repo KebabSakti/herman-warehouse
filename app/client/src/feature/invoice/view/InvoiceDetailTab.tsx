@@ -1,11 +1,34 @@
 import { PrinterFilled } from "@ant-design/icons";
-import { Button, Col, Row, Table } from "antd";
+import { Button, Col, Row, Table, Typography } from "antd";
 import dayjs from "dayjs";
 import { SERVER } from "../../../common/common";
 import { Num } from "../../../helper/num";
 import { Invoice } from "../model/invoice_model";
 
 export function InvoiceDetailTab({ invoice }: { invoice: Invoice }) {
+  const { Text } = Typography;
+  const summaries = [
+    {
+      item: "Produk",
+      total: invoice.totalItem,
+      min: false,
+    },
+  ];
+
+  if (invoice.totalPaid > 0) {
+    summaries.push({
+      item: "Panjar",
+      total: invoice.totalPaid,
+      min: true,
+    });
+  }
+
+  summaries.push({
+    item: "Total",
+    total: invoice.total,
+    min: false,
+  });
+
   return (
     <>
       <Row gutter={[0, 8]}>
@@ -35,9 +58,7 @@ export function InvoiceDetailTab({ invoice }: { invoice: Invoice }) {
         </Col>
         <Col span={24}>
           <Table
-            bordered
             size="small"
-            loading={false}
             style={{ overflowX: "scroll" }}
             pagination={false}
             dataSource={invoice.item.map((e, i) => {
@@ -68,56 +89,63 @@ export function InvoiceDetailTab({ invoice }: { invoice: Invoice }) {
               },
             ]}
           />
-        </Col>
-        <Col span={24}>
-          <Row justify="space-between">
-            <Col>Total Item</Col>
-            <Col>{Num.format(invoice.totalItem)}</Col>
-          </Row>
-        </Col>
-        <Col span={24}>
-          <Row justify="space-between">
-            <Col>
-              Setor
-              {invoice.installment?.[0]?.attachment == undefined ? (
-                ""
-              ) : (
-                <Button
-                  color="primary"
-                  variant="link"
-                  size="small"
-                  href={`${SERVER}/${invoice.installment?.[0]?.attachment}`}
-                  target="_blank"
-                  onClick={() => {
-                    //
-                  }}
-                >
-                  [Lampiran]
-                </Button>
-              )}
-            </Col>
-            <Col>{Num.format(invoice.totalPaid)}</Col>
-          </Row>
-        </Col>
-        <Col span={24}>
-          <Row justify="space-between">
-            <Col
-              style={{
-                fontWeight: "bold",
-                fontSize: "16px",
-              }}
-            >
-              Total
-            </Col>
-            <Col
-              style={{
-                fontWeight: "bold",
-                fontSize: "16px",
-              }}
-            >
-              {Num.format(invoice.total)}
-            </Col>
-          </Row>
+          <Table
+            size="small"
+            showHeader={false}
+            style={{ overflowX: "scroll" }}
+            pagination={false}
+            dataSource={summaries.map((e, i) => {
+              return { ...e, key: i };
+            })}
+            columns={[
+              {
+                dataIndex: "item",
+                render: (value) => {
+                  return (
+                    <>
+                      <div
+                        style={{
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {value}
+                        {value == "Panjar" &&
+                        invoice.installment?.[0]?.attachment ? (
+                          <>
+                            <Button
+                              color="primary"
+                              variant="link"
+                              size="small"
+                              target="_blank"
+                              href={`${SERVER}/${invoice.installment?.[0]?.attachment}`}
+                            >
+                              [Lampiran]
+                            </Button>
+                          </>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    </>
+                  );
+                },
+              },
+              {
+                dataIndex: "total",
+                align: "right",
+                render: (value, record) => {
+                  return (
+                    <div style={{ fontWeight: "bold" }}>
+                      <Text style={{ color: record.min ? "red" : "" }}>
+                        {Num.format(value ?? 0)}
+                      </Text>
+                    </div>
+                  );
+                },
+              },
+            ]}
+          />
         </Col>
         {invoice.note == null ? (
           ""
