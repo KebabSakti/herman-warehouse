@@ -139,8 +139,16 @@ export function ProfitList() {
                                 <div>{Num.format(profitData.total)}</div>
                               </Flex>
                               <Flex justify="space-between">
-                                <div>TOTAL PROFIT</div>
+                                <div>TOTAL OMZET</div>
                                 <div>{Num.format(profitData.profit)}</div>
+                              </Flex>
+                              <Flex justify="space-between">
+                                <div>TOTAL OPERASIONAL</div>
+                                <div>{Num.format(profitData.expense)}</div>
+                              </Flex>
+                              <Flex justify="space-between">
+                                <div>TOTAL PROFIT</div>
+                                <div>{Num.format(profitData.balance)}</div>
                               </Flex>
                             </Flex>
                           </>

@@ -33,6 +33,7 @@ import { ledgerCreateSchema } from "../../ledger/model/ledger_type";
 import { useLedgerHook } from "../../ledger/view/LedgerHook";
 import { Purchase } from "../model/purchase_model";
 import { PurchaseHookType } from "./PurchaseHook";
+import { ImagePreview } from "../../../component/ImagePreview";
 
 export function LedgerDetailTab({
   purchaseHook,
@@ -177,24 +178,7 @@ export function LedgerDetailTab({
                   title: "Lampiran",
                   dataIndex: "file",
                   render: (value) => (
-                    <>
-                      {value == undefined ? (
-                        "-"
-                      ) : (
-                        <Button
-                          color="primary"
-                          variant="link"
-                          size="small"
-                          href={`${SERVER}/${value}`}
-                          target="_blank"
-                          onClick={() => {
-                            //
-                          }}
-                        >
-                          [Lampiran]
-                        </Button>
-                      )}
-                    </>
+                    <>{value && <ImagePreview src={`${SERVER}/${value}`} />}</>
                   ),
                 },
                 {

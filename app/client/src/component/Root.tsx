@@ -2,6 +2,7 @@ import {
   ApartmentOutlined,
   AuditOutlined,
   BarChartOutlined,
+  CalculatorOutlined,
   DashboardOutlined,
   DatabaseOutlined,
   DiffOutlined,
@@ -70,6 +71,11 @@ export function Root() {
       key: currentMenuKey("/app/product"),
       label: "Product",
       icon: <ProductOutlined />,
+    },
+    {
+      key: currentMenuKey("/app/expense"),
+      label: "Operasional",
+      icon: <CalculatorOutlined />,
     },
     {
       key: currentMenuKey("/app/account"),

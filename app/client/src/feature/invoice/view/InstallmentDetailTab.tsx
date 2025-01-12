@@ -34,6 +34,7 @@ import { installmentCreateSchema } from "../../installment/model/installment_typ
 import { useInstallmentHook } from "../../installment/view/InstallmentHook";
 import { Invoice } from "../model/invoice_model";
 import { InvoiceHookType } from "./InvoiceHook";
+import { ImagePreview } from "../../../component/ImagePreview";
 
 export function InstallmentDetailTab({
   invoiceHook,
@@ -182,24 +183,7 @@ export function InstallmentDetailTab({
                   title: "Lampiran",
                   dataIndex: "attachment",
                   render: (value) => (
-                    <>
-                      {value == undefined ? (
-                        "-"
-                      ) : (
-                        <Button
-                          color="primary"
-                          variant="link"
-                          size="small"
-                          href={`${SERVER}/${value}`}
-                          target="_blank"
-                          onClick={() => {
-                            //
-                          }}
-                        >
-                          [Lampiran]
-                        </Button>
-                      )}
-                    </>
+                    <>{value && <ImagePreview src={`${SERVER}/${value}`} />}</>
                   ),
                 },
                 {

@@ -30,15 +30,24 @@ export class ProfitMysql implements ProfitApi {
     table += group;
     query += group;
 
+    const expense = await MySql.query(
+      `select sum(amount) as total from expenses where deleted is null and printed between ${pool.escape(
+        startDate
+      )} and ${pool.escape(endDate)}`
+    );
+
     const result = await MySql.query(query);
     const sql = await MySql.query(table);
     const sumTotal = sql.reduce((a: any, b: any) => a + b.totalItem, 0);
     const sumProfit = sql.reduce((a: any, b: any) => a + b.margin, 0);
+    const sumExpense = expense?.[0]?.total ?? 0;
 
     let data: ProfitSummary = {
       data: result,
       total: sumTotal,
       profit: sumProfit,
+      expense: sumExpense,
+      balance: sumProfit - sumExpense,
       record: sql.length,
     };
 

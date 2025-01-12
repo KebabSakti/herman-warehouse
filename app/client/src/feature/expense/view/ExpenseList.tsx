@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   Col,
+  DatePicker,
   Flex,
   Input,
   notification,
@@ -13,6 +14,7 @@ import {
   Table,
 } from "antd";
 import Title from "antd/es/typography/Title";
+import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
 import {
   Outlet,
@@ -20,19 +22,20 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { Result } from "../../../common/type";
+import { SERVER } from "../../../common/common";
 import { Dependency } from "../../../component/App";
+import { ImagePreview } from "../../../component/ImagePreview";
 import { debounce } from "../../../helper/debounce";
-import { Customer } from "../model/customer_model";
-import { useCustomerHook } from "./CustomerHook";
 import { Num } from "../../../helper/num";
+import { ExpenseSummary } from "../model/expense_model";
+import { useExpenseHook } from "./ExpenseHook";
 
-export function CustomerList() {
-  const { auth, customerController } = useContext(Dependency)!;
-  const customer = useCustomerHook(customerController);
-  const result = customer.state.data as Result<Customer[]> | null;
+export function ExpenseList() {
+  const { auth, expenseController } = useContext(Dependency)!;
+  const expense = useExpenseHook(expenseController);
   const location = useLocation();
   const navigate = useNavigate();
+  const { RangePicker } = DatePicker;
   const [search, setSearch] = useSearchParams();
   const initParam = {
     page: "1",
@@ -60,38 +63,38 @@ export function CustomerList() {
 
   useEffect(() => {
     if (search.size >= 2) {
-      customer.list(param, { token: auth.state.data! });
+      expense.list(param, { token: auth.state.data! });
     }
   }, [search]);
 
   useEffect(() => {
-    if (customer.state.status == "complete" && customer.state.error != null) {
+    if (expense.state.status == "complete" && expense.state.error != null) {
       notification.error({
         message: "Error",
-        description: customer.state.error.message,
+        description: expense.state.error.message,
       });
     }
 
     if (
-      customer.state.action == "remove" &&
-      customer.state.status == "complete" &&
-      customer.state.error == null
+      expense.state.action == "remove" &&
+      expense.state.status == "complete" &&
+      expense.state.error == null
     ) {
-      customer.list(param, { token: auth.state.data! });
+      expense.list(param, { token: auth.state.data! });
 
       notification.success({
         message: "Sukses",
         description: "Data berhasil dihapus",
       });
     }
-  }, [customer.state]);
+  }, [expense.state]);
 
   return (
     <>
       <Outlet />
       <Flex vertical gap="small" style={{ padding: "16px" }}>
-        <Title level={4}>Daftar customer</Title>
-        <Spin spinning={customer.state.status == "loading"}>
+        <Title level={4}>Daftar Pengeluaran</Title>
+        <Spin spinning={expense.state.status == "loading"}>
           <Card>
             <Flex vertical gap="small">
               <Row gutter={[4, 4]} justify={{ xl: "space-between" }}>
@@ -102,7 +105,7 @@ export function CustomerList() {
                     variant="solid"
                     size="large"
                     onClick={() => {
-                      navigate("/app/customer/create", {
+                      navigate("/app/expense/create", {
                         state: {
                           from: location.pathname + location.search,
                         },
@@ -115,9 +118,29 @@ export function CustomerList() {
                 <Col xs={{ flex: "100%" }} md={{ flex: "80%" }}>
                   <Row gutter={[4, 4]} justify="end">
                     <Col>
+                      <RangePicker
+                        size="large"
+                        onChange={(date, dateString) => {
+                          const dateRangeValue = {
+                            ...param,
+                            ...initParam,
+                            start: dateString[0],
+                            end: dateString[1],
+                          };
+
+                          if (date == null) {
+                            delete dateRangeValue.start;
+                            delete dateRangeValue.end;
+                          }
+
+                          setSearch(dateRangeValue);
+                        }}
+                      />
+                    </Col>
+                    <Col>
                       <Input.Search
                         allowClear
-                        placeholder="Nama / telp"
+                        placeholder="Nama transaksi"
                         size="large"
                         defaultValue={param.search}
                         onChange={(e) => {
@@ -129,8 +152,8 @@ export function CustomerList() {
                 </Col>
               </Row>
               {(() => {
-                if (result?.data != null) {
-                  const datas = result.data;
+                if (expense.state.data) {
+                  const expenseData = expense.state.data as ExpenseSummary;
 
                   return (
                     <Flex vertical gap="middle">
@@ -138,37 +161,45 @@ export function CustomerList() {
                         bordered
                         style={{ overflowX: "scroll" }}
                         pagination={false}
-                        dataSource={
-                          datas.length == 0
-                            ? []
-                            : datas.map((e, i) => {
-                                return { ...e, key: i };
-                              })
-                        }
+                        dataSource={expenseData.data.map((e, i) => {
+                          return { ...e, key: i };
+                        })}
                         columns={[
                           {
-                            title: "Kustomer",
-                            dataIndex: "name",
+                            title: "Catatan",
+                            dataIndex: "title",
                             minWidth: 60,
                           },
                           {
-                            title: "No Hp",
-                            dataIndex: "phone",
-                            minWidth: 60,
-                          },
-                          {
-                            title: "Alamat",
-                            dataIndex: "address",
-                            minWidth: 60,
-                          },
-                          {
-                            title: "Piutang",
-                            dataIndex: "outstanding",
+                            title: "Nilai",
+                            dataIndex: "amount",
                             minWidth: 60,
                             render: (value) => Num.format(value),
                           },
                           {
-                            render: (_, e) => (
+                            title: "Lampiran",
+                            dataIndex: "file",
+                            minWidth: 60,
+                            render: (value) => {
+                              return (
+                                <>
+                                  {value && (
+                                    <ImagePreview src={`${SERVER}/${value}`} />
+                                  )}
+                                </>
+                              );
+                            },
+                          },
+                          {
+                            title: "Tanggal",
+                            dataIndex: "printed",
+                            minWidth: 60,
+                            render: (value) =>
+                              dayjs(value).format("DD-MM-YYYY"),
+                          },
+                          {
+                            dataIndex: "id",
+                            render: (value) => (
                               <>
                                 <Flex gap={4}>
                                   <Button
@@ -177,7 +208,7 @@ export function CustomerList() {
                                     size="small"
                                     variant="solid"
                                     onClick={() => {
-                                      navigate(`/app/customer/edit/${e.id}`, {
+                                      navigate(`/app/expense/edit/${value}`, {
                                         state: {
                                           from:
                                             location.pathname + location.search,
@@ -192,7 +223,7 @@ export function CustomerList() {
                                     okText="Ya"
                                     cancelText="Batal"
                                     onConfirm={() => {
-                                      customer.remove(e.id, {
+                                      expense.remove(value, {
                                         token: auth.state.data!,
                                       });
                                     }}
@@ -214,8 +245,8 @@ export function CustomerList() {
                         simple
                         align="center"
                         showSizeChanger={false}
-                        current={result?.paging!.page}
-                        total={result?.paging!.total}
+                        current={param.page}
+                        total={expenseData.record}
                         onChange={(page) => {
                           setSearch({
                             ...param,

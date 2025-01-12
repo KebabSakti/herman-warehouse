@@ -20,6 +20,7 @@ import stockRoute from "./feature/stock/view/stock_route";
 import supplierRoute from "./feature/supplier/view/supplier_route";
 import userRoute from "./feature/user/view/user_route";
 import profitRoute from "./feature/profit/view/profit_route";
+import expenseRoute from "./feature/expense/view/expense_route";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -52,6 +53,7 @@ app.use("/app/sale", saleRoute);
 app.use("/app/outstanding", outstandingRoute);
 app.use("/app/credit", creditRoute);
 app.use("/app/profit", profitRoute);
+app.use("/app/expense", expenseRoute);
 
 app.get("/", async (req, res) => {
   try {

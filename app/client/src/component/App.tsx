@@ -26,6 +26,9 @@ import { CustomerCreate } from "../feature/customer/view/CustomerCreate";
 import { CustomerEdit } from "../feature/customer/view/CustomerEdit";
 import { CustomerList } from "../feature/customer/view/CustomerList";
 import { DashboardPage } from "../feature/dashboard/view/DashboardPage";
+import { ExpenseController } from "../feature/expense/controller/expense_controller";
+import { ExpenseApi } from "../feature/expense/model/expense_api";
+import { ExpenseAxios } from "../feature/expense/model/expense_axios";
 import { InstallmentController } from "../feature/installment/controller/installment_controller";
 import { InstallmentApi } from "../feature/installment/model/installment_api";
 import { InstallmentAxios } from "../feature/installment/model/installment_axios";
@@ -82,6 +85,9 @@ import { SupplierEdit } from "../feature/supplier/view/SupplierEdit";
 import { SupplierList } from "../feature/supplier/view/SupplierList";
 import { SupplierRead } from "../feature/supplier/view/SupplierRead";
 import { Root } from "./Root";
+import { ExpenseList } from "../feature/expense/view/ExpenseList";
+import { ExpenseCreate } from "../feature/expense/view/ExpenseCreate";
+import { ExpenseEdit } from "../feature/expense/view/ExpenseEdit";
 
 export type Dependency = {
   auth: AuthHookType;
@@ -97,6 +103,7 @@ export type Dependency = {
   outstandingController: OutstandingController;
   creditController: CreditController;
   profitController: ProfitController;
+  expenseController: ExpenseController;
 };
 
 export const Dependency = createContext<Dependency | null>(null);
@@ -276,6 +283,20 @@ const router = createBrowserRouter([
         ],
       },
       {
+        path: "/app/expense",
+        element: <ExpenseList />,
+        children: [
+          {
+            path: "/app/expense/create",
+            element: <ExpenseCreate />,
+          },
+          {
+            path: "/app/expense/edit/:id",
+            element: <ExpenseEdit />,
+          },
+        ],
+      },
+      {
         path: "/app/account",
         element: <></>,
       },
@@ -317,6 +338,7 @@ export function App() {
   const outstandingApi: OutstandingApi = new OutstandingAxios();
   const creditApi: CreditApi = new CreditAxios();
   const profitApi: ProfitApi = new ProfitAxios();
+  const expenseApi: ExpenseApi = new ExpenseAxios();
 
   const dependencies: Dependency = {
     auth: useAuthHook(new AuthController(authApi)),
@@ -332,6 +354,7 @@ export function App() {
     outstandingController: new OutstandingController(outstandingApi),
     creditController: new CreditController(creditApi),
     profitController: new ProfitController(profitApi),
+    expenseController: new ExpenseController(expenseApi),
   };
 
   return (

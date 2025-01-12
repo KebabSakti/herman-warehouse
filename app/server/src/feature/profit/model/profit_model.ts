@@ -14,5 +14,7 @@ export interface ProfitSummary {
   data: Profit[];
   total: number;
   profit: number;
+  expense: number;
+  balance: number;
   record: number;
 }

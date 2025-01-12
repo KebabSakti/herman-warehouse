@@ -178,7 +178,7 @@ export function ProfitPrint() {
                         { textAlign: "left" },
                       ]}
                     >
-                      TOTAL PROFIT
+                      TOTAL OMZET
                     </Text>
                     <Text
                       style={[
@@ -188,6 +188,46 @@ export function ProfitPrint() {
                       ]}
                     >
                       {Num.format(profitData.profit)}
+                    </Text>
+                  </View>
+                  <View style={[styles.tableRow, { border: "none" }]}>
+                    <Text
+                      style={[
+                        styles.tableItem,
+                        styles.th,
+                        { textAlign: "left" },
+                      ]}
+                    >
+                      TOTAL OPERASIONAL
+                    </Text>
+                    <Text
+                      style={[
+                        styles.tableItem,
+                        styles.th,
+                        { textAlign: "right" },
+                      ]}
+                    >
+                      {Num.format(profitData.expense)}
+                    </Text>
+                  </View>
+                  <View style={[styles.tableRow, { border: "none" }]}>
+                    <Text
+                      style={[
+                        styles.tableItem,
+                        styles.th,
+                        { textAlign: "left" },
+                      ]}
+                    >
+                      TOTAL PROFIT
+                    </Text>
+                    <Text
+                      style={[
+                        styles.tableItem,
+                        styles.th,
+                        { textAlign: "right" },
+                      ]}
+                    >
+                      {Num.format(profitData.balance)}
                     </Text>
                   </View>
                 </View>
