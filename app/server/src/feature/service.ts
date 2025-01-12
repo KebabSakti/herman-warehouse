@@ -1,3 +1,6 @@
+import { CreditController } from "./credit/controller/credit_controller";
+import { CreditApi } from "./credit/model/credit_api";
+import { CreditMysql } from "./credit/model/credit_mysql";
 import { CustomerController } from "./customer/controller/customer_controller";
 import { CustomerApi } from "./customer/model/customer_api";
 import { CustomerMysql } from "./customer/model/customer_mysql";
@@ -43,6 +46,7 @@ const installmentApi: InstallmentApi = new InstallmentMysql();
 const ledgerApi: LedgerApi = new LedgerMysql();
 const saleApi: SaleApi = new SaleMysql();
 const outstandingApi: OutstandingApi = new OutstandingMysql();
+const creditApi: CreditApi = new CreditMysql();
 
 export const userController = new UserController(userApi);
 export const productController = new ProductController(productApi);
@@ -55,3 +59,4 @@ export const installmentController = new InstallmentController(installmentApi);
 export const ledgerController = new LedgerController(ledgerApi);
 export const saleController = new SaleController(saleApi);
 export const outstandingController = new OutstandingController(outstandingApi);
+export const creditController = new CreditController(creditApi);
