@@ -16,7 +16,7 @@ export class SaleMysql implements SaleApi {
       .utc()
       .format("YYYY-MM-DD HH:mm:ss");
 
-    const table = `select
+    let table = `select
                  c.id,c.name,c.phone,
                  count(i.id) as nota,
                  sum(i.total) as total
@@ -34,7 +34,10 @@ export class SaleMysql implements SaleApi {
       query += ` and (c.name like "%"${search}"%" or c.phone like "%"${search}"%")`;
     }
 
-    query += ` group by c.id, c.name having nota > 0 order by c.name asc`;
+    const group = ` group by c.id, c.name having nota > 0 order by c.name asc`;
+
+    table += group;
+    query += group;
 
     const result = await MySql.query(query);
     const sql = await MySql.query(table);

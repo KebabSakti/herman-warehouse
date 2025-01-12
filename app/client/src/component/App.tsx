@@ -36,6 +36,11 @@ import { LedgerController } from "../feature/ledger/controller/ledger_controller
 import { LedgerApi } from "../feature/ledger/model/ledger_api";
 import { LedgerAxios } from "../feature/ledger/model/ledger_axios";
 import { LedgerPrint } from "../feature/ledger/view/LedgerPrint";
+import { OutstandingController } from "../feature/outstanding/controller/outstanding_controller";
+import { OutstandingApi } from "../feature/outstanding/model/outstanding_api";
+import { OutstandingAxios } from "../feature/outstanding/model/outstanding_axios";
+import { OutstandingList } from "../feature/outstanding/view/OutstandingList";
+import { OutstandingPrint } from "../feature/outstanding/view/OutstandingPrint";
 import { ProductController } from "../feature/product/controller/product_controller";
 import { ProductApi } from "../feature/product/model/product_api";
 import { ProductAxios } from "../feature/product/model/product_axios";
@@ -54,6 +59,7 @@ import { SaleController } from "../feature/sale/controller/sale_controller";
 import { SaleApi } from "../feature/sale/model/sale_api";
 import { SaleAxios } from "../feature/sale/model/sale_axios";
 import { SaleList } from "../feature/sale/view/SaleList";
+import { SalePrint } from "../feature/sale/view/SalePrint";
 import { StockController } from "../feature/stock/controller/stock_controller";
 import { StockApi } from "../feature/stock/model/stock_api";
 import { StockAxios } from "../feature/stock/model/stock_axios";
@@ -66,7 +72,6 @@ import { SupplierEdit } from "../feature/supplier/view/SupplierEdit";
 import { SupplierList } from "../feature/supplier/view/SupplierList";
 import { SupplierRead } from "../feature/supplier/view/SupplierRead";
 import { Root } from "./Root";
-import { SalePrint } from "../feature/sale/view/SalePrint";
 
 export type Dependency = {
   auth: AuthHookType;
@@ -79,6 +84,7 @@ export type Dependency = {
   installmentController: InstallmentController;
   ledgerController: LedgerController;
   saleController: SaleController;
+  outstandingController: OutstandingController;
 };
 
 export const Dependency = createContext<Dependency | null>(null);
@@ -110,6 +116,10 @@ const router = createBrowserRouter([
       {
         path: "/print/sale/:start/to/:end",
         element: <SalePrint />,
+      },
+      {
+        path: "/print/outstanding/:start/to/:end",
+        element: <OutstandingPrint />,
       },
     ],
   },
@@ -255,7 +265,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/app/bill",
-        element: <></>,
+        element: <OutstandingList />,
       },
       {
         path: "/app/credit",
@@ -280,6 +290,7 @@ export function App() {
   const installmentApi: InstallmentApi = new InstallmentAxios();
   const ledgerApi: LedgerApi = new LedgerAxios();
   const saleApi: SaleApi = new SaleAxios();
+  const outstandingApi: OutstandingApi = new OutstandingAxios();
 
   const dependencies: Dependency = {
     auth: useAuthHook(new AuthController(authApi)),
@@ -292,6 +303,7 @@ export function App() {
     installmentController: new InstallmentController(installmentApi),
     ledgerController: new LedgerController(ledgerApi),
     saleController: new SaleController(saleApi),
+    outstandingController: new OutstandingController(outstandingApi),
   };
 
   return (

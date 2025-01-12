@@ -3,3 +3,5 @@ db
 .env
 dist
 app/server/static
+app/server/build
+app/client/build

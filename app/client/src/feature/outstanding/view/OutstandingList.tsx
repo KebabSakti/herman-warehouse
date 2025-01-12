@@ -18,11 +18,11 @@ import { useSearchParams } from "react-router-dom";
 import { Dependency } from "../../../component/App";
 import { debounce } from "../../../helper/debounce";
 import { Num } from "../../../helper/num";
-import { useSaleHook } from "./SaleHook";
+import { useOutstandingHook } from "./OutstandingHook";
 
-export function SaleList() {
-  const { auth, saleController } = useContext(Dependency)!;
-  const sale = useSaleHook(saleController);
+export function OutstandingList() {
+  const { auth, outstandingController } = useContext(Dependency)!;
+  const outstanding = useOutstandingHook(outstandingController);
   const { RangePicker } = DatePicker;
   const [search, setSearch] = useSearchParams();
   const initParam = {
@@ -50,24 +50,27 @@ export function SaleList() {
 
   useEffect(() => {
     if (search.size >= 2) {
-      sale.list(param, { token: auth.state.data! });
+      outstanding.list(param, { token: auth.state.data! });
     }
   }, [search]);
 
   useEffect(() => {
-    if (sale.state.status == "complete" && sale.state.error != null) {
+    if (
+      outstanding.state.status == "complete" &&
+      outstanding.state.error != null
+    ) {
       notification.error({
         message: "Error",
-        description: sale.state.error.message,
+        description: outstanding.state.error.message,
       });
     }
-  }, [sale.state]);
+  }, [outstanding.state]);
 
   return (
     <>
       <Flex vertical gap="small" style={{ padding: "16px" }}>
-        <Title level={4}>Laporan Penjualan</Title>
-        <Spin spinning={sale.state.status == "loading"}>
+        <Title level={4}>Laporan Hutang</Title>
+        <Spin spinning={outstanding.state.status == "loading"}>
           <Card>
             <Flex vertical gap="small">
               <Row gutter={[4, 4]} justify={{ xl: "space-between" }}>
@@ -79,7 +82,7 @@ export function SaleList() {
                     variant="solid"
                     onClick={() => {
                       window.open(
-                        `/print/sale/${param.start}/to/${param.end}`,
+                        `/print/outstanding/${param.start}/to/${param.end}`,
                         "_blank"
                       );
                     }}
@@ -125,8 +128,8 @@ export function SaleList() {
                 </Col>
               </Row>
               {(() => {
-                if (sale.state.data) {
-                  const saleData = sale.state.data;
+                if (outstanding.state.data) {
+                  const outstandingData = outstanding.state.data;
 
                   return (
                     <Table
@@ -146,23 +149,31 @@ export function SaleList() {
                               style={{ fontWeight: "bold" }}
                             >
                               <Flex justify="space-between">
-                                <div>TOTAL NOTA</div>
-                                <div>{saleData.nota}</div>
+                                <div>NOTA BELUM LUNAS</div>
+                                <div>{outstandingData.unpaid}</div>
                               </Flex>
                               <Flex justify="space-between">
-                                <div>TOTAL PENJUALAN</div>
-                                <div>{Num.format(saleData.total)}</div>
+                                <div>NOTA LUNAS</div>
+                                <div>{outstandingData.paid}</div>
+                              </Flex>
+                              <Flex justify="space-between">
+                                <div>TOTAL NOTA</div>
+                                <div>{outstandingData.nota}</div>
+                              </Flex>
+                              <Flex justify="space-between">
+                                <div>TOTAL HUTANG</div>
+                                <div>{Num.format(outstandingData.total)}</div>
                               </Flex>
                             </Flex>
                           </>
                         );
                       }}
-                      dataSource={saleData.data.map((e, i) => {
+                      dataSource={outstandingData.data.map((e, i) => {
                         return { key: i, ...e };
                       })}
                       columns={[
                         {
-                          title: "Kustomer",
+                          title: "Supplier",
                           dataIndex: "name",
                           minWidth: 60,
                         },
@@ -172,12 +183,22 @@ export function SaleList() {
                           minWidth: 60,
                         },
                         {
+                          title: "Belum Lunas",
+                          dataIndex: "unpaid",
+                          minWidth: 60,
+                        },
+                        {
+                          title: "Lunas",
+                          dataIndex: "paid",
+                          minWidth: 60,
+                        },
+                        {
                           title: "Nota",
                           dataIndex: "nota",
                           minWidth: 60,
                         },
                         {
-                          title: "Penjualan",
+                          title: "Hutang",
                           dataIndex: "total",
                           minWidth: 60,
                           render: (value) => Num.format(value),

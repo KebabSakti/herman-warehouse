@@ -6,12 +6,12 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
+import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Dependency } from "../../../component/App";
 import { Num } from "../../../helper/num";
-import { useSaleHook } from "./SaleHook";
-import dayjs from "dayjs";
+import { useOutstandingHook } from "./OutstandingHook";
 
 const styles = StyleSheet.create({
   page: {
@@ -64,9 +64,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export function SalePrint() {
-  const { auth, saleController } = useContext(Dependency)!;
-  const sale = useSaleHook(saleController);
+export function OutstandingPrint() {
+  const { auth, outstandingController } = useContext(Dependency)!;
+  const outstanding = useOutstandingHook(outstandingController);
   const { start, end } = useParams();
 
   useEffect(() => {
@@ -74,15 +74,15 @@ export function SalePrint() {
       start &&
       end &&
       auth.state.data &&
-      sale.state.action == "idle" &&
-      sale.state.status == "idle"
+      outstanding.state.action == "idle" &&
+      outstanding.state.status == "idle"
     ) {
-      sale.list({ start: start, end: end }, { token: auth.state.data });
+      outstanding.list({ start: start, end: end }, { token: auth.state.data });
     }
-  }, [sale.state, auth.state]);
+  }, [outstanding.state, auth.state]);
 
-  if (sale.state.status == "complete" && sale.state.data?.data) {
-    const saleData = sale.state.data;
+  if (outstanding.state.status == "complete" && outstanding.state.data?.data) {
+    const outstandingData = outstanding.state.data;
 
     return (
       <PDFViewer
@@ -92,7 +92,7 @@ export function SalePrint() {
         <Document>
           <Page size="A4" style={styles.page}>
             <View style={styles.container}>
-              <Text style={styles.heading}>PENJUALAN</Text>
+              <Text style={styles.heading}>HUTANG</Text>
               <View style={styles.subHeadingContainer}>
                 <Text style={styles.subHeading}>PERIODE</Text>
                 <Text style={styles.subHeading}>
@@ -110,13 +110,15 @@ export function SalePrint() {
                   <Text
                     style={[styles.tableItem, styles.th, { textAlign: "left" }]}
                   >
-                    KUSTOMER
+                    SUPPLIER
                   </Text>
                   <Text
                     style={[styles.tableItem, styles.th, { textAlign: "left" }]}
                   >
                     NO HP
                   </Text>
+                  <Text style={[styles.tableItem, styles.th]}>BELUM LUNAS</Text>
+                  <Text style={[styles.tableItem, styles.th]}>LUNAS</Text>
                   <Text style={[styles.tableItem, styles.th]}>NOTA</Text>
                   <Text
                     style={[
@@ -125,11 +127,11 @@ export function SalePrint() {
                       { textAlign: "right" },
                     ]}
                   >
-                    PENJUALAN
+                    HUTANG
                   </Text>
                 </View>
                 <View>
-                  {saleData.data?.map((row, i) => (
+                  {outstandingData.data?.map((row, i) => (
                     <View key={i} style={styles.tableRow}>
                       <Text style={[styles.tableItem, { textAlign: "left" }]}>
                         {i + 1}
@@ -140,6 +142,8 @@ export function SalePrint() {
                       <Text style={[styles.tableItem, { textAlign: "left" }]}>
                         {row.phone}
                       </Text>
+                      <Text style={[styles.tableItem]}>{row.unpaid}</Text>
+                      <Text style={[styles.tableItem]}>{row.paid}</Text>
                       <Text style={[styles.tableItem]}>{row.nota}</Text>
                       <Text style={[styles.tableItem, { textAlign: "right" }]}>
                         {Num.format(row.total)}
@@ -148,6 +152,46 @@ export function SalePrint() {
                   ))}
                 </View>
                 <View>
+                  <View style={[styles.tableRow, { border: "none" }]}>
+                    <Text
+                      style={[
+                        styles.tableItem,
+                        styles.th,
+                        { textAlign: "left" },
+                      ]}
+                    >
+                      NOTA BELUM LUNAS
+                    </Text>
+                    <Text
+                      style={[
+                        styles.tableItem,
+                        styles.th,
+                        { textAlign: "right" },
+                      ]}
+                    >
+                      {outstandingData.unpaid}
+                    </Text>
+                  </View>
+                  <View style={[styles.tableRow, { border: "none" }]}>
+                    <Text
+                      style={[
+                        styles.tableItem,
+                        styles.th,
+                        { textAlign: "left" },
+                      ]}
+                    >
+                      NOTA LUNAS
+                    </Text>
+                    <Text
+                      style={[
+                        styles.tableItem,
+                        styles.th,
+                        { textAlign: "right" },
+                      ]}
+                    >
+                      {outstandingData.paid}
+                    </Text>
+                  </View>
                   <View style={[styles.tableRow, { border: "none" }]}>
                     <Text
                       style={[
@@ -165,7 +209,7 @@ export function SalePrint() {
                         { textAlign: "right" },
                       ]}
                     >
-                      {saleData.nota}
+                      {outstandingData.nota}
                     </Text>
                   </View>
                   <View style={[styles.tableRow, { border: "none" }]}>
@@ -176,7 +220,7 @@ export function SalePrint() {
                         { textAlign: "left" },
                       ]}
                     >
-                      TOTAL PENJUALAN
+                      TOTAL HUTANG
                     </Text>
                     <Text
                       style={[
@@ -185,7 +229,7 @@ export function SalePrint() {
                         { textAlign: "right" },
                       ]}
                     >
-                      {Num.format(saleData.total)}
+                      {Num.format(outstandingData.total)}
                     </Text>
                   </View>
                 </View>
@@ -197,7 +241,7 @@ export function SalePrint() {
     );
   }
 
-  if (sale.state.status == "complete" && sale.state.data?.data) {
+  if (outstanding.state.status == "complete" && outstanding.state.data?.data) {
     return (
       <div
         style={{
