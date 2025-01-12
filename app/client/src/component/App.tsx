@@ -52,6 +52,11 @@ import { ProductAxios } from "../feature/product/model/product_axios";
 import { ProductCreate } from "../feature/product/view/ProductCreate";
 import { ProductEdit } from "../feature/product/view/ProductEdit";
 import { ProductPage } from "../feature/product/view/ProductPage";
+import { ProfitController } from "../feature/profit/controller/profit_controller";
+import { ProfitApi } from "../feature/profit/model/profit_api";
+import { ProfitAxios } from "../feature/profit/model/profit_axios";
+import { ProfitList } from "../feature/profit/view/ProfitList";
+import { ProfitPrint } from "../feature/profit/view/ProfitPrint";
 import { PurchaseController } from "../feature/purchase/controller/purchase_controller";
 import { PurchaseApi } from "../feature/purchase/model/purchase_api";
 import { PurchaseAxios } from "../feature/purchase/model/purchase_axios";
@@ -91,6 +96,7 @@ export type Dependency = {
   saleController: SaleController;
   outstandingController: OutstandingController;
   creditController: CreditController;
+  profitController: ProfitController;
 };
 
 export const Dependency = createContext<Dependency | null>(null);
@@ -130,6 +136,10 @@ const router = createBrowserRouter([
       {
         path: "/print/credit/:start/to/:end",
         element: <CreditPrint />,
+      },
+      {
+        path: "/print/profit/:start/to/:end",
+        element: <ProfitPrint />,
       },
     ],
   },
@@ -283,7 +293,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/app/profit",
-        element: <></>,
+        element: <ProfitList />,
       },
       {
         path: "/app/stock",
@@ -306,6 +316,7 @@ export function App() {
   const saleApi: SaleApi = new SaleAxios();
   const outstandingApi: OutstandingApi = new OutstandingAxios();
   const creditApi: CreditApi = new CreditAxios();
+  const profitApi: ProfitApi = new ProfitAxios();
 
   const dependencies: Dependency = {
     auth: useAuthHook(new AuthController(authApi)),
@@ -320,6 +331,7 @@ export function App() {
     saleController: new SaleController(saleApi),
     outstandingController: new OutstandingController(outstandingApi),
     creditController: new CreditController(creditApi),
+    profitController: new ProfitController(profitApi),
   };
 
   return (
