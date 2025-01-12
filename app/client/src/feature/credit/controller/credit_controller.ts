@@ -8,8 +8,11 @@ export class CreditController {
     this.creditApi = creditApi;
   }
 
-  async list(param: CreditList): Promise<CreditSummary> {
-    const result = await this.creditApi.list(param);
+  async list(
+    param: CreditList,
+    extra?: Record<string, any>
+  ): Promise<CreditSummary> {
+    const result = await this.creditApi.list(param, extra);
 
     return result;
   }

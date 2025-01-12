@@ -1,16 +1,16 @@
 import axios from "axios";
 import { SERVER } from "../../../common/common";
 import { Failure } from "../../../common/error";
-import { OutstandingApi } from "./credit_api";
-import { OutstandingList, OutstandingSummary } from "./credit_model";
+import { CreditApi } from "./credit_api";
+import { CreditList, CreditSummary } from "./credit_model";
 
-export class OutstandingAxios implements OutstandingApi {
+export class CreditAxios implements CreditApi {
   async list(
-    param: OutstandingList,
+    param: CreditList,
     extra?: Record<string, any>
-  ): Promise<OutstandingSummary> {
+  ): Promise<CreditSummary> {
     try {
-      const result = await axios.get(`${SERVER}/app/outstanding`, {
+      const result = await axios.get(`${SERVER}/app/credit`, {
         params: param,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,

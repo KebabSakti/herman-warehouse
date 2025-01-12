@@ -25,7 +25,7 @@ export const invoiceCreateSchema = object({
       productNote: string().nullable(),
       supplierId: string().required(),
       supplierName: string().required(),
-      supplierPhone: string().required(),
+      supplierPhone: string().nullable(),
       qty: number().required(),
       price: number().required(),
       total: number().required(),

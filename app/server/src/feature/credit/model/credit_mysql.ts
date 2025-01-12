@@ -16,13 +16,13 @@ export class CreditMysql implements CreditApi {
       .format("YYYY-MM-DD HH:mm:ss");
 
     let table = `select
-                 s.id,s.name,s.phone,
+                 c.id,c.name,c.phone,
                  count(i.id) as nota,
                  sum(i.outstanding) as total,
                  count(case when i.outstanding > 0 then 1 end) as unpaid,
                  count(case when i.outstanding = 0 then 1 end) as paid
-                 from suppliers s
-                 left join invoices i on s.id = i.customerId
+                 from customers c
+                 left join invoices i on c.id = i.customerId
                  where i.deleted is null 
                  and i.printed between ${pool.escape(
                    startDate
@@ -32,10 +32,10 @@ export class CreditMysql implements CreditApi {
 
     if (param && param.search) {
       const search = pool.escape(param.search);
-      query += ` and (s.name like "%"${search}"%" or s.phone like "%"${search}"%")`;
+      query += ` and (c.name like "%"${search}"%" or c.phone like "%"${search}"%")`;
     }
 
-    const group = ` group by s.id, s.name having total > 0 order by s.name asc`;
+    const group = ` group by c.id, c.name having total > 0 order by c.name asc`;
 
     table += group;
     query += group;

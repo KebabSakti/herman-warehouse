@@ -14,6 +14,11 @@ import {
   useAuthHook,
 } from "../feature/authentication/view/AuthHook";
 import { LoginPage } from "../feature/authentication/view/LoginPage";
+import { CreditController } from "../feature/credit/controller/credit_controller";
+import { CreditApi } from "../feature/credit/model/credit_api";
+import { CreditAxios } from "../feature/credit/model/credit_axios";
+import { CreditList } from "../feature/credit/view/CreditList";
+import { CreditPrint } from "../feature/credit/view/CreditPrint";
 import { CustomerController } from "../feature/customer/controller/customer_controller";
 import { CustomerApi } from "../feature/customer/model/customer_api";
 import { CustomerAxios } from "../feature/customer/model/customer_axios";
@@ -85,6 +90,7 @@ export type Dependency = {
   ledgerController: LedgerController;
   saleController: SaleController;
   outstandingController: OutstandingController;
+  creditController: CreditController;
 };
 
 export const Dependency = createContext<Dependency | null>(null);
@@ -120,6 +126,10 @@ const router = createBrowserRouter([
       {
         path: "/print/outstanding/:start/to/:end",
         element: <OutstandingPrint />,
+      },
+      {
+        path: "/print/credit/:start/to/:end",
+        element: <CreditPrint />,
       },
     ],
   },
@@ -269,6 +279,10 @@ const router = createBrowserRouter([
       },
       {
         path: "/app/credit",
+        element: <CreditList />,
+      },
+      {
+        path: "/app/profit",
         element: <></>,
       },
       {
@@ -291,6 +305,7 @@ export function App() {
   const ledgerApi: LedgerApi = new LedgerAxios();
   const saleApi: SaleApi = new SaleAxios();
   const outstandingApi: OutstandingApi = new OutstandingAxios();
+  const creditApi: CreditApi = new CreditAxios();
 
   const dependencies: Dependency = {
     auth: useAuthHook(new AuthController(authApi)),
@@ -304,6 +319,7 @@ export function App() {
     ledgerController: new LedgerController(ledgerApi),
     saleController: new SaleController(saleApi),
     outstandingController: new OutstandingController(outstandingApi),
+    creditController: new CreditController(creditApi),
   };
 
   return (

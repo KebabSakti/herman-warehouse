@@ -18,11 +18,11 @@ import { useSearchParams } from "react-router-dom";
 import { Dependency } from "../../../component/App";
 import { debounce } from "../../../helper/debounce";
 import { Num } from "../../../helper/num";
-import { useOutstandingHook } from "./OutstandingHook";
+import { useCreditHook } from "./CreditHook";
 
-export function OutstandingList() {
-  const { auth, outstandingController } = useContext(Dependency)!;
-  const outstanding = useOutstandingHook(outstandingController);
+export function CreditList() {
+  const { auth, creditController } = useContext(Dependency)!;
+  const credit = useCreditHook(creditController);
   const { RangePicker } = DatePicker;
   const [search, setSearch] = useSearchParams();
   const initParam = {
@@ -50,27 +50,24 @@ export function OutstandingList() {
 
   useEffect(() => {
     if (search.size >= 2) {
-      outstanding.list(param, { token: auth.state.data! });
+      credit.list(param, { token: auth.state.data! });
     }
   }, [search]);
 
   useEffect(() => {
-    if (
-      outstanding.state.status == "complete" &&
-      outstanding.state.error != null
-    ) {
+    if (credit.state.status == "complete" && credit.state.error != null) {
       notification.error({
         message: "Error",
-        description: outstanding.state.error.message,
+        description: credit.state.error.message,
       });
     }
-  }, [outstanding.state]);
+  }, [credit.state]);
 
   return (
     <>
       <Flex vertical gap="small" style={{ padding: "16px" }}>
-        <Title level={4}>Laporan Hutang</Title>
-        <Spin spinning={outstanding.state.status == "loading"}>
+        <Title level={4}>Laporan Piutang</Title>
+        <Spin spinning={credit.state.status == "loading"}>
           <Card>
             <Flex vertical gap="small">
               <Row gutter={[4, 4]} justify={{ xl: "space-between" }}>
@@ -82,7 +79,7 @@ export function OutstandingList() {
                     variant="solid"
                     onClick={() => {
                       window.open(
-                        `/print/outstanding/${param.start}/to/${param.end}`,
+                        `/print/credit/${param.start}/to/${param.end}`,
                         "_blank"
                       );
                     }}
@@ -128,8 +125,8 @@ export function OutstandingList() {
                 </Col>
               </Row>
               {(() => {
-                if (outstanding.state.data) {
-                  const outstandingData = outstanding.state.data;
+                if (credit.state.data) {
+                  const CreditData = credit.state.data;
 
                   return (
                     <Table
@@ -150,30 +147,30 @@ export function OutstandingList() {
                             >
                               <Flex justify="space-between">
                                 <div>NOTA BELUM LUNAS</div>
-                                <div>{outstandingData.unpaid}</div>
+                                <div>{CreditData.unpaid}</div>
                               </Flex>
                               <Flex justify="space-between">
                                 <div>NOTA LUNAS</div>
-                                <div>{outstandingData.paid}</div>
+                                <div>{CreditData.paid}</div>
                               </Flex>
                               <Flex justify="space-between">
                                 <div>TOTAL NOTA</div>
-                                <div>{outstandingData.nota}</div>
+                                <div>{CreditData.nota}</div>
                               </Flex>
                               <Flex justify="space-between">
-                                <div>TOTAL HUTANG</div>
-                                <div>{Num.format(outstandingData.total)}</div>
+                                <div>TOTAL PIUTANG</div>
+                                <div>{Num.format(CreditData.total)}</div>
                               </Flex>
                             </Flex>
                           </>
                         );
                       }}
-                      dataSource={outstandingData.data.map((e, i) => {
+                      dataSource={CreditData.data.map((e, i) => {
                         return { key: i, ...e };
                       })}
                       columns={[
                         {
-                          title: "Supplier",
+                          title: "Kustomer",
                           dataIndex: "name",
                           minWidth: 60,
                         },
@@ -198,7 +195,7 @@ export function OutstandingList() {
                           minWidth: 60,
                         },
                         {
-                          title: "Hutang",
+                          title: "Piutang",
                           dataIndex: "total",
                           minWidth: 60,
                           render: (value) => Num.format(value),

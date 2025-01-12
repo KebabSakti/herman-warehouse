@@ -11,7 +11,7 @@ import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Dependency } from "../../../component/App";
 import { Num } from "../../../helper/num";
-import { useOutstandingHook } from "./OutstandingHook";
+import { useCreditHook } from "./CreditHook";
 
 const styles = StyleSheet.create({
   page: {
@@ -64,9 +64,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export function OutstandingPrint() {
-  const { auth, outstandingController } = useContext(Dependency)!;
-  const outstanding = useOutstandingHook(outstandingController);
+export function CreditPrint() {
+  const { auth, creditController } = useContext(Dependency)!;
+  const credit = useCreditHook(creditController);
   const { start, end } = useParams();
 
   useEffect(() => {
@@ -74,15 +74,15 @@ export function OutstandingPrint() {
       start &&
       end &&
       auth.state.data &&
-      outstanding.state.action == "idle" &&
-      outstanding.state.status == "idle"
+      credit.state.action == "idle" &&
+      credit.state.status == "idle"
     ) {
-      outstanding.list({ start: start, end: end }, { token: auth.state.data });
+      credit.list({ start: start, end: end }, { token: auth.state.data });
     }
-  }, [outstanding.state, auth.state]);
+  }, [credit.state, auth.state]);
 
-  if (outstanding.state.status == "complete" && outstanding.state.data?.data) {
-    const outstandingData = outstanding.state.data;
+  if (credit.state.status == "complete" && credit.state.data?.data) {
+    const creditData = credit.state.data;
 
     return (
       <PDFViewer
@@ -92,7 +92,7 @@ export function OutstandingPrint() {
         <Document>
           <Page size="A4" style={styles.page}>
             <View style={styles.container}>
-              <Text style={styles.heading}>HUTANG</Text>
+              <Text style={styles.heading}>PIUTANG</Text>
               <View style={styles.subHeadingContainer}>
                 <Text style={styles.subHeading}>PERIODE</Text>
                 <Text style={styles.subHeading}>
@@ -110,7 +110,7 @@ export function OutstandingPrint() {
                   <Text
                     style={[styles.tableItem, styles.th, { textAlign: "left" }]}
                   >
-                    SUPPLIER
+                    KUSTOMER
                   </Text>
                   <Text
                     style={[styles.tableItem, styles.th, { textAlign: "left" }]}
@@ -127,11 +127,11 @@ export function OutstandingPrint() {
                       { textAlign: "right" },
                     ]}
                   >
-                    HUTANG
+                    PIUTANG
                   </Text>
                 </View>
                 <View>
-                  {outstandingData.data?.map((row, i) => (
+                  {creditData.data?.map((row, i) => (
                     <View key={i} style={styles.tableRow}>
                       <Text style={[styles.tableItem, { textAlign: "left" }]}>
                         {i + 1}
@@ -169,7 +169,7 @@ export function OutstandingPrint() {
                         { textAlign: "right" },
                       ]}
                     >
-                      {outstandingData.unpaid}
+                      {creditData.unpaid}
                     </Text>
                   </View>
                   <View style={[styles.tableRow, { border: "none" }]}>
@@ -189,7 +189,7 @@ export function OutstandingPrint() {
                         { textAlign: "right" },
                       ]}
                     >
-                      {outstandingData.paid}
+                      {creditData.paid}
                     </Text>
                   </View>
                   <View style={[styles.tableRow, { border: "none" }]}>
@@ -209,7 +209,7 @@ export function OutstandingPrint() {
                         { textAlign: "right" },
                       ]}
                     >
-                      {outstandingData.nota}
+                      {creditData.nota}
                     </Text>
                   </View>
                   <View style={[styles.tableRow, { border: "none" }]}>
@@ -220,7 +220,7 @@ export function OutstandingPrint() {
                         { textAlign: "left" },
                       ]}
                     >
-                      TOTAL HUTANG
+                      TOTAL PIUTANG
                     </Text>
                     <Text
                       style={[
@@ -229,7 +229,7 @@ export function OutstandingPrint() {
                         { textAlign: "right" },
                       ]}
                     >
-                      {Num.format(outstandingData.total)}
+                      {Num.format(creditData.total)}
                     </Text>
                   </View>
                 </View>
@@ -241,7 +241,7 @@ export function OutstandingPrint() {
     );
   }
 
-  if (outstanding.state.status == "complete" && outstanding.state.data?.data) {
+  if (credit.state.status == "complete" && credit.state.data?.data) {
     return (
       <div
         style={{

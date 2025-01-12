@@ -5,6 +5,7 @@ import {
   DashboardOutlined,
   DatabaseOutlined,
   DiffOutlined,
+  DollarOutlined,
   IdcardOutlined,
   LogoutOutlined,
   ProductOutlined,
@@ -97,6 +98,11 @@ export function Root() {
           key: currentMenuKey("/app/credit"),
           label: "Piutang",
           icon: <DiffOutlined />,
+        },
+        {
+          key: currentMenuKey("/app/profit"),
+          label: "Profit",
+          icon: <DollarOutlined />,
         },
         {
           key: currentMenuKey("/app/stock"),
