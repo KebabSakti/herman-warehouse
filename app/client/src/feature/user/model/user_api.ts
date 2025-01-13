@@ -1,5 +1,11 @@
-import { Result } from "../../../common/type";
-import { User, UserCreate, UserList, UserLogin, UserUpdate } from "./user_type";
+import {
+  User,
+  UserCreate,
+  UserList,
+  UserLogin,
+  UserSummary,
+  UserUpdate,
+} from "./user_type";
 
 export abstract class UserApi {
   abstract create(
@@ -26,7 +32,7 @@ export abstract class UserApi {
   abstract list(
     param: UserList,
     extra?: Record<string, any> | null | undefined
-  ): Promise<Result<User[]>>;
+  ): Promise<UserSummary>;
 
   abstract login(param: UserLogin): Promise<string | null | undefined>;
 }

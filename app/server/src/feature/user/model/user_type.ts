@@ -14,19 +14,21 @@ export const userSchema = object({
 });
 
 export const userCreateSchema = object({
+  id: string().required(),
   uid: string().required(),
   password: string().required(),
-  role: string().oneOf(["owner", "admin", "system"]),
   name: string().required(),
-  phone: string().required(),
+  phone: string().nullable(),
+  active: number().required(),
 });
 
 export const userUpdateSchema = object({
-  password: string().required(),
-  active: bool().optional(),
-  role: string().oneOf(["owner", "admin", "system"]),
+  id: string().required(),
+  uid: string().required(),
+  password: string().nullable(),
   name: string().required(),
-  phone: string().required(),
+  phone: string().nullable(),
+  active: number().required(),
 });
 
 export const userListSchema = object({
@@ -45,3 +47,7 @@ export type UserCreate = InferType<typeof userCreateSchema>;
 export type UserUpdate = InferType<typeof userUpdateSchema>;
 export type UserList = InferType<typeof userListSchema>;
 export type UserLogin = InferType<typeof userLoginSchema>;
+export type UserSummary = {
+  data: User[];
+  record: number;
+};

@@ -1,37 +1,32 @@
 import {
   Button,
-  DatePicker,
   Flex,
   Form,
   Input,
-  InputNumber,
   Modal,
   notification,
+  Radio,
   Spin,
   Typography,
 } from "antd";
 import { useContext, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Dependency } from "../../../component/App";
-import { Num } from "../../../helper/num";
 import { randomID } from "../../../helper/util";
-import { writeExpenseSchema } from "../model/expense_type";
-import { useExpenseHook } from "./ExpenseHook";
+import { userCreateSchema } from "../model/user_type";
+import { useUserHook } from "./UserHook";
 
-export function ExpenseCreate() {
-  const { auth, expenseController } = useContext(Dependency)!;
-  const expense = useExpenseHook(expenseController);
+export function UserCreate() {
+  const { auth, userController } = useContext(Dependency)!;
+  const user = useUserHook(userController);
   const navigate = useNavigate();
   const location = useLocation();
   const [form] = Form.useForm();
   const { Text } = Typography;
 
   useEffect(() => {
-    if (
-      expense.state.action == "create" &&
-      expense.state.status == "complete"
-    ) {
-      if (expense.state.error == null) {
+    if (user.state.action == "create" && user.state.status == "complete") {
+      if (user.state.error == null) {
         notification.success({
           message: "Sukses",
           description: "Data berhasil ditambahkan",
@@ -39,18 +34,18 @@ export function ExpenseCreate() {
 
         const target =
           location.state?.from == null
-            ? "/app/expense?page=1&limit=10"
+            ? "/app/account?page=1&limit=10"
             : location.state.from;
 
         navigate(target);
       } else {
         notification.error({
           message: "Error",
-          description: expense.state.error.message,
+          description: user.state.error.message,
         });
       }
     }
-  }, [expense.state]);
+  }, [user.state]);
 
   return (
     <>
@@ -58,18 +53,18 @@ export function ExpenseCreate() {
         centered
         title="Tambah Data"
         maskClosable={false}
-        open={location.pathname.includes("/app/expense/create")}
+        open={location.pathname.includes("/app/account/create")}
         footer={null}
         onCancel={() => {
           const target =
             location.state?.from == null
-              ? "/app/expense?page=1&limit=10"
+              ? "/app/account?page=1&limit=10"
               : location.state.from;
 
           navigate(target);
         }}
       >
-        <Spin spinning={expense.state.status == "loading"}>
+        <Spin spinning={user.state.status == "loading"}>
           <Form
             size="large"
             form={form}
@@ -78,13 +73,14 @@ export function ExpenseCreate() {
               const payload = {
                 ...values,
                 id: randomID(),
-                printed: values.printed?.format("YYYY-MM-DD"),
               };
 
-              await writeExpenseSchema
+              await userCreateSchema
                 .validate(payload)
                 .then(() => {
-                  expense.create(payload, { token: auth.state.data! });
+                  user.create(payload, {
+                    token: auth.state.data!,
+                  });
                 })
                 .catch((e) => {
                   notification.error({
@@ -105,38 +101,42 @@ export function ExpenseCreate() {
             }}
           >
             <Flex vertical gap="middle">
-              <Form.Item noStyle name="title">
-                <Input type="text" placeholder="Nama transaksi" />
+              <Form.Item noStyle name="uid">
+                <Input type="text" placeholder="Username" />
               </Form.Item>
-              <Form.Item noStyle name="amount">
-                <InputNumber
-                  placeholder="Jumlah"
-                  min={1}
-                  style={{ display: "block", width: "100%" }}
-                  formatter={(value) => Num.format(value ?? 0)}
+              <Form.Item noStyle name="password">
+                <Input type="password" placeholder="Password" />
+              </Form.Item>
+              <Form.Item noStyle name="name">
+                <Input type="text" placeholder="Nama" />
+              </Form.Item>
+              <Form.Item noStyle name="Telp">
+                <Input type="text" placeholder="phone" />
+              </Form.Item>
+              <Form.Item noStyle name="active">
+                <Radio.Group
+                  block
+                  name="active"
+                  optionType="button"
+                  buttonStyle="solid"
+                  options={[
+                    {
+                      label: "AKTIF",
+                      value: 1,
+                    },
+                    {
+                      label: "NON AKTIF",
+                      value: 0,
+                    },
+                  ]}
                 />
-              </Form.Item>
-              <Form.Item noStyle name="printed">
-                <DatePicker
-                  size="large"
-                  placeholder="Tanggal"
-                  style={{ display: "block" }}
-                />
-              </Form.Item>
-              <Form.Item
-                noStyle
-                name="file"
-                valuePropName="files"
-                getValueFromEvent={(e) => e.target.files && e.target.files[0]}
-              >
-                <Input type="file" />
               </Form.Item>
               <Form.Item noStyle>
                 <Button
                   htmlType="submit"
                   type="primary"
                   size="large"
-                  loading={expense.state.status == "loading"}
+                  loading={user.state.status == "loading"}
                 >
                   Submit
                 </Button>

@@ -113,16 +113,10 @@ export function AddPaymentModal(props: InvoiceCreateProps) {
             <Form.Item
               noStyle
               name="attachment"
-              valuePropName="attachment"
-              getValueFromEvent={(e) => {
-                return e.file;
-              }}
+              valuePropName="files"
+              getValueFromEvent={(e) => e.target.files && e.target.files[0]}
             >
-              <Upload name="file" maxCount={1} beforeUpload={() => false}>
-                <Button icon={<UploadOutlined />} size="large">
-                  Lampirkan bukti setoran
-                </Button>
-              </Upload>
+              <Input type="file" />
             </Form.Item>
             <Form.Item noStyle name="note">
               <Input.TextArea placeholder="Catatan" />

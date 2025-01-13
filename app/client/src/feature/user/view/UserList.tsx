@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   Col,
-  DatePicker,
   Flex,
   Input,
   notification,
@@ -12,9 +11,9 @@ import {
   Row,
   Spin,
   Table,
+  Tag,
 } from "antd";
 import Title from "antd/es/typography/Title";
-import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
 import {
   Outlet,
@@ -22,20 +21,16 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { SERVER } from "../../../common/common";
 import { Dependency } from "../../../component/App";
-import { ImagePreview } from "../../../component/ImagePreview";
 import { debounce } from "../../../helper/debounce";
-import { Num } from "../../../helper/num";
-import { ExpenseSummary } from "../model/expense_model";
-import { useExpenseHook } from "./ExpenseHook";
+import { UserSummary } from "../model/user_type";
+import { useUserHook } from "./UserHook";
 
-export function ExpenseList() {
-  const { auth, expenseController } = useContext(Dependency)!;
-  const expense = useExpenseHook(expenseController);
+export function UserList() {
+  const { auth, userController } = useContext(Dependency)!;
+  const user = useUserHook(userController);
   const location = useLocation();
   const navigate = useNavigate();
-  const { RangePicker } = DatePicker;
   const [search, setSearch] = useSearchParams();
   const initParam = {
     page: "1",
@@ -63,38 +58,38 @@ export function ExpenseList() {
 
   useEffect(() => {
     if (search.size >= 2) {
-      expense.list(param, { token: auth.state.data! });
+      user.list(param, { token: auth.state.data! });
     }
   }, [search]);
 
   useEffect(() => {
-    if (expense.state.status == "complete" && expense.state.error != null) {
+    if (user.state.status == "complete" && user.state.error != null) {
       notification.error({
         message: "Error",
-        description: expense.state.error.message,
+        description: user.state.error.message,
       });
     }
 
     if (
-      expense.state.action == "remove" &&
-      expense.state.status == "complete" &&
-      expense.state.error == null
+      user.state.action == "remove" &&
+      user.state.status == "complete" &&
+      user.state.error == null
     ) {
-      expense.list(param, { token: auth.state.data! });
+      user.list(param, { token: auth.state.data! });
 
       notification.success({
         message: "Sukses",
         description: "Data berhasil dihapus",
       });
     }
-  }, [expense.state]);
+  }, [user.state]);
 
   return (
     <>
       <Outlet />
       <Flex vertical gap="small" style={{ padding: "16px" }}>
-        <Title level={4}>Daftar Pengeluaran</Title>
-        <Spin spinning={expense.state.status == "loading"}>
+        <Title level={4}>Daftar User</Title>
+        <Spin spinning={user.state.status == "loading"}>
           <Card>
             <Flex vertical gap="small">
               <Row gutter={[4, 4]} justify={{ xl: "space-between" }}>
@@ -105,7 +100,7 @@ export function ExpenseList() {
                     variant="solid"
                     size="large"
                     onClick={() => {
-                      navigate("/app/expense/create", {
+                      navigate("/app/account/create", {
                         state: {
                           from: location.pathname + location.search,
                         },
@@ -118,29 +113,9 @@ export function ExpenseList() {
                 <Col xs={{ flex: "100%" }} md={{ flex: "80%" }}>
                   <Row gutter={[4, 4]} justify="end">
                     <Col>
-                      <RangePicker
-                        size="large"
-                        onChange={(date, dateString) => {
-                          const dateRangeValue = {
-                            ...param,
-                            ...initParam,
-                            start: dateString[0],
-                            end: dateString[1],
-                          };
-
-                          if (date == null) {
-                            delete dateRangeValue.start;
-                            delete dateRangeValue.end;
-                          }
-
-                          setSearch(dateRangeValue);
-                        }}
-                      />
-                    </Col>
-                    <Col>
                       <Input.Search
                         allowClear
-                        placeholder="Nama transaksi"
+                        placeholder="Username / nama"
                         size="large"
                         defaultValue={param.search}
                         onChange={(e) => {
@@ -152,8 +127,8 @@ export function ExpenseList() {
                 </Col>
               </Row>
               {(() => {
-                if (expense.state.data) {
-                  const expenseData = expense.state.data as ExpenseSummary;
+                if (user.state.data) {
+                  const userData = user.state.data as UserSummary;
 
                   return (
                     <Flex vertical gap="middle">
@@ -161,41 +136,43 @@ export function ExpenseList() {
                         bordered
                         style={{ overflowX: "scroll" }}
                         pagination={false}
-                        dataSource={expenseData.data.map((e, i) => {
+                        dataSource={userData.data.map((e, i) => {
                           return { ...e, key: i };
                         })}
                         columns={[
                           {
-                            title: "Nama Transaksi",
-                            dataIndex: "title",
+                            title: "Username",
+                            dataIndex: "uid",
                             minWidth: 60,
                           },
                           {
-                            title: "Jumlah",
-                            dataIndex: "amount",
+                            title: "Nama",
+                            dataIndex: "name",
                             minWidth: 60,
-                            render: (value) => Num.format(value),
                           },
+                          // {
+                          //   title: "Role",
+                          //   dataIndex: "role",
+                          //   minWidth: 60,
+                          //   render: (value) => (
+                          //     <>
+                          //       <Tag>{value}</Tag>
+                          //     </>
+                          //   ),
+                          // },
                           {
-                            title: "Lampiran",
-                            dataIndex: "file",
+                            title: "Status",
+                            dataIndex: "active",
                             minWidth: 60,
-                            render: (value) => {
-                              return (
-                                <>
-                                  {value && (
-                                    <ImagePreview src={`${SERVER}/${value}`} />
-                                  )}
-                                </>
-                              );
-                            },
-                          },
-                          {
-                            title: "Tanggal",
-                            dataIndex: "printed",
-                            minWidth: 60,
-                            render: (value) =>
-                              dayjs(value).format("DD-MM-YYYY"),
+                            render: (value) => (
+                              <>
+                                {value ? (
+                                  <Tag color="green">AKTIF</Tag>
+                                ) : (
+                                  <Tag color="red">NON AKTIF</Tag>
+                                )}
+                              </>
+                            ),
                           },
                           {
                             dataIndex: "id",
@@ -208,7 +185,7 @@ export function ExpenseList() {
                                     size="small"
                                     variant="solid"
                                     onClick={() => {
-                                      navigate(`/app/expense/edit/${value}`, {
+                                      navigate(`/app/account/edit/${value}`, {
                                         state: {
                                           from:
                                             location.pathname + location.search,
@@ -216,25 +193,27 @@ export function ExpenseList() {
                                       });
                                     }}
                                   />
-                                  <Popconfirm
-                                    placement="topLeft"
-                                    title="Data akan dihapus"
-                                    description="Proses ini tidak dapat dikembalikan, lanjutkan?"
-                                    okText="Ya"
-                                    cancelText="Batal"
-                                    onConfirm={() => {
-                                      expense.remove(value, {
-                                        token: auth.state.data!,
-                                      });
-                                    }}
-                                  >
-                                    <Button
-                                      icon={<DeleteFilled />}
-                                      color="danger"
-                                      size="small"
-                                      variant="solid"
-                                    />
-                                  </Popconfirm>
+                                  {userData.data.length > 1 && (
+                                    <Popconfirm
+                                      placement="topLeft"
+                                      title="Data akan dihapus"
+                                      description="Proses ini tidak dapat dikembalikan, lanjutkan?"
+                                      okText="Ya"
+                                      cancelText="Batal"
+                                      onConfirm={() => {
+                                        user.remove(value, {
+                                          token: auth.state.data!,
+                                        });
+                                      }}
+                                    >
+                                      <Button
+                                        icon={<DeleteFilled />}
+                                        color="danger"
+                                        size="small"
+                                        variant="solid"
+                                      />
+                                    </Popconfirm>
+                                  )}
                                 </Flex>
                               </>
                             ),
@@ -246,7 +225,7 @@ export function ExpenseList() {
                         align="center"
                         showSizeChanger={false}
                         current={param.page}
-                        total={expenseData.record}
+                        total={userData.record}
                         onChange={(page) => {
                           setSearch({
                             ...param,

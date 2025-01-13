@@ -29,6 +29,9 @@ import { DashboardPage } from "../feature/dashboard/view/DashboardPage";
 import { ExpenseController } from "../feature/expense/controller/expense_controller";
 import { ExpenseApi } from "../feature/expense/model/expense_api";
 import { ExpenseAxios } from "../feature/expense/model/expense_axios";
+import { ExpenseCreate } from "../feature/expense/view/ExpenseCreate";
+import { ExpenseEdit } from "../feature/expense/view/ExpenseEdit";
+import { ExpenseList } from "../feature/expense/view/ExpenseList";
 import { InstallmentController } from "../feature/installment/controller/installment_controller";
 import { InstallmentApi } from "../feature/installment/model/installment_api";
 import { InstallmentAxios } from "../feature/installment/model/installment_axios";
@@ -84,10 +87,13 @@ import { SupplierCreate } from "../feature/supplier/view/SupplierCreate";
 import { SupplierEdit } from "../feature/supplier/view/SupplierEdit";
 import { SupplierList } from "../feature/supplier/view/SupplierList";
 import { SupplierRead } from "../feature/supplier/view/SupplierRead";
+import { UserController } from "../feature/user/controller/user_controller";
+import { UserApi } from "../feature/user/model/user_api";
+import { UserAxios } from "../feature/user/model/user_axios";
+import { UserCreate } from "../feature/user/view/UserCreate";
+import { UserEdit } from "../feature/user/view/UserEdit";
+import { UserList } from "../feature/user/view/UserList";
 import { Root } from "./Root";
-import { ExpenseList } from "../feature/expense/view/ExpenseList";
-import { ExpenseCreate } from "../feature/expense/view/ExpenseCreate";
-import { ExpenseEdit } from "../feature/expense/view/ExpenseEdit";
 
 export type Dependency = {
   auth: AuthHookType;
@@ -104,6 +110,7 @@ export type Dependency = {
   creditController: CreditController;
   profitController: ProfitController;
   expenseController: ExpenseController;
+  userController: UserController;
 };
 
 export const Dependency = createContext<Dependency | null>(null);
@@ -298,7 +305,17 @@ const router = createBrowserRouter([
       },
       {
         path: "/app/account",
-        element: <></>,
+        element: <UserList />,
+        children: [
+          {
+            path: "/app/account/create",
+            element: <UserCreate />,
+          },
+          {
+            path: "/app/account/edit/:id",
+            element: <UserEdit />,
+          },
+        ],
       },
       {
         path: "/app/sales",
@@ -339,6 +356,7 @@ export function App() {
   const creditApi: CreditApi = new CreditAxios();
   const profitApi: ProfitApi = new ProfitAxios();
   const expenseApi: ExpenseApi = new ExpenseAxios();
+  const userApi: UserApi = new UserAxios();
 
   const dependencies: Dependency = {
     auth: useAuthHook(new AuthController(authApi)),
@@ -355,6 +373,7 @@ export function App() {
     creditController: new CreditController(creditApi),
     profitController: new ProfitController(profitApi),
     expenseController: new ExpenseController(expenseApi),
+    userController: new UserController(userApi),
   };
 
   return (

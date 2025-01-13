@@ -1,8 +1,6 @@
 import {
-  CloseCircleFilled,
   DeleteFilled,
-  PrinterFilled,
-  UploadOutlined,
+  PrinterFilled
 } from "@ant-design/icons";
 import {
   Button,
@@ -19,21 +17,19 @@ import {
   Spin,
   Table,
   Tag,
-  Typography,
-  Upload,
-  UploadFile,
+  Typography
 } from "antd";
 import dayjs from "dayjs";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { SERVER } from "../../../common/common";
 import { Dependency } from "../../../component/App";
+import { ImagePreview } from "../../../component/ImagePreview";
 import { Num } from "../../../helper/num";
 import { randomID } from "../../../helper/util";
 import { ledgerCreateSchema } from "../../ledger/model/ledger_type";
 import { useLedgerHook } from "../../ledger/view/LedgerHook";
 import { Purchase } from "../model/purchase_model";
 import { PurchaseHookType } from "./PurchaseHook";
-import { ImagePreview } from "../../../component/ImagePreview";
 
 export function LedgerDetailTab({
   purchaseHook,
@@ -44,7 +40,6 @@ export function LedgerDetailTab({
   const ledger = useLedgerHook(ledgerController);
   const [form] = Form.useForm();
   const { Text } = Typography;
-  const [attachment, setAttachment] = useState<UploadFile<File> | null>();
   const purchase = purchaseHook.state.data as Purchase;
   const ledgerData = purchase.ledger?.sort(
     (a, b) => dayjs(b.created).valueOf() - dayjs(a.created).valueOf()
@@ -293,34 +288,12 @@ export function LedgerDetailTab({
                   <Form.Item
                     noStyle
                     name="file"
-                    valuePropName="file"
-                    getValueFromEvent={(e) => {
-                      return e.file;
-                    }}
+                    valuePropName="files"
+                    getValueFromEvent={(e) =>
+                      e.target.files && e.target.files[0]
+                    }
                   >
-                    {attachment ? (
-                      <Button
-                        icon={<CloseCircleFilled />}
-                        iconPosition="end"
-                        onClick={() => {
-                          setAttachment(null);
-                        }}
-                      >
-                        1 File
-                      </Button>
-                    ) : (
-                      <Upload
-                        showUploadList={false}
-                        name="file"
-                        maxCount={1}
-                        beforeUpload={() => false}
-                        onChange={(e) => {
-                          setAttachment(e.file);
-                        }}
-                      >
-                        <Button icon={<UploadOutlined />}>Lampiran</Button>
-                      </Upload>
-                    )}
+                    <Input type="file" />
                   </Form.Item>
                   <Form.Item noStyle>
                     <Button htmlType="submit" type="primary" size="large">

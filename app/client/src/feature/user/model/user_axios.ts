@@ -1,9 +1,16 @@
 import axios from "axios";
 import { SERVER } from "../../../common/common";
 import { Failure } from "../../../common/error";
-import { Result } from "../../../common/type";
+import { hmac } from "../../../helper/util";
 import { UserApi } from "./user_api";
-import { User, UserCreate, UserList, UserLogin, UserUpdate } from "./user_type";
+import {
+  User,
+  UserCreate,
+  UserList,
+  UserLogin,
+  UserSummary,
+  UserUpdate,
+} from "./user_type";
 
 export class UserAxios implements UserApi {
   async create(
@@ -11,13 +18,17 @@ export class UserAxios implements UserApi {
     extra?: Record<string, any> | null | undefined
   ): Promise<void> {
     try {
+      const payload = JSON.stringify(param);
+      const signature = await hmac(payload, extra!.token);
+
       await axios({
         url: `${SERVER}/user`,
         method: "post",
-        data: param,
+        data: payload,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
           "Content-Type": "application/json",
+          "X-Signature": signature,
         },
       });
     } catch (error: any) {
@@ -51,13 +62,17 @@ export class UserAxios implements UserApi {
     extra?: Record<string, any> | null | undefined
   ): Promise<void> {
     try {
+      const payload = JSON.stringify(param);
+      const signature = await hmac(payload, extra!.token);
+
       const result = await axios({
         url: `${SERVER}/user/${id}`,
         method: "put",
-        data: param,
+        data: payload,
         headers: {
           Authorization: `Bearer ${extra?.token ?? ""}`,
           "Content-Type": "application/json",
+          "X-Signature": signature,
         },
       });
 
@@ -90,7 +105,7 @@ export class UserAxios implements UserApi {
   async list(
     param: UserList,
     extra?: Record<string, any> | null | undefined
-  ): Promise<Result<User[]>> {
+  ): Promise<UserSummary> {
     try {
       const result = await axios({
         url: `${SERVER}/user`,

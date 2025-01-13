@@ -300,34 +300,12 @@ export function InstallmentDetailTab({
                   <Form.Item
                     noStyle
                     name="attachment"
-                    valuePropName="attachment"
-                    getValueFromEvent={(e) => {
-                      return e.file;
-                    }}
+                    valuePropName="files"
+                    getValueFromEvent={(e) =>
+                      e.target.files && e.target.files[0]
+                    }
                   >
-                    {attachment ? (
-                      <Button
-                        icon={<CloseCircleFilled />}
-                        iconPosition="end"
-                        onClick={() => {
-                          setAttachment(null);
-                        }}
-                      >
-                        1 File
-                      </Button>
-                    ) : (
-                      <Upload
-                        showUploadList={false}
-                        name="file"
-                        maxCount={1}
-                        beforeUpload={() => false}
-                        onChange={(e) => {
-                          setAttachment(e.file);
-                        }}
-                      >
-                        <Button icon={<UploadOutlined />}>Lampiran</Button>
-                      </Upload>
-                    )}
+                    <Input type="file" />
                   </Form.Item>
                   <Form.Item noStyle>
                     <Button htmlType="submit" type="primary" size="large">

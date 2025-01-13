@@ -1,4 +1,3 @@
-import { UploadOutlined } from "@ant-design/icons";
 import {
   Button,
   Flex,
@@ -7,8 +6,7 @@ import {
   InputNumber,
   Modal,
   notification,
-  Typography,
-  Upload,
+  Typography
 } from "antd";
 import { Num } from "../../../helper/num";
 import { randomID } from "../../../helper/util";
@@ -93,16 +91,10 @@ export function AddLedgerModal(props: PurchaseCreateProps) {
             <Form.Item
               noStyle
               name="file"
-              valuePropName="file"
-              getValueFromEvent={(e) => {
-                return e.file;
-              }}
+              valuePropName="files"
+              getValueFromEvent={(e) => e.target.files && e.target.files[0]}
             >
-              <Upload name="file" maxCount={1} beforeUpload={() => false}>
-                <Button icon={<UploadOutlined />} size="large">
-                  Upload Lampiran
-                </Button>
-              </Upload>
+              <Input type="file" />
             </Form.Item>
             <Form.Item noStyle>
               <Button htmlType="submit" type="primary" size="large">

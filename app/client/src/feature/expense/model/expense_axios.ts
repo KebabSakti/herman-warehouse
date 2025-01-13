@@ -11,7 +11,7 @@ export class ExpenseAxios implements ExpenseApi {
       const formData = new FormData();
 
       if (param.file) {
-        formData.append("file", param.file as File);
+        formData.append("file", param.file as any);
       }
 
       const payload = JSON.stringify(param);

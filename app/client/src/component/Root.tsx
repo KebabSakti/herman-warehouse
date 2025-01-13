@@ -162,7 +162,7 @@ export function Root() {
             <img src={logo} style={{ width: "34px", marginLeft: "20px" }} />
             <Text strong>Pos System</Text>
           </Space>
-          <Button type="link">Julian Aryo (Admin)</Button>
+          {/* <Button type="link">Julian Aryo (Admin)</Button> */}
         </Header>
         <Layout>
           <Sider

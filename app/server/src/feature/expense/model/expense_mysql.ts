@@ -73,6 +73,7 @@ export class ExpenseMysql implements ExpenseApi {
         title: param.title,
         amount: param.amount,
         printed: param.printed,
+        file: param.file && param.id + ".jpg",
         updated: now(),
       },
       id,
@@ -81,7 +82,7 @@ export class ExpenseMysql implements ExpenseApi {
 
   async remove(id: string): Promise<void> {
     await MySql.query("update expenses set deleted = ? where id = ?", [
-      dayjs(),
+      now(),
       id,
     ]);
   }
