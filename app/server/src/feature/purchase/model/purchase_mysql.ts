@@ -111,8 +111,6 @@ export class PurchaseMysql implements PurchaseApi {
             )
           )[0].total;
 
-    console.log(query);
-
     const data = {
       data: result,
       paging: {

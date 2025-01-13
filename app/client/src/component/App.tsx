@@ -25,6 +25,9 @@ import { CustomerAxios } from "../feature/customer/model/customer_axios";
 import { CustomerCreate } from "../feature/customer/view/CustomerCreate";
 import { CustomerEdit } from "../feature/customer/view/CustomerEdit";
 import { CustomerList } from "../feature/customer/view/CustomerList";
+import { DashboardController } from "../feature/dashboard/controller/dashboard_controller";
+import { DashboardApi } from "../feature/dashboard/model/dashboard_api";
+import { DashboardAxios } from "../feature/dashboard/model/dashboard_axios";
 import { DashboardPage } from "../feature/dashboard/view/DashboardPage";
 import { ExpenseController } from "../feature/expense/controller/expense_controller";
 import { ExpenseApi } from "../feature/expense/model/expense_api";
@@ -111,6 +114,7 @@ export type Dependency = {
   profitController: ProfitController;
   expenseController: ExpenseController;
   userController: UserController;
+  dashboardController: DashboardController;
 };
 
 export const Dependency = createContext<Dependency | null>(null);
@@ -357,6 +361,7 @@ export function App() {
   const profitApi: ProfitApi = new ProfitAxios();
   const expenseApi: ExpenseApi = new ExpenseAxios();
   const userApi: UserApi = new UserAxios();
+  const dashboardApi: DashboardApi = new DashboardAxios();
 
   const dependencies: Dependency = {
     auth: useAuthHook(new AuthController(authApi)),
@@ -374,6 +379,7 @@ export function App() {
     profitController: new ProfitController(profitApi),
     expenseController: new ExpenseController(expenseApi),
     userController: new UserController(userApi),
+    dashboardController: new DashboardController(dashboardApi),
   };
 
   return (
