@@ -14,7 +14,7 @@ import {
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, Space, Typography } from "antd";
+import { Layout, Menu, Space, Typography } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
 import { useContext } from "react";
@@ -120,23 +120,6 @@ export function Root() {
     {
       type: "divider",
     },
-    // {
-    //   key: currentMenuKey("/app/report"),
-    //   label: "Laporan",
-    //   icon: <BarChartOutlined />,
-    //   children: [
-    //     {
-    //       key: currentMenuKey("/app/report/sale"),
-    //       label: "Penjualan",
-    //       type: "group",
-    //     },
-    //   ],
-    // },
-    // {
-    //   key: currentMenuKey("/app/log"),
-    //   label: "Log",
-    //   icon: <FileSearchOutlined />,
-    // },
     {
       key: "/app/logout",
       label: "Logout",
