@@ -111,6 +111,8 @@ export class PurchaseMysql implements PurchaseApi {
             )
           )[0].total;
 
+    console.log(query);
+
     const data = {
       data: result,
       paging: {
@@ -252,8 +254,6 @@ export class PurchaseMysql implements PurchaseApi {
       const today = now();
 
       if (param.outstanding != null && param.outstanding > 0) {
-        console.log(param);
-
         const purchase = await new Promise<Purchase>((resolve, reject) => {
           connection.query(
             "select * from purchases where deleted is null and supplierId = ? order by created desc limit 1",

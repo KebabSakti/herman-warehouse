@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import { Num } from "../../../helper/num";
 import { PurchaseTabProps } from "./PurchaseRead";
 import { SERVER } from "../../../common/common";
+import { ImagePreview } from "../../../component/ImagePreview";
 
 export function PurchaseDetailTab({ purchase }: PurchaseTabProps) {
   const { Text } = Typography;
@@ -183,15 +184,9 @@ export function PurchaseDetailTab({ purchase }: PurchaseTabProps) {
                         {value}
                         {value == "Panjar" && purchase.ledger?.[0]?.file ? (
                           <>
-                            <Button
-                              color="primary"
-                              variant="link"
-                              size="small"
-                              target="_blank"
-                              href={`${SERVER}/${purchase.ledger?.[0]?.file}`}
-                            >
-                              [Lampiran]
-                            </Button>
+                            <ImagePreview
+                              src={`${SERVER}/${purchase.ledger?.[0]?.file}`}
+                            />
                           </>
                         ) : (
                           ""

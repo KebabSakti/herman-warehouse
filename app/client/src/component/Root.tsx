@@ -110,11 +110,11 @@ export function Root() {
           label: "Profit",
           icon: <DollarOutlined />,
         },
-        {
-          key: currentMenuKey("/app/stock"),
-          label: "Stok",
-          icon: <ApartmentOutlined />,
-        },
+        // {
+        //   key: currentMenuKey("/app/stock"),
+        //   label: "Stok",
+        //   icon: <ApartmentOutlined />,
+        // },
       ],
     },
     {

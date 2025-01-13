@@ -1,7 +1,4 @@
-import {
-  DeleteFilled,
-  PrinterFilled
-} from "@ant-design/icons";
+import { DeleteFilled, PrinterFilled } from "@ant-design/icons";
 import {
   Button,
   Col,
@@ -17,7 +14,7 @@ import {
   Spin,
   Table,
   Tag,
-  Typography
+  Typography,
 } from "antd";
 import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
@@ -193,7 +190,11 @@ export function LedgerDetailTab({
                 },
                 {
                   render: (_, record) =>
-                    !record.dp && (
+                    record.dp ? (
+                      <Flex justify="center">
+                        <Tag>PANJAR</Tag>
+                      </Flex>
+                    ) : (
                       <Flex justify="center">
                         <Popconfirm
                           placement="topLeft"
