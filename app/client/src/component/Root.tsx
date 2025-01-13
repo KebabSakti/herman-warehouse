@@ -143,7 +143,7 @@ export function Root() {
         >
           <Space>
             <img src={logo} style={{ width: "34px", marginLeft: "20px" }} />
-            <Text strong>Pos System</Text>
+            <Text strong>CV HMT KARYA</Text>
           </Space>
           {/* <Button type="link">Julian Aryo (Admin)</Button> */}
         </Header>
