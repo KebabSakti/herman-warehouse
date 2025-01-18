@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Image,
 } from "@react-pdf/renderer";
 import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
@@ -16,57 +17,10 @@ import { Installment } from "../../installment/model/installment_model";
 import { useInstallmentHook } from "../../installment/view/InstallmentHook";
 import { Invoice } from "../model/invoice_model";
 import { useInvoiceHook } from "./InvoiceHook";
+import { PRINT_STYLE } from "../../../common/common";
+import logo from "../../../asset/logo-main.png";
 
-const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-    backgroundColor: "#fff",
-  },
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 16,
-  },
-  heading: {
-    fontSize: 32,
-    fontWeight: "bold",
-    textAlign: "right",
-    letterSpacing: 6,
-  },
-  subHeadingContainer: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 6,
-  },
-  subHeading: {
-    fontSize: 10,
-    fontWeight: "bold",
-    textAlign: "right",
-  },
-  table: {
-    width: "100%",
-  },
-  tableRow: {
-    display: "flex",
-    flexDirection: "row",
-    padding: "4px 0px",
-    borderBottom: "1px solid #000",
-  },
-  tableItem: {
-    fontSize: 8,
-    textAlign: "center",
-    width: "100%",
-  },
-  th: {
-    fontSize: 8,
-    fontWeight: "bold",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-  },
-  note: {
-    fontSize: 8,
-  },
-});
+const styles = StyleSheet.create(PRINT_STYLE);
 
 export function InstallmentPrint() {
   const { auth, invoiceController, installmentController } =
@@ -111,20 +65,28 @@ export function InstallmentPrint() {
         <Document>
           <Page size="A4" style={styles.page}>
             <View style={styles.container}>
-              <Text style={styles.heading}>LAPORAN</Text>
-              <View style={styles.subHeadingContainer}>
-                <Text style={styles.subHeading}>#{invoiceData.code}</Text>
-                <Text style={styles.subHeading}>
-                  {dayjs(invoiceData.printed).format("DD-MM-YYYY")}
-                </Text>
-                <Text style={styles.subHeading}>
-                  {invoiceData.customerName} - {invoiceData.customerPhone}
-                </Text>
-                <Text
-                  style={[styles.subHeading, { fontSize: "16", marginTop: 6 }]}
-                >
-                  Rp {Num.format(invoiceData.totalItem)}
-                </Text>
+              <View style={styles.headingContainer}>
+                <Image src={logo} style={styles.logo} />
+                <View style={styles.container}>
+                  <Text style={styles.heading}>LAPORAN</Text>
+                  <View style={styles.subHeadingContainer}>
+                    <Text style={styles.subHeading}>#{invoiceData.code}</Text>
+                    <Text style={styles.subHeading}>
+                      {dayjs(invoiceData.printed).format("DD-MM-YYYY")}
+                    </Text>
+                    <Text style={styles.subHeading}>
+                      {invoiceData.customerName} - {invoiceData.customerPhone}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.subHeading,
+                        { fontSize: "16", marginTop: 6 },
+                      ]}
+                    >
+                      Rp {Num.format(invoiceData.totalItem)}
+                    </Text>
+                  </View>
+                </View>
               </View>
               <View style={styles.table}>
                 <View style={styles.tableRow}>

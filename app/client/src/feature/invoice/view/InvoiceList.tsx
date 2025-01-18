@@ -225,7 +225,7 @@ export function InvoiceList() {
                           },
                           {
                             title: "Tanggal",
-                            dataIndex: "created",
+                            dataIndex: "printed",
                             minWidth: 60,
                             render: (value) => {
                               return <>{dayjs(value).format("DD-MM-YYYY")}</>;

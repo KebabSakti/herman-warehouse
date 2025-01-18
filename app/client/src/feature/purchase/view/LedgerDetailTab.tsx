@@ -39,7 +39,7 @@ export function LedgerDetailTab({
   const { Text } = Typography;
   const purchase = purchaseHook.state.data as Purchase;
   const ledgerData = purchase.ledger?.sort(
-    (a, b) => dayjs(b.created).valueOf() - dayjs(a.created).valueOf()
+    (a, b) => dayjs(b.printed).valueOf() - dayjs(a.printed).valueOf()
   );
 
   useEffect(() => {
@@ -86,7 +86,9 @@ export function LedgerDetailTab({
             <Col span={24}>
               <Row justify="space-between">
                 <Col>Kode</Col>
-                <Col>{purchase.code}</Col>
+                <Col>
+                  <Text copyable>{purchase.code}</Text>
+                </Col>
               </Row>
             </Col>
             <Col span={24}>
@@ -225,6 +227,10 @@ export function LedgerDetailTab({
                 size="large"
                 form={form}
                 onFinish={async (values) => {
+                  const day = values.printed.format("YYYY-MM-DD");
+                  const time = dayjs().format("HH:mm:ss");
+                  const printed = `${day} ${time}`;
+
                   const payload = {
                     id: randomID(),
                     purchaseId: purchase.id,
@@ -236,7 +242,7 @@ export function LedgerDetailTab({
                       purchase.balance - values.amount,
                     file: values.file,
                     note: values.note,
-                    printed: values.printed,
+                    printed: printed,
                   };
 
                   await ledgerCreateSchema

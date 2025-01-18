@@ -1,9 +1,4 @@
-import {
-  CloseCircleFilled,
-  DeleteFilled,
-  PrinterFilled,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { DeleteFilled, PrinterFilled } from "@ant-design/icons";
 import {
   Button,
   Col,
@@ -19,22 +14,20 @@ import {
   Table,
   Tag,
   Typography,
-  Upload,
-  UploadFile,
   notification,
 } from "antd";
 import dayjs from "dayjs";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { SERVER } from "../../../common/common";
 import { Dependency } from "../../../component/App";
+import { ImagePreview } from "../../../component/ImagePreview";
 import { Num } from "../../../helper/num";
 import { randomID } from "../../../helper/util";
 import { installmentCreateSchema } from "../../installment/model/installment_types";
 import { useInstallmentHook } from "../../installment/view/InstallmentHook";
 import { Invoice } from "../model/invoice_model";
 import { InvoiceHookType } from "./InvoiceHook";
-import { ImagePreview } from "../../../component/ImagePreview";
 
 export function InstallmentDetailTab({
   invoiceHook,
@@ -46,10 +39,9 @@ export function InstallmentDetailTab({
   const { invoiceId } = useParams();
   const [form] = Form.useForm();
   const { Text } = Typography;
-  const [attachment, setAttachment] = useState<UploadFile<File> | null>();
   const invoice = invoiceHook.state.data as Invoice;
   const installmentData = invoice.installment?.sort(
-    (a, b) => dayjs(b.created).valueOf() - dayjs(a.created).valueOf()
+    (a, b) => dayjs(b.printed).valueOf() - dayjs(a.printed).valueOf()
   );
 
   useEffect(() => {

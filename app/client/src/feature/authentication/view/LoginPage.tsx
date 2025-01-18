@@ -13,7 +13,7 @@ import {
 import Title from "antd/es/typography/Title";
 import { useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../../../asset/logo.png";
+import logo from "../../../asset/logo-only.png";
 import { Dependency } from "../../../component/App";
 import { userLoginSchema } from "../model/auth_type";
 
@@ -61,7 +61,7 @@ export function LoginPage() {
                 style={{ margin: "0px 0px 14px 0px" }}
               >
                 <img src={logo} style={{ width: "50%" }} />
-                <Title level={4}>Login to continue</Title>
+                <Title level={4}>CV HMT KARYA BERSAMA</Title>
               </Flex>
               <Form
                 layout="vertical"

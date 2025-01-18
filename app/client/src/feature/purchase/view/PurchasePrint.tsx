@@ -1,5 +1,6 @@
 import {
   Document,
+  Image,
   Page,
   PDFViewer,
   StyleSheet,
@@ -9,61 +10,14 @@ import {
 import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { PRINT_STYLE } from "../../../common/common";
 import { Dependency } from "../../../component/App";
 import { Num } from "../../../helper/num";
 import { Purchase } from "../model/purchase_model";
 import { usePurchaseHook } from "./PurchaseHook";
+import logo from "../../../asset/logo-main.png";
 
-const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-    backgroundColor: "#fff",
-  },
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 6,
-  },
-  heading: {
-    fontSize: 32,
-    fontWeight: "bold",
-    textAlign: "right",
-    letterSpacing: 6,
-  },
-  subHeadingContainer: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 6,
-  },
-  subHeading: {
-    fontSize: 10,
-    fontWeight: "bold",
-    textAlign: "right",
-  },
-  table: {
-    width: "100%",
-  },
-  tableRow: {
-    display: "flex",
-    flexDirection: "row",
-    padding: "4px 0px",
-    borderBottom: "1px solid #000",
-  },
-  tableItem: {
-    fontSize: 8,
-    textAlign: "center",
-    width: "100%",
-  },
-  th: {
-    fontSize: 8,
-    fontWeight: "bold",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-  },
-  note: {
-    fontSize: 8,
-  },
-});
+const styles = StyleSheet.create(PRINT_STYLE);
 
 export function PurchasePrint() {
   const { auth, purchaseController } = useContext(Dependency)!;
@@ -131,15 +85,20 @@ export function PurchasePrint() {
         <Document>
           <Page size="A4" style={styles.page}>
             <View style={styles.container}>
-              <Text style={styles.heading}>NOTA</Text>
-              <View style={styles.subHeadingContainer}>
-                <Text style={styles.subHeading}>#{data.code}</Text>
-                <Text style={styles.subHeading}>
-                  {dayjs(data.printed).format("DD-MM-YYYY")}
-                </Text>
-                <Text style={styles.subHeading}>
-                  {data.supplierName} - {data.supplierPhone}
-                </Text>
+              <View style={styles.headingContainer}>
+                <Image src={logo} style={styles.logo} />
+                <View style={styles.container}>
+                  <Text style={styles.heading}>NOTA</Text>
+                  <View style={styles.subHeadingContainer}>
+                    <Text style={styles.subHeading}>#{data.code}</Text>
+                    <Text style={styles.subHeading}>
+                      {dayjs(data.printed).format("DD-MM-YYYY")}
+                    </Text>
+                    <Text style={styles.subHeading}>
+                      {data.supplierName} - {data.supplierPhone}
+                    </Text>
+                  </View>
+                </View>
               </View>
               <View style={styles.table}>
                 <View style={styles.tableRow}>

@@ -123,11 +123,6 @@ export function PurchaseList() {
                     <Col>
                       <RangePicker
                         size="large"
-                        defaultValue={
-                          param.start == null && param.end == null
-                            ? undefined
-                            : [dayjs(param.start), dayjs(param.start)]
-                        }
                         onChange={(date, dateString) => {
                           const dateRangeValue = {
                             ...param,
@@ -253,7 +248,7 @@ export function PurchaseList() {
                           },
                           {
                             title: "Tanggal",
-                            dataIndex: "created",
+                            dataIndex: "printed",
                             minWidth: 60,
                             render: (value) => {
                               return <>{dayjs(value).format("DD-MM-YYYY")}</>;

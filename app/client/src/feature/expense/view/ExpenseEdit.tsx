@@ -1,4 +1,3 @@
-import { UploadOutlined } from "@ant-design/icons";
 import {
   Button,
   DatePicker,
@@ -9,8 +8,7 @@ import {
   Modal,
   notification,
   Spin,
-  Typography,
-  Upload,
+  Typography
 } from "antd";
 import dayjs from "dayjs";
 import { useContext, useEffect } from "react";

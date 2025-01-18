@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 import cors from "cors";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";

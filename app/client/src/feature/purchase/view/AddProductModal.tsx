@@ -17,7 +17,6 @@ import { randomID } from "../../../helper/util";
 import { Product } from "../../product/model/product_type";
 import { useProductHook } from "../../product/view/ProductHook";
 import { PurchaseCreateProps } from "./PurchaseCreate";
-import { ReceiptTableTag } from "./ReceiptTableHook";
 
 export function AddProductModal(props: PurchaseCreateProps) {
   const active = props.modal == "product";

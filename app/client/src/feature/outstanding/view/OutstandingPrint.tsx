@@ -5,64 +5,18 @@ import {
   StyleSheet,
   Text,
   View,
+  Image,
 } from "@react-pdf/renderer";
 import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { PRINT_STYLE } from "../../../common/common";
 import { Dependency } from "../../../component/App";
 import { Num } from "../../../helper/num";
 import { useOutstandingHook } from "./OutstandingHook";
+import logo from "../../../asset/logo-main.png";
 
-const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-    backgroundColor: "#fff",
-  },
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 16,
-  },
-  heading: {
-    fontSize: 28,
-    fontWeight: "bold",
-    textAlign: "right",
-    letterSpacing: 6,
-  },
-  subHeadingContainer: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 6,
-  },
-  subHeading: {
-    fontSize: 10,
-    fontWeight: "bold",
-    textAlign: "right",
-  },
-  table: {
-    width: "100%",
-  },
-  tableRow: {
-    display: "flex",
-    flexDirection: "row",
-    padding: "4px 0px",
-    borderBottom: "1px solid #000",
-  },
-  tableItem: {
-    fontSize: 8,
-    textAlign: "center",
-    width: "100%",
-  },
-  th: {
-    fontSize: 8,
-    fontWeight: "bold",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-  },
-  note: {
-    fontSize: 8,
-  },
-});
+const styles = StyleSheet.create(PRINT_STYLE);
 
 export function OutstandingPrint() {
   const { auth, outstandingController } = useContext(Dependency)!;
@@ -92,13 +46,18 @@ export function OutstandingPrint() {
         <Document>
           <Page size="A4" style={styles.page}>
             <View style={styles.container}>
-              <Text style={styles.heading}>HUTANG</Text>
-              <View style={styles.subHeadingContainer}>
-                <Text style={styles.subHeading}>PERIODE</Text>
-                <Text style={styles.subHeading}>
-                  {dayjs(start).format("DD-MM-YYYY")} /{" "}
-                  {dayjs(end).format("DD-MM-YYYY")}
-                </Text>
+              <View style={styles.headingContainer}>
+                <Image src={logo} style={styles.logo} />
+                <View style={styles.container}>
+                  <Text style={styles.heading}>HUTANG</Text>
+                  <View style={styles.subHeadingContainer}>
+                    <Text style={styles.subHeading}>PERIODE</Text>
+                    <Text style={styles.subHeading}>
+                      {dayjs(start).format("DD-MM-YYYY")} /{" "}
+                      {dayjs(end).format("DD-MM-YYYY")}
+                    </Text>
+                  </View>
+                </View>
               </View>
               <View style={styles.table}>
                 <View style={styles.tableRow}>
@@ -107,16 +66,7 @@ export function OutstandingPrint() {
                   >
                     NO
                   </Text>
-                  <Text
-                    style={[styles.tableItem, styles.th, { textAlign: "left" }]}
-                  >
-                    SUPPLIER
-                  </Text>
-                  <Text
-                    style={[styles.tableItem, styles.th, { textAlign: "left" }]}
-                  >
-                    NO HP
-                  </Text>
+                  <Text style={[styles.tableItem, styles.th]}>SUPPLIER</Text>
                   <Text style={[styles.tableItem, styles.th]}>BELUM LUNAS</Text>
                   <Text style={[styles.tableItem, styles.th]}>LUNAS</Text>
                   <Text style={[styles.tableItem, styles.th]}>NOTA</Text>
@@ -136,12 +86,7 @@ export function OutstandingPrint() {
                       <Text style={[styles.tableItem, { textAlign: "left" }]}>
                         {i + 1}
                       </Text>
-                      <Text style={[styles.tableItem, { textAlign: "left" }]}>
-                        {row.name}
-                      </Text>
-                      <Text style={[styles.tableItem, { textAlign: "left" }]}>
-                        {row.phone}
-                      </Text>
+                      <Text style={[styles.tableItem]}>{row.name}</Text>
                       <Text style={[styles.tableItem]}>{row.unpaid}</Text>
                       <Text style={[styles.tableItem]}>{row.paid}</Text>
                       <Text style={[styles.tableItem]}>{row.nota}</Text>

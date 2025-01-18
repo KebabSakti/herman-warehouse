@@ -129,11 +129,11 @@ export function AddProductStockModal(props: InvoiceCreateProps) {
                         dataIndex: ["product", "name"],
                         minWidth: 60,
                       },
-                      {
-                        title: "Stok",
-                        dataIndex: "qty",
-                        minWidth: 60,
-                      },
+                      // {
+                      //   title: "Stok",
+                      //   dataIndex: "qty",
+                      //   minWidth: 60,
+                      // },
                       {
                         title: "Harga (Kg)",
                         dataIndex: "price",

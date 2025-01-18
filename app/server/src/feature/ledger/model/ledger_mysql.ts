@@ -51,6 +51,7 @@ export class LedgerMysql implements LedgerApi {
             outstanding: param.outstanding,
             file: param.file && param.id + ".jpg",
             note: param.note,
+            printed: param.printed,
             created: now(),
             updated: now(),
           },

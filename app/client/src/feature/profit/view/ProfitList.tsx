@@ -5,7 +5,6 @@ import {
   Col,
   DatePicker,
   Flex,
-  Input,
   notification,
   Row,
   Spin,
@@ -16,7 +15,6 @@ import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Dependency } from "../../../component/App";
-import { debounce } from "../../../helper/debounce";
 import { Num } from "../../../helper/num";
 import { useProfitHook } from "./ProfitHook";
 
@@ -31,18 +29,6 @@ export function ProfitList() {
   };
   const param: any =
     search.size == 0 ? initParam : Object.fromEntries(search.entries());
-  const searchRecord = debounce((message: string) => {
-    const searchValue = {
-      ...param,
-      search: message,
-    };
-
-    if (message.length == 0) {
-      delete searchValue.search;
-    }
-
-    setSearch(searchValue);
-  }, 500);
 
   useEffect(() => {
     setSearch(param);

@@ -1,5 +1,4 @@
 import {
-  ApartmentOutlined,
   AuditOutlined,
   BarChartOutlined,
   CalculatorOutlined,
@@ -19,7 +18,7 @@ import { Content, Header } from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
 import { useContext } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import logo from "../asset/logo.png";
+import logo from "../asset/logo-only.png";
 import { Dependency } from "./App";
 
 export function Root() {
@@ -142,8 +141,8 @@ export function Root() {
           }}
         >
           <Space>
-            <img src={logo} style={{ width: "34px", marginLeft: "20px" }} />
-            <Text strong>CV HMT KARYA</Text>
+            <img src={logo} style={{ width: "40px", marginLeft: "20px" }} />
+            <Text strong>CV HMT KARYA BERSAMA</Text>
           </Space>
           {/* <Button type="link">Julian Aryo (Admin)</Button> */}
         </Header>

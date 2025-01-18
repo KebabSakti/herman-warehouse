@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { State } from "../../../common/type";
 import { UserController } from "../controller/user_controller";
-import { User, UserCreate, UserList, UserSummary } from "../model/user_type";
+import {
+  User,
+  UserCreate,
+  UserList,
+  UserSummary,
+  UserUpdate,
+} from "../model/user_type";
 
 type UserState = State<UserSummary | User | null | undefined>;
 
@@ -10,7 +16,11 @@ export type UserHookType = {
   list(param: UserList, extra?: Record<string, any>): Promise<void>;
   create(param: UserCreate, extra?: Record<string, any>): Promise<void>;
   read(id: string, extra?: Record<string, any>): Promise<void>;
-  update(id: string, param: User, extra?: Record<string, any>): Promise<void>;
+  update(
+    id: string,
+    param: UserUpdate,
+    extra?: Record<string, any>
+  ): Promise<void>;
   remove(id: string, extra?: Record<string, any>): Promise<void>;
 };
 
@@ -34,7 +44,7 @@ export function useUserHook(userController: UserController): UserHookType {
   }
 
   async function create(
-    param: User,
+    param: UserCreate,
     extra?: Record<string, any>
   ): Promise<void> {
     try {
@@ -63,7 +73,7 @@ export function useUserHook(userController: UserController): UserHookType {
 
   async function update(
     id: string,
-    param: User,
+    param: UserCreate,
     extra?: Record<string, any>
   ): Promise<void> {
     try {

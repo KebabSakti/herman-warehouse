@@ -65,13 +65,15 @@ export function PurchaseDetailTab({ purchase }: PurchaseTabProps) {
         <Col span={24}>
           <Row justify="space-between">
             <Col>Kode</Col>
-            <Col>{purchase.code}</Col>
+            <Col>
+              <Text copyable>{purchase.code}</Text>
+            </Col>
           </Row>
         </Col>
         <Col span={24}>
           <Row justify="space-between">
             <Col>Tanggal</Col>
-            <Col>{dayjs(purchase.printed).format("DD-MM-YYYY")}</Col>
+            <Col>{dayjs(purchase.printed).format("DD-MM-YYYY, HH:mm:ss")}</Col>
           </Row>
         </Col>
         <Col span={24}>

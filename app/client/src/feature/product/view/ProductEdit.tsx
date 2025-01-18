@@ -12,11 +12,7 @@ import {
   Form,
   Typography,
 } from "antd";
-import {
-  Product,
-  productCreateSchema,
-  productUpdateSchema,
-} from "../model/product_type";
+import { Product, productUpdateSchema } from "../model/product_type";
 
 export function ProductEdit() {
   const { auth, productController } = useContext(Dependency)!;

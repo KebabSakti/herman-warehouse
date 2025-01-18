@@ -1,4 +1,3 @@
-import { UploadOutlined } from "@ant-design/icons";
 import {
   Button,
   Flex,
@@ -7,8 +6,7 @@ import {
   InputNumber,
   Modal,
   notification,
-  Typography,
-  Upload,
+  Typography
 } from "antd";
 import { mixed, number, object } from "yup";
 import { FILE_SIZE, IMAGE_FORMATS } from "../../../common/common";

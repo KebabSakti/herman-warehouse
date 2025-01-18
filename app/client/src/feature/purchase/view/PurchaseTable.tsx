@@ -29,6 +29,7 @@ import { purchaseCreateSchema } from "../model/purchase_type";
 import { PurchaseCreateProps } from "./PurchaseCreate";
 import { usePurchaseHook } from "./PurchaseHook";
 import { fileSchema } from "../../../common/type";
+import dayjs from "dayjs";
 
 export function PurchaseTable(props: PurchaseCreateProps) {
   const { Text } = Typography;
@@ -37,7 +38,10 @@ export function PurchaseTable(props: PurchaseCreateProps) {
   const purchase = usePurchaseHook(purchaseController);
 
   async function submitForm(): Promise<void> {
-    let payload = props.hook.state;
+    const day = props.hook.state.printed;
+    const time = dayjs().format("HH:mm:ss");
+    const printed = `${day} ${time}`;
+    let payload = { ...props.hook.state, printed: printed };
 
     if (payload.ledger && payload.ledger.length > 0 && payload.ledger[0].file) {
       await fileSchema.validate(payload.ledger[0]).catch((e) => {
@@ -172,8 +176,11 @@ export function PurchaseTable(props: PurchaseCreateProps) {
                     size="large"
                     placeholder="Tanggal nota"
                     style={{ display: "block" }}
-                    onChange={(_, dateString) => {
-                      props.hook.setDate(dateString as string);
+                    onChange={(date) => {
+                      const day = date.format("YYYY-MM-DD");
+                      const time = dayjs().format("HH:mm:ss");
+                      const dateString = `${day} ${time}`;
+                      props.hook.setDate(dateString);
                     }}
                   />
                 </Col>
@@ -316,7 +323,7 @@ export function PurchaseTable(props: PurchaseCreateProps) {
 
               if (props.hook.state.outstanding ?? 0 > 0) {
                 summaries.push({
-                  item: "Hutang",
+                  item: `Hutang (${props.hook.state.supplierName})`,
                   total: props.hook.state.outstanding ?? 0,
                   min: false,
                 });
